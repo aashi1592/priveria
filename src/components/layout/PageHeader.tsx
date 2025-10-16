@@ -14,20 +14,20 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ title, description, action }: PageHeaderProps) => {
   return (
-    <header className="border-b border-border bg-card sticky top-0 z-40 shadow-sm">
+    <header className="border-b border-border bg-gradient-primary sticky top-0 z-40 shadow-lg backdrop-blur-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <SidebarTrigger />
+            <SidebarTrigger className="text-white hover:text-white/80" />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+              <h1 className="text-2xl font-bold text-white">{title}</h1>
               {description && (
-                <p className="text-sm text-muted-foreground mt-1">{description}</p>
+                <p className="text-sm text-white/80 mt-1">{description}</p>
               )}
             </div>
           </div>
           {action && (
-            <Button onClick={action.onClick} className="gap-2">
+            <Button onClick={action.onClick} className="gap-2 bg-white text-primary hover:bg-white/90">
               {action.icon}
               {action.label}
             </Button>
