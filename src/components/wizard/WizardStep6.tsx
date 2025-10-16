@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Shield, AlertTriangle, Sparkles, CheckCircle, XCircle, Edit } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const LINDDUN_CATEGORIES = [
   {
@@ -159,18 +160,27 @@ const MOCK_THREATS = [
 ];
 
 export const WizardStep6 = ({ data, setData }: any) => {
-  const [threats, setThreats] = useState(MOCK_THREATS);
+  const processingType = data.processingType || "Product/Application";
+  const isVendorDPIA = processingType === "Vendor";
+  
+  const [threats, setThreats] = useState(data.linddunThreats || MOCK_THREATS);
   const [selectedThreat, setSelectedThreat] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleValidate = (threatId: number) => {
-    setThreats(prev => prev.map(t => 
+    const updatedThreats = threats.map(t => 
       t.id === threatId ? { ...t, validated: true } : t
-    ));
+    );
+    setThreats(updatedThreats);
+    setData({ ...data, linddunThreats: updatedThreats });
+    toast.success("Threat validated and accepted");
   };
 
   const handleReject = (threatId: number) => {
-    setThreats(prev => prev.filter(t => t.id !== threatId));
+    const updatedThreats = threats.filter(t => t.id !== threatId);
+    setThreats(updatedThreats);
+    setData({ ...data, linddunThreats: updatedThreats });
+    toast.success("Threat rejected and removed");
   };
 
   const runAIAnalysis = () => {
@@ -196,11 +206,16 @@ export const WizardStep6 = ({ data, setData }: any) => {
 
   return (
     <div className="space-y-6">
-      <Alert className="border-primary/50 bg-primary/5">
-        <Shield className="h-4 w-4" />
-        <AlertDescription>
-          <strong>LINDDUN Privacy Threat Modeling</strong> - This systematic analysis identifies
-          privacy threats across 7 categories to enrich your DPIA. All threats require human validation.
+      <Alert className="border-purple-500 bg-purple-500/5">
+        <Shield className="h-4 w-4 text-purple-600" />
+        <AlertTitle className="text-purple-900 dark:text-purple-100">
+          LINDDUN Privacy Threat Modeling {isVendorDPIA && "- Vendor Assessment"}
+        </AlertTitle>
+        <AlertDescription className="text-purple-800 dark:text-purple-200">
+          {isVendorDPIA 
+            ? "AI-powered analysis of privacy threats in vendor processing activities, data flows, and third-party integrations."
+            : "AI-powered systematic analysis of privacy threats across 7 LINDDUN categories. Review, validate, or reject each identified threat."
+          }
         </AlertDescription>
       </Alert>
 

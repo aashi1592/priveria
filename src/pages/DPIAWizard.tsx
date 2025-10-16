@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,10 +34,20 @@ const DPIAWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
 
-  // Conditionally include LINDDUN step for product-type DPIAs
-  const isProductDPIA = formData.processingType === "Product" || formData.processingType === "Application";
-  const shouldShowLinddun = config.linddunEnabled && isProductDPIA;
-  const steps = shouldShowLinddun ? [...baseSteps, linddunStep] : baseSteps;
+  // Dynamically determine steps based on configuration and processing type
+  const steps = useMemo(() => {
+    const processingType = formData.processingType;
+    // Show LINDDUN for both Product/Application AND Vendor when enabled
+    const showLinddun = config.linddunEnabled && (
+      processingType === "Product/Application" || 
+      processingType === "Vendor"
+    );
+    
+    if (showLinddun) {
+      return [...baseSteps.slice(0, 5), linddunStep, baseSteps[5]];
+    }
+    return baseSteps;
+  }, [config.linddunEnabled, formData.processingType]);
 
   const progress = (currentStep / steps.length) * 100;
   const CurrentStepComponent = steps[currentStep - 1].component;

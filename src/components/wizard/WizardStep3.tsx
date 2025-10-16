@@ -4,15 +4,33 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
+import { Shield } from "lucide-react";
 
 export const WizardStep3 = ({ data, setData }: any) => {
+  const { config } = useEnterpriseConfig();
   const [likelihood, setLikelihood] = useState(data.likelihood || 3);
   const [impact, setImpact] = useState(data.impact || 3);
 
   const volumeFactor = 1.2;
   const regulatoryMultiplier = 5;
   const baseScore = likelihood * impact * volumeFactor;
-  const finalScore = Math.round(baseScore + regulatoryMultiplier);
+  
+  // LINDDUN Enhancement: Calculate privacy threat impact when enabled
+  let linddunAdjustment = 0;
+  let linddunThreats = { critical: 0, high: 0, medium: 0, low: 0 };
+  
+  if (config.linddunEnabled && data.linddunThreats) {
+    linddunThreats = data.linddunThreats.reduce((acc: any, threat: any) => {
+      acc[threat.riskLevel.toLowerCase()]++;
+      return acc;
+    }, { critical: 0, high: 0, medium: 0, low: 0 });
+    
+    // Weight critical threats more heavily
+    linddunAdjustment = (linddunThreats.critical * 8) + (linddunThreats.high * 4) + (linddunThreats.medium * 2) + (linddunThreats.low * 1);
+  }
+  
+  const finalScore = Math.round(baseScore + regulatoryMultiplier + linddunAdjustment);
 
   const getRiskLevel = (score: number) => {
     if (score >= 36) return { level: "Critical", color: "destructive" };
@@ -35,10 +53,53 @@ export const WizardStep3 = ({ data, setData }: any) => {
             </Badge>
             <p className="text-xs text-muted-foreground mt-2">
               Base Score: {Math.round(baseScore)} + Regulatory: {regulatoryMultiplier}
+              {config.linddunEnabled && linddunAdjustment > 0 && (
+                <> + LINDDUN Threats: {linddunAdjustment}</>
+              )}
             </p>
           </div>
         </CardContent>
       </Card>
+
+      {config.linddunEnabled && linddunAdjustment > 0 && (
+        <Card className="border-purple-500/50 bg-purple-500/5">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield className="w-4 h-4 text-purple-600" />
+              <h4 className="font-semibold text-foreground">LINDDUN Privacy Threat Impact</h4>
+            </div>
+            <div className="grid grid-cols-4 gap-2 text-sm">
+              {linddunThreats.critical > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-risk-critical">{linddunThreats.critical}</p>
+                  <p className="text-xs text-muted-foreground">Critical</p>
+                </div>
+              )}
+              {linddunThreats.high > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-risk-high">{linddunThreats.high}</p>
+                  <p className="text-xs text-muted-foreground">High</p>
+                </div>
+              )}
+              {linddunThreats.medium > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-status-warning">{linddunThreats.medium}</p>
+                  <p className="text-xs text-muted-foreground">Medium</p>
+                </div>
+              )}
+              {linddunThreats.low > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-status-info">{linddunThreats.low}</p>
+                  <p className="text-xs text-muted-foreground">Low</p>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Privacy threats identified by LINDDUN analysis increase risk score to ensure comprehensive mitigation.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-4">
         <div className="space-y-3">

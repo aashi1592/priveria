@@ -3,10 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileText, TrendingUp, BarChart3 } from "lucide-react";
+import { Download, FileText, TrendingUp, BarChart3, Shield } from "lucide-react";
+import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 
 const Reports = () => {
-  const reports = [
+  const { config } = useEnterpriseConfig();
+  
+  const baseReports = [
     {
       name: "Executive DPIA Summary",
       description: "Board-ready overview of all high-risk assessments",
@@ -51,11 +54,30 @@ const Reports = () => {
     },
   ];
 
-  const metrics = [
+  // Add LINDDUN report when enabled
+  const linddunReports = config.linddunEnabled ? [
+    {
+      name: "LINDDUN Privacy Threat Analysis",
+      description: "Comprehensive privacy threat modeling report with validated threats and mitigation status",
+      frequency: "Per-DPIA",
+      lastGenerated: "2025-01-16",
+      status: "Available",
+    },
+  ] : [];
+
+  const reports = [...baseReports, ...linddunReports];
+
+  const baseMetrics = [
     { label: "Reports Generated", value: "247", icon: FileText },
     { label: "Avg Compliance", value: "93.2%", icon: TrendingUp },
     { label: "Active Dashboards", value: "12", icon: BarChart3 },
   ];
+
+  const linddunMetrics = config.linddunEnabled ? [
+    { label: "Privacy Threats Identified", value: "127", icon: Shield },
+  ] : [];
+
+  const metrics = [...baseMetrics, ...linddunMetrics];
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,7 +87,7 @@ const Reports = () => {
       />
 
       <div className="px-6 py-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 ${config.linddunEnabled ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6`}>
           {metrics.map((metric) => {
             const Icon = metric.icon;
             return (

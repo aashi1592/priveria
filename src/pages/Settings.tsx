@@ -117,11 +117,11 @@ const Settings = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
+              <Shield className="w-5 h-5 text-purple-600" />
               Privacy Threat Modeling
             </CardTitle>
             <CardDescription>
-              Enable LINDDUN framework for systematic privacy threat analysis in product DPIAs
+              Enable LINDDUN framework for systematic privacy threat analysis in Product and Vendor DPIAs
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -131,7 +131,7 @@ const Settings = () => {
                   Enable LINDDUN Threat Modeling
                 </Label>
                 <p className="text-sm text-muted-foreground">
-                  AI-assisted privacy threat detection for products and applications
+                  AI-assisted privacy threat detection for products, applications, and vendors
                 </p>
               </div>
               <Switch
@@ -144,38 +144,65 @@ const Settings = () => {
             </div>
 
             {formData.linddunEnabled && (
-              <Alert>
-                <Sparkles className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>LINDDUN enabled:</strong> Product-related DPIAs will include systematic 
+              <Alert className="border-purple-500/50 bg-purple-500/5">
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                <AlertDescription className="text-purple-900 dark:text-purple-100">
+                  <strong>LINDDUN enabled:</strong> Product/Application and Vendor DPIAs will include systematic 
                   privacy threat analysis across 7 categories (Linkability, Identifiability, 
                   Non-repudiation, Detectability, Disclosure, Unawareness, Non-compliance). 
-                  This reduces threat modeling time from 8 hours to ~2 hours with AI assistance.
+                  <br/><br/>
+                  <strong>🎯 Risk Score Integration:</strong> Identified threats automatically enhance risk scores 
+                  (Critical +8, High +4, Medium +2, Low +1 per threat) for comprehensive risk assessment.
                 </AlertDescription>
               </Alert>
             )}
 
-            <div className="p-4 bg-muted rounded-lg space-y-2">
-              <h4 className="font-semibold text-sm">What LINDDUN Provides:</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>✅ Systematic privacy threat identification methodology</li>
-                <li>✅ AI-accelerated threat detection and analysis</li>
-                <li>✅ Comprehensive threat catalog with mitigation strategies</li>
-                <li>✅ Privacy-by-design compliance (GDPR Art. 25)</li>
-                <li>✅ Human-in-the-loop validation by Privacy Engineers and DPO</li>
-              </ul>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">✨ Enhanced DPIA Features:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✅ Systematic threat identification methodology</li>
+                  <li>✅ AI-accelerated analysis (8 hrs → 2 hrs)</li>
+                  <li>✅ Comprehensive threat catalog with mitigations</li>
+                  <li>✅ Privacy-by-design compliance (GDPR Art. 25)</li>
+                  <li>✅ Human validation by Privacy Engineers & DPO</li>
+                  <li>✅ Automatic risk score enrichment</li>
+                  <li>✅ Enhanced reporting with threat heat maps</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">📊 Dashboard Enhancements:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✅ Privacy threat metrics tracking</li>
+                  <li>✅ LINDDUN-specific reporting</li>
+                  <li>✅ Threat validation status monitoring</li>
+                  <li>✅ Executive summary generation</li>
+                  <li>✅ Residual risk tracking</li>
+                </ul>
+              </div>
             </div>
 
-            <div className="p-4 border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 rounded-lg">
-              <h4 className="font-semibold text-sm text-amber-900 dark:text-amber-200 mb-2">
-                Recommended For:
+            <div className="p-4 border border-purple-200 bg-purple-50 dark:bg-purple-950/20 dark:border-purple-800 rounded-lg">
+              <h4 className="font-semibold text-sm text-purple-900 dark:text-purple-200 mb-2">
+                📋 Applicable To:
               </h4>
-              <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-1">
-                <li>• Consumer-facing applications (web, mobile, desktop)</li>
-                <li>• SaaS products with user data</li>
-                <li>• IoT devices and smart products</li>
-                <li>• APIs processing personal data</li>
-              </ul>
+              <div className="grid md:grid-cols-2 gap-2">
+                <ul className="text-sm text-purple-800 dark:text-purple-300 space-y-1">
+                  <li><strong>Products & Applications:</strong></li>
+                  <li>• Consumer-facing web/mobile apps</li>
+                  <li>• SaaS products with user data</li>
+                  <li>• IoT devices and smart products</li>
+                  <li>• APIs processing personal data</li>
+                </ul>
+                <ul className="text-sm text-purple-800 dark:text-purple-300 space-y-1">
+                  <li><strong>Vendor Assessments:</strong></li>
+                  <li>• Third-party data processors</li>
+                  <li>• Cloud service providers</li>
+                  <li>• API integrations & data flows</li>
+                  <li>• Sub-processor relationships</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>

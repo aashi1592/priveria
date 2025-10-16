@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Shield } from "lucide-react";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 
 export const DashboardStats = () => {
   const { config } = useEnterpriseConfig();
 
-  const stats = [
+  const baseStats = [
     {
       label: "Total DPIAs",
       value: config.totalDPIAs.toString(),
@@ -44,8 +44,23 @@ export const DashboardStats = () => {
     },
   ];
 
+  // Add LINDDUN stats when enabled
+  const linddunStats = config.linddunEnabled ? [
+    {
+      label: "Privacy Threats",
+      value: "127",
+      change: "+8",
+      trend: "up",
+      icon: Shield,
+      color: "text-purple-600",
+      bgColor: "bg-purple-600/10",
+    },
+  ] : [];
+
+  const stats = [...baseStats, ...linddunStats];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className={`grid grid-cols-1 md:grid-cols-2 ${config.linddunEnabled ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6`}>
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
