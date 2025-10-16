@@ -19,10 +19,11 @@ const RiskCalculator = () => {
   const finalScore = Math.round(baseScore + regulatoryPoints);
 
   const getRiskLevel = (score: number) => {
-    if (score >= 36) return { level: "Critical", color: "destructive", bg: "bg-risk-critical" };
-    if (score >= 21) return { level: "High", color: "destructive", bg: "bg-risk-high" };
-    if (score >= 11) return { level: "Medium", color: "secondary", bg: "bg-risk-medium" };
-    return { level: "Low", color: "secondary", bg: "bg-risk-low" };
+    if (score >= 50) return { level: "Catastrophic", color: "destructive", bg: "bg-risk-catastrophic", description: "CA SB-53 Level" };
+    if (score >= 36) return { level: "Critical", color: "destructive", bg: "bg-risk-critical", description: "Severe Impact" };
+    if (score >= 21) return { level: "High", color: "destructive", bg: "bg-risk-high", description: "Significant Risk" };
+    if (score >= 11) return { level: "Medium", color: "secondary", bg: "bg-risk-medium", description: "Moderate Risk" };
+    return { level: "Low", color: "secondary", bg: "bg-risk-low", description: "Minimal Risk" };
   };
 
   const riskLevel = getRiskLevel(finalScore);
@@ -31,9 +32,11 @@ const RiskCalculator = () => {
     { label: "GDPR Art. 35(3) mandatory DPIA", points: 5 },
     { label: "CPRA sensitive personal information", points: 3 },
     { label: "EU AI Act High-Risk System", points: 8 },
+    { label: "CA SB-53 Catastrophic Harm Risk", points: 15 },
     { label: "Special category data (GDPR Art. 9)", points: 6 },
     { label: "Children's data", points: 4 },
     { label: "Cross-border transfer (non-adequate)", points: 3 },
+    { label: "Biometric processing", points: 7 },
   ];
 
   return (
@@ -49,6 +52,24 @@ const RiskCalculator = () => {
       />
 
       <div className="px-6 py-8 max-w-6xl mx-auto space-y-6">
+        <Card className="bg-risk-catastrophic/10 border-risk-catastrophic/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-risk-catastrophic rounded-full flex items-center justify-center flex-shrink-0">
+                <Calculator className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-foreground mb-2">California SB-53 Catastrophic Risk Level</h3>
+                <p className="text-sm text-muted-foreground">
+                  This calculator now includes the <strong>Catastrophic</strong> risk level (50+ score) as defined by California's SB-53 legislation. 
+                  This level addresses scenarios with potential for mass harm, critical infrastructure impact, or systemic societal risks requiring 
+                  continuous monitoring and immediate regulatory notification.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
           <CardContent className="pt-8 pb-8">
             <div className="flex items-center justify-center gap-8">
@@ -59,6 +80,7 @@ const RiskCalculator = () => {
                 <Badge variant={riskLevel.color as any} className="text-lg px-6 py-2 mt-3">
                   {riskLevel.level} Risk
                 </Badge>
+                <p className="text-xs text-muted-foreground mt-2">{riskLevel.description}</p>
               </div>
 
               <div className="h-32 w-px bg-border" />
@@ -187,12 +209,13 @@ const RiskCalculator = () => {
             <CardTitle>Risk Classification & Requirements</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               {[
                 { level: "Low", range: "0-10", frequency: "Annual", authority: "Data Owner", bg: "bg-risk-low" },
                 { level: "Medium", range: "11-20", frequency: "Semi-annual", authority: "DPO + Owner", bg: "bg-risk-medium" },
                 { level: "High", range: "21-35", frequency: "Quarterly", authority: "DPO + CISO + Legal", bg: "bg-risk-high" },
-                { level: "Critical", range: "36+", frequency: "Monthly", authority: "C-Suite + Board", bg: "bg-risk-critical" },
+                { level: "Critical", range: "36-49", frequency: "Monthly", authority: "C-Suite + Board", bg: "bg-risk-critical" },
+                { level: "Catastrophic", range: "50+", frequency: "Continuous", authority: "Board + Regulators", bg: "bg-risk-catastrophic", note: "CA SB-53" },
               ].map((level) => (
                 <Card
                   key={level.level}
@@ -203,6 +226,9 @@ const RiskCalculator = () => {
                   <CardContent className="pt-4 text-center">
                     <div className={`w-12 h-12 ${level.bg} rounded-full mx-auto mb-3`} />
                     <h4 className="font-bold text-lg text-foreground mb-1">{level.level}</h4>
+                    {level.note && (
+                      <Badge variant="outline" className="text-xs mb-2">{level.note}</Badge>
+                    )}
                     <p className="text-sm text-muted-foreground mb-3">Score: {level.range}</p>
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <p>Review: {level.frequency}</p>

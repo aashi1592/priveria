@@ -7,6 +7,7 @@ import {
   FileText,
   Calculator,
   Shield,
+  Settings,
   ChevronRight,
 } from "lucide-react";
 import {
@@ -29,6 +30,7 @@ const items = [
   { title: "Third Party Risk", url: "/third-party", icon: Users },
   { title: "Risk Calculator", url: "/risk-calculator", icon: Calculator },
   { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {

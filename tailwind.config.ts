@@ -59,6 +59,7 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         risk: {
+          catastrophic: "hsl(var(--risk-catastrophic))",
           critical: "hsl(var(--risk-critical))",
           high: "hsl(var(--risk-high))",
           medium: "hsl(var(--risk-medium))",

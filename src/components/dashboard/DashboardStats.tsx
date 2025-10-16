@@ -1,11 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 
 export const DashboardStats = () => {
+  const { config } = useEnterpriseConfig();
+
   const stats = [
     {
       label: "Total DPIAs",
-      value: "247",
+      value: config.totalDPIAs.toString(),
       change: "+12%",
       trend: "up",
       icon: CheckCircle2,
@@ -14,7 +17,7 @@ export const DashboardStats = () => {
     },
     {
       label: "High Risk",
-      value: "18",
+      value: config.highRiskDPIAs.toString(),
       change: "-3",
       trend: "down",
       icon: AlertTriangle,
@@ -23,7 +26,7 @@ export const DashboardStats = () => {
     },
     {
       label: "Pending Reviews",
-      value: "34",
+      value: config.pendingReviews.toString(),
       change: "+5",
       trend: "up",
       icon: Clock,
@@ -32,7 +35,7 @@ export const DashboardStats = () => {
     },
     {
       label: "Compliance Rate",
-      value: "94.2%",
+      value: `${config.complianceRate}%`,
       change: "+2.1%",
       trend: "up",
       icon: TrendingUp,
