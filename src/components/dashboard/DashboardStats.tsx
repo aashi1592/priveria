@@ -1,14 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Shield } from "lucide-react";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
+import { useAssessments } from "@/contexts/AssessmentsContext";
 
 export const DashboardStats = () => {
   const { config } = useEnterpriseConfig();
+  const { stats: assessmentStats } = useAssessments();
 
   const baseStats = [
     {
       label: "Total DPIAs",
-      value: config.totalDPIAs.toString(),
+      value: assessmentStats.total.toString(),
       change: "+12%",
       trend: "up",
       icon: CheckCircle2,
@@ -17,7 +19,7 @@ export const DashboardStats = () => {
     },
     {
       label: "High Risk",
-      value: config.highRiskDPIAs.toString(),
+      value: assessmentStats.highRisk.toString(),
       change: "-3",
       trend: "down",
       icon: AlertTriangle,
@@ -26,7 +28,7 @@ export const DashboardStats = () => {
     },
     {
       label: "Pending Reviews",
-      value: config.pendingReviews.toString(),
+      value: assessmentStats.pending.toString(),
       change: "+5",
       trend: "up",
       icon: Clock,
@@ -57,11 +59,11 @@ export const DashboardStats = () => {
     },
   ] : [];
 
-  const stats = [...baseStats, ...linddunStats];
+  const allStats = [...baseStats, ...linddunStats];
 
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 ${config.linddunEnabled ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6`}>
-      {stats.map((stat) => {
+      {allStats.map((stat) => {
         const Icon = stat.icon;
         return (
           <Card key={stat.label} className="p-6 hover:shadow-lg transition-shadow">

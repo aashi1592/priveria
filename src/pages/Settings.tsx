@@ -5,18 +5,53 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
-import { Save, Settings as SettingsIcon, Shield, Sparkles } from "lucide-react";
+import { Save, Settings as SettingsIcon, Shield, Sparkles, Link2, ExternalLink, Workflow } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface APIConnector {
+  name: string;
+  enabled: boolean;
+  apiKey: string;
+  baseUrl: string;
+}
 
 const Settings = () => {
   const { config, updateConfig } = useEnterpriseConfig();
   const [formData, setFormData] = useState(config);
+  const [apiConnectors, setApiConnectors] = useState<APIConnector[]>([
+    { name: "OneTrust", enabled: false, apiKey: "", baseUrl: "https://api.onetrust.com" },
+    { name: "Jira", enabled: false, apiKey: "", baseUrl: "https://api.atlassian.com" },
+    { name: "Transcend", enabled: false, apiKey: "", baseUrl: "https://api.transcend.io" },
+    { name: "TrustArc", enabled: false, apiKey: "", baseUrl: "https://api.trustarc.com" },
+    { name: "AuditBoard", enabled: false, apiKey: "", baseUrl: "https://api.auditboard.com" },
+  ]);
 
   const handleSave = () => {
     updateConfig(formData);
-    toast.success("Settings saved successfully");
+    toast.success("Settings saved successfully", {
+      description: "Your configuration has been updated.",
+    });
+  };
+
+  const handleConnectorToggle = (index: number) => {
+    const updated = [...apiConnectors];
+    updated[index].enabled = !updated[index].enabled;
+    setApiConnectors(updated);
+  };
+
+  const handleConnectorUpdate = (index: number, field: keyof APIConnector, value: string) => {
+    const updated = [...apiConnectors];
+    updated[index] = { ...updated[index], [field]: value };
+    setApiConnectors(updated);
+  };
+
+  const testConnection = (connector: APIConnector) => {
+    toast.success(`Testing ${connector.name} connection...`, {
+      description: "This is a mock test. In production, this would validate the API credentials.",
+    });
   };
 
   return (
@@ -207,8 +242,88 @@ const Settings = () => {
           </CardContent>
         </Card>
 
+        <Card className="shadow-md">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Link2 className="w-5 h-5 text-primary" />
+              <CardTitle>API Integrations</CardTitle>
+            </div>
+            <CardDescription>
+              Connect with third-party privacy and compliance platforms
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {apiConnectors.map((connector, index) => (
+              <Card key={connector.name} className="border-2">
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Workflow className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground">{connector.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {connector.enabled ? "Connected" : "Not connected"}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={connector.enabled}
+                        onCheckedChange={() => handleConnectorToggle(index)}
+                      />
+                    </div>
+
+                    {connector.enabled && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="space-y-2">
+                          <Label htmlFor={`${connector.name}-baseUrl`}>Base URL</Label>
+                          <Input
+                            id={`${connector.name}-baseUrl`}
+                            value={connector.baseUrl}
+                            onChange={(e) => handleConnectorUpdate(index, "baseUrl", e.target.value)}
+                            placeholder="https://api.example.com"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor={`${connector.name}-apiKey`}>API Key</Label>
+                          <Textarea
+                            id={`${connector.name}-apiKey`}
+                            value={connector.apiKey}
+                            onChange={(e) => handleConnectorUpdate(index, "apiKey", e.target.value)}
+                            placeholder="Enter your API key or token"
+                            className="font-mono text-sm"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => testConnection(connector)}
+                            className="gap-2"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Test Connection
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setFormData(config)}>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setFormData(config);
+              setApiConnectors(apiConnectors.map(c => ({ ...c, enabled: false, apiKey: "" })));
+            }}
+          >
             Reset
           </Button>
           <Button onClick={handleSave}>

@@ -2,80 +2,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { useAssessments } from "@/contexts/AssessmentsContext";
+import { useNavigate } from "react-router-dom";
 
 export const RecentAssessments = () => {
-  const assessments = [
-    {
-      id: "DPIA-2025-034",
-      name: "AI-Powered Resume Screening System",
-      category: "CAT-01",
-      riskLevel: "High",
-      riskColor: "destructive",
-      status: "Pending Review",
-      statusIcon: Clock,
-      date: "2025-01-15",
-      owner: "Sarah Chen",
-    },
-    {
-      id: "DPIA-2025-033",
-      name: "Employee Wellness App - Health Data",
-      category: "CAT-03",
-      riskLevel: "High",
-      riskColor: "destructive",
-      status: "In Progress",
-      statusIcon: AlertCircle,
-      date: "2025-01-14",
-      owner: "Michael Torres",
-    },
-    {
-      id: "DPIA-2025-032",
-      name: "Customer Loyalty Program Analytics",
-      category: "CAT-10",
-      riskLevel: "Medium",
-      riskColor: "secondary",
-      status: "Approved",
-      statusIcon: CheckCircle,
-      date: "2025-01-13",
-      owner: "Emma Williams",
-    },
-    {
-      id: "DPIA-2025-031",
-      name: "Biometric Access Control - HQ Building",
-      category: "CAT-02",
-      riskLevel: "Critical",
-      riskColor: "destructive",
-      status: "DPA Consultation",
-      statusIcon: AlertCircle,
-      date: "2025-01-12",
-      owner: "David Park",
-    },
-    {
-      id: "DPIA-2025-030",
-      name: "Marketing Email Campaign - GDPR",
-      category: "CAT-10",
-      riskLevel: "Low",
-      riskColor: "secondary",
-      status: "Approved",
-      statusIcon: CheckCircle,
-      date: "2025-01-11",
-      owner: "Lisa Anderson",
-    },
-  ];
+  const { assessments } = useAssessments();
+  const navigate = useNavigate();
+  const recentAssessments = assessments.slice(0, 5);
+
+  const statusIcons = {
+    completed: CheckCircle,
+    "in-review": Clock,
+    pending: Clock,
+    draft: AlertCircle,
+  };
 
   return (
     <Card className="shadow-md">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl">Recent Assessments</CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate("/assessments")}>
             View All
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {assessments.map((assessment) => {
-            const StatusIcon = assessment.statusIcon;
+          {recentAssessments.map((assessment) => {
+            const StatusIcon = statusIcons[assessment.status] || Clock;
             return (
               <div
                 key={assessment.id}
@@ -89,7 +44,9 @@ export const RecentAssessments = () => {
                     <Badge variant="outline" className="text-xs">
                       {assessment.category}
                     </Badge>
-                    <Badge variant={assessment.riskColor as any}>{assessment.riskLevel}</Badge>
+                    <Badge variant={assessment.riskLevel === "critical" || assessment.riskLevel === "high" ? "destructive" : "secondary"}>
+                      {assessment.riskLevel}
+                    </Badge>
                   </div>
                   <h4 className="font-semibold text-foreground mb-1">{assessment.name}</h4>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -100,8 +57,8 @@ export const RecentAssessments = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusIcon className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground min-w-[120px]">
-                    {assessment.status}
+                  <span className="text-sm font-medium text-foreground min-w-[120px] capitalize">
+                    {assessment.status.replace("-", " ")}
                   </span>
                 </div>
               </div>

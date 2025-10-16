@@ -1,14 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAssessments } from "@/contexts/AssessmentsContext";
 
 export const RiskOverview = () => {
+  const { stats } = useAssessments();
+  const total = stats.total || 1;
+  
   const riskData = [
-    { level: "Critical", count: 3, percentage: 1.2, color: "bg-risk-critical" },
-    { level: "High", count: 18, percentage: 7.3, color: "bg-risk-high" },
-    { level: "Medium", count: 67, percentage: 27.1, color: "bg-risk-medium" },
-    { level: "Low", count: 142, percentage: 57.5, color: "bg-risk-low" },
-    { level: "Minimal", count: 17, percentage: 6.9, color: "bg-risk-minimal" },
+    { level: "Critical", count: stats.byRisk.critical, percentage: Math.round((stats.byRisk.critical / total) * 1000) / 10, color: "bg-risk-critical" },
+    { level: "High", count: stats.byRisk.high, percentage: Math.round((stats.byRisk.high / total) * 1000) / 10, color: "bg-risk-high" },
+    { level: "Medium", count: stats.byRisk.medium, percentage: Math.round((stats.byRisk.medium / total) * 1000) / 10, color: "bg-risk-medium" },
+    { level: "Low", count: stats.byRisk.low, percentage: Math.round((stats.byRisk.low / total) * 1000) / 10, color: "bg-risk-low" },
+    { level: "Minimal", count: stats.byRisk.minimal, percentage: Math.round((stats.byRisk.minimal / total) * 1000) / 10, color: "bg-risk-minimal" },
   ];
+  
+  const actionRequired = stats.byRisk.critical + stats.byRisk.high;
 
   return (
     <Card className="shadow-md">
@@ -43,7 +49,7 @@ export const RiskOverview = () => {
 
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">21 assessments</span> require action this quarter
+            <span className="font-semibold text-foreground">{actionRequired} assessments</span> require action this quarter
           </p>
         </div>
       </CardContent>
