@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
-import { Save, Settings as SettingsIcon } from "lucide-react";
+import { Save, Settings as SettingsIcon, Shield, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Settings = () => {
   const { config, updateConfig } = useEnterpriseConfig();
@@ -108,6 +110,72 @@ const Settings = () => {
                   Overall compliance rate across all frameworks
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Privacy Threat Modeling
+            </CardTitle>
+            <CardDescription>
+              Enable LINDDUN framework for systematic privacy threat analysis in product DPIAs
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="linddun-toggle" className="text-base font-medium">
+                  Enable LINDDUN Threat Modeling
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  AI-assisted privacy threat detection for products and applications
+                </p>
+              </div>
+              <Switch
+                id="linddun-toggle"
+                checked={formData.linddunEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, linddunEnabled: checked })
+                }
+              />
+            </div>
+
+            {formData.linddunEnabled && (
+              <Alert>
+                <Sparkles className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>LINDDUN enabled:</strong> Product-related DPIAs will include systematic 
+                  privacy threat analysis across 7 categories (Linkability, Identifiability, 
+                  Non-repudiation, Detectability, Disclosure, Unawareness, Non-compliance). 
+                  This reduces threat modeling time from 8 hours to ~2 hours with AI assistance.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="p-4 bg-muted rounded-lg space-y-2">
+              <h4 className="font-semibold text-sm">What LINDDUN Provides:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>✅ Systematic privacy threat identification methodology</li>
+                <li>✅ AI-accelerated threat detection and analysis</li>
+                <li>✅ Comprehensive threat catalog with mitigation strategies</li>
+                <li>✅ Privacy-by-design compliance (GDPR Art. 25)</li>
+                <li>✅ Human-in-the-loop validation by Privacy Engineers and DPO</li>
+              </ul>
+            </div>
+
+            <div className="p-4 border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 rounded-lg">
+              <h4 className="font-semibold text-sm text-amber-900 dark:text-amber-200 mb-2">
+                Recommended For:
+              </h4>
+              <ul className="text-sm text-amber-800 dark:text-amber-300 space-y-1">
+                <li>• Consumer-facing applications (web, mobile, desktop)</li>
+                <li>• SaaS products with user data</li>
+                <li>• IoT devices and smart products</li>
+                <li>• APIs processing personal data</li>
+              </ul>
             </div>
           </CardContent>
         </Card>

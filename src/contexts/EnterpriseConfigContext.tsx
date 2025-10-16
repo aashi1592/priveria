@@ -6,6 +6,7 @@ interface EnterpriseConfig {
   pendingReviews: number;
   complianceRate: number;
   organizationName: string;
+  linddunEnabled: boolean;
 }
 
 interface EnterpriseConfigContextType {
@@ -19,6 +20,7 @@ const defaultConfig: EnterpriseConfig = {
   pendingReviews: 34,
   complianceRate: 94.2,
   organizationName: "Enterprise Organization",
+  linddunEnabled: false,
 };
 
 const EnterpriseConfigContext = createContext<EnterpriseConfigContextType | undefined>(undefined);

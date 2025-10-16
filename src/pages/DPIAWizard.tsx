@@ -9,10 +9,12 @@ import { WizardStep2 } from "@/components/wizard/WizardStep2";
 import { WizardStep3 } from "@/components/wizard/WizardStep3";
 import { WizardStep4 } from "@/components/wizard/WizardStep4";
 import { WizardStep5 } from "@/components/wizard/WizardStep5";
+import { WizardStep6 } from "@/components/wizard/WizardStep6";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { toast } from "sonner";
+import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 
-const steps = [
+const baseSteps = [
   { id: 1, title: "Processing Overview", component: WizardStep1 },
   { id: 2, title: "Scope & Context", component: WizardStep2 },
   { id: 3, title: "Risk Assessment", component: WizardStep3 },
@@ -20,10 +22,22 @@ const steps = [
   { id: 5, title: "Safeguards & Review", component: WizardStep5 },
 ];
 
+const linddunStep = { 
+  id: 6, 
+  title: "LINDDUN Threat Modeling", 
+  component: WizardStep6 
+};
+
 const DPIAWizard = () => {
   const navigate = useNavigate();
+  const { config } = useEnterpriseConfig();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<any>({});
+
+  // Conditionally include LINDDUN step for product-type DPIAs
+  const isProductDPIA = formData.processingType === "Product" || formData.processingType === "Application";
+  const shouldShowLinddun = config.linddunEnabled && isProductDPIA;
+  const steps = shouldShowLinddun ? [...baseSteps, linddunStep] : baseSteps;
 
   const progress = (currentStep / steps.length) * 100;
   const CurrentStepComponent = steps[currentStep - 1].component;
