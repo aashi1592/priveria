@@ -1,43 +1,39 @@
-import { useState } from "react";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { useNavigate } from "react-router-dom";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { RiskOverview } from "@/components/dashboard/RiskOverview";
 import { DPIACategories } from "@/components/dashboard/DPIACategories";
 import { RecentAssessments } from "@/components/dashboard/RecentAssessments";
 import { ComplianceFrameworks } from "@/components/dashboard/ComplianceFrameworks";
+import { Plus } from "lucide-react";
 
 const Index = () => {
-  const [activeView, setActiveView] = useState("dashboard");
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader activeView={activeView} setActiveView={setActiveView} />
-      
-      <main className="container mx-auto px-6 py-8">
-        {activeView === "dashboard" && (
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Enterprise DPIA Management
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Data Protection Impact Assessment & AI Risk Framework
-              </p>
-            </div>
+      <PageHeader
+        title="Enterprise DPIA Management"
+        description="Data Protection Impact Assessment & AI Risk Framework"
+        action={{
+          label: "New Assessment",
+          onClick: () => navigate("/dpia-wizard"),
+          icon: <Plus className="w-4 h-4" />,
+        }}
+      />
 
-            <DashboardStats />
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RiskOverview />
-              <ComplianceFrameworks />
-            </div>
+      <div className="px-6 py-8 space-y-8">
+        <DashboardStats />
 
-            <DPIACategories />
-            
-            <RecentAssessments />
-          </div>
-        )}
-      </main>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RiskOverview />
+          <ComplianceFrameworks />
+        </div>
+
+        <DPIACategories />
+
+        <RecentAssessments />
+      </div>
     </div>
   );
 };
