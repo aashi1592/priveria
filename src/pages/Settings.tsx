@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
-import { Save, Settings as SettingsIcon, Shield, Sparkles, Link2, ExternalLink, Workflow, Brain, GitBranch, Users, Database, Lock, BarChart3, FileCode2, Activity } from "lucide-react";
+import { Save, Settings as SettingsIcon, Shield, Sparkles, Link2, ExternalLink, Workflow, Brain, GitBranch, Users, Database, Lock, BarChart3, FileCode2, Activity, BookOpen, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -16,17 +16,54 @@ interface APIConnector {
   enabled: boolean;
   apiKey: string;
   baseUrl: string;
+  description?: string;
+  additionalConfig?: {
+    organizationId?: string;
+    region?: string;
+    syncInterval?: string;
+  };
 }
 
 const Settings = () => {
   const { config, updateConfig } = useEnterpriseConfig();
   const [formData, setFormData] = useState(config);
   const [apiConnectors, setApiConnectors] = useState<APIConnector[]>([
-    { name: "OneTrust", enabled: false, apiKey: "", baseUrl: "https://api.onetrust.com" },
-    { name: "Jira", enabled: false, apiKey: "", baseUrl: "https://api.atlassian.com" },
-    { name: "Transcend", enabled: false, apiKey: "", baseUrl: "https://api.transcend.io" },
-    { name: "TrustArc", enabled: false, apiKey: "", baseUrl: "https://api.trustarc.com" },
-    { name: "AuditBoard", enabled: false, apiKey: "", baseUrl: "https://api.auditboard.com" },
+    { 
+      name: "OneTrust", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.onetrust.com",
+      description: "Privacy management platform with DPIA workflows, risk registers, and vendor management",
+      additionalConfig: { organizationId: "", region: "us", syncInterval: "hourly" }
+    },
+    { 
+      name: "Jira", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.atlassian.com",
+      description: "Issue tracking and project management for DPIA workflow automation"
+    },
+    { 
+      name: "Transcend", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.transcend.io",
+      description: "Data privacy infrastructure for consent, DSRs, and data mapping"
+    },
+    { 
+      name: "TrustArc", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.trustarc.com",
+      description: "Privacy compliance and risk management platform"
+    },
+    { 
+      name: "AuditBoard", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.auditboard.com",
+      description: "GRC platform for audit, risk, and compliance management"
+    },
   ]);
 
   const handleSave = () => {
@@ -415,6 +452,98 @@ const Settings = () => {
                 }
               />
             </div>
+
+            {formData.w3cDpvOntologyEnabled && (
+              <Alert className="border-green-500/50 bg-green-500/5">
+                <Globe className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-900 dark:text-green-100">
+                  <strong>W3C DPV 2.0 enabled:</strong> All privacy concepts now use standardized W3C vocabulary for legal interoperability.
+                  <br/><br/>
+                  <strong>Benefits:</strong>
+                  <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                    <li>Vendor-agnostic schema for GRC system integration</li>
+                    <li>Regulator-friendly standard terminology (GDPR, CPRA aligned)</li>
+                    <li>Machine-readable privacy policies and notices</li>
+                    <li>Automated compliance reporting with canonical data types</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-teal-600" />
+              Standards & Compliance Frameworks
+            </CardTitle>
+            <CardDescription>
+              Adopt international standards for privacy and data protection
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="border-2">
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center">
+                        <Globe className="w-5 h-5 text-teal-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">W3C DPV 2.0</h4>
+                        <p className="text-xs text-muted-foreground">Data Privacy Vocabulary</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Standardized vocabulary for personal data categories, processing purposes, legal bases, and technical measures
+                    </p>
+                    <div className="flex items-center justify-between pt-2">
+                      <span className={`text-xs font-medium ${formData.w3cDpvOntologyEnabled ? 'text-green-600' : 'text-muted-foreground'}`}>
+                        {formData.w3cDpvOntologyEnabled ? '✓ Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2">
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">LINDDUN</h4>
+                        <p className="text-xs text-muted-foreground">Privacy Threat Modeling</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Systematic privacy threat analysis framework (Linkability, Identifiability, Non-repudiation, Detectability, Disclosure, Unawareness, Non-compliance)
+                    </p>
+                    <div className="flex items-center justify-between pt-2">
+                      <span className={`text-xs font-medium ${formData.linddunEnabled ? 'text-green-600' : 'text-muted-foreground'}`}>
+                        {formData.linddunEnabled ? '✓ Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-semibold text-sm mb-2">Additional Frameworks Supported:</h4>
+              <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                <div>• ISO/IEC 27001 (Information Security)</div>
+                <div>• ISO/IEC 27701 (Privacy Management)</div>
+                <div>• ISO/IEC 42001 (AI Management)</div>
+                <div>• ISO/IEC 42005 (AI Impact Assessment)</div>
+                <div>• NIST Privacy Framework</div>
+                <div>• NIST AI Risk Management</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -556,9 +685,14 @@ const Settings = () => {
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{connector.name}</h3>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {connector.enabled ? "Connected" : "Not connected"}
                           </p>
+                          {connector.description && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {connector.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <Switch
@@ -579,15 +713,74 @@ const Settings = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor={`${connector.name}-apiKey`}>API Key</Label>
+                          <Label htmlFor={`${connector.name}-apiKey`}>API Key / Access Token</Label>
                           <Textarea
                             id={`${connector.name}-apiKey`}
                             value={connector.apiKey}
                             onChange={(e) => handleConnectorUpdate(index, "apiKey", e.target.value)}
                             placeholder="Enter your API key or token"
                             className="font-mono text-sm"
+                            rows={3}
                           />
                         </div>
+                        
+                        {connector.name === "OneTrust" && connector.additionalConfig && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor={`${connector.name}-orgId`}>Organization ID</Label>
+                              <Input
+                                id={`${connector.name}-orgId`}
+                                value={connector.additionalConfig.organizationId}
+                                onChange={(e) => {
+                                  const updated = [...apiConnectors];
+                                  if (updated[index].additionalConfig) {
+                                    updated[index].additionalConfig!.organizationId = e.target.value;
+                                    setApiConnectors(updated);
+                                  }
+                                }}
+                                placeholder="Your OneTrust Organization ID"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor={`${connector.name}-region`}>Region</Label>
+                                <Input
+                                  id={`${connector.name}-region`}
+                                  value={connector.additionalConfig.region}
+                                  onChange={(e) => {
+                                    const updated = [...apiConnectors];
+                                    if (updated[index].additionalConfig) {
+                                      updated[index].additionalConfig!.region = e.target.value;
+                                      setApiConnectors(updated);
+                                    }
+                                  }}
+                                  placeholder="us, eu, ap"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor={`${connector.name}-sync`}>Sync Interval</Label>
+                                <Input
+                                  id={`${connector.name}-sync`}
+                                  value={connector.additionalConfig.syncInterval}
+                                  onChange={(e) => {
+                                    const updated = [...apiConnectors];
+                                    if (updated[index].additionalConfig) {
+                                      updated[index].additionalConfig!.syncInterval = e.target.value;
+                                      setApiConnectors(updated);
+                                    }
+                                  }}
+                                  placeholder="hourly, daily"
+                                />
+                              </div>
+                            </div>
+                            <Alert className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                              <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
+                                <strong>OneTrust Integration:</strong> Syncs DPIA assessments, risk registers, vendor profiles, and custom workflows.
+                              </AlertDescription>
+                            </Alert>
+                          </>
+                        )}
+                        
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
