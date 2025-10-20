@@ -58,6 +58,10 @@ const FeatureGuide = () => {
         yPosition += 5;
       };
 
+      const addBullet = (text: string) => {
+        addText(`• ${text}`, 10);
+      };
+
       // Title
       addText("Enterprise DPIA Platform - Feature Guide", 20, true, [37, 99, 235]);
       addText("Comprehensive Documentation of All Platform Capabilities", 12, false, [100, 100, 100]);
@@ -87,60 +91,287 @@ const FeatureGuide = () => {
 
       addText("Multi-Step DPIA Wizard", 14, true);
       addText("Guided assessment creation through six structured steps covering processing activities, data subjects, legal basis, risk assessment, safeguards, and summary review.", 11);
-      
-      addText("• Step 1: Processing Activity - Define the processing type, scope, purpose, and data categories", 10);
-      addText("• Step 2: Data Subjects - Identify affected individuals and assess vulnerability factors", 10);
-      addText("• Step 3: Risk Assessment - Calculate risk scores with LINDDUN threat integration", 10);
-      addText("• Step 4: Legal Basis - Document lawful basis with jurisdiction-specific requirements", 10);
+      addBullet("Step 1: Processing Activity - Define the processing type, scope, purpose, and data categories");
+      addBullet("Step 2: Data Subjects - Identify affected individuals and assess vulnerability factors");
+      addBullet("Step 3: Risk Assessment - Calculate risk scores with LINDDUN threat integration");
+      addBullet("Step 4: Legal Basis - Document lawful basis with jurisdiction-specific requirements");
+      addBullet("Step 5: Safeguards - Document technical and organizational measures");
+      addBullet("Step 6: Summary - Review and finalize assessment");
       yPosition += 5;
 
       addText("Risk Scoring System", 14, true);
       addText("Automated risk calculation using likelihood × impact methodology:", 11);
-      addText("• Critical (≥7.5): Requires immediate action", 10);
-      addText("• High (5.0-7.4): Significant mitigation needed", 10);
-      addText("• Medium (2.5-4.9): Standard controls apply", 10);
-      addText("• Low (<2.5): Minimal risk", 10);
+      addBullet("Critical (≥7.5): Requires immediate action");
+      addBullet("High (5.0-7.4): Significant mitigation needed");
+      addBullet("Medium (2.5-4.9): Standard controls apply");
+      addBullet("Low (<2.5): Minimal risk");
       yPosition += 5;
 
-      // Section 2: LINDDUN
-      if (config.linddunEnabled) {
-        doc.addPage();
-        yPosition = 20;
-        addText("2. LINDDUN Privacy Threat Modeling", 18, true, [147, 51, 234]);
-        addText("Systematic privacy threat analysis framework for Product and Vendor DPIAs", 11, false, [100, 100, 100]);
-        yPosition += 5;
+      addText("Dashboard & Reporting", 14, true);
+      addBullet("Real-Time Statistics: Total DPIAs, high-risk assessments, pending reviews");
+      addBullet("Risk Overview: Visual breakdown by risk level with trends");
+      addBullet("Recent Assessments: Quick access to latest DPIAs");
+      yPosition += 10;
 
-        addText("The seven LINDDUN threat categories:", 12, true);
-        addText("L - Linkability: Ability to link data across different contexts", 10);
-        addText("I - Identifiability: Ability to identify individuals from anonymous data", 10);
-        addText("N - Non-repudiation: Inability to deny having performed an action", 10);
-        addText("D - Detectability: Revealing the existence of data items or communications", 10);
-        addText("D - Disclosure: Unauthorized access to personal information", 10);
-        addText("U - Unawareness: Lack of control or transparency about data processing", 10);
-        addText("N - Non-compliance: Violation of privacy policies or regulations", 10);
-      }
+      // Section 2: LINDDUN
+      doc.addPage();
+      yPosition = 20;
+      addText("2. LINDDUN Privacy Threat Modeling", 18, true, [147, 51, 234]);
+      addText("Systematic privacy threat analysis framework for Product and Vendor DPIAs", 11, false, [100, 100, 100]);
+      yPosition += 5;
+
+      addText("What is LINDDUN?", 12, true);
+      addText("LINDDUN is a privacy threat modeling methodology developed by KU Leuven (Belgium) that identifies seven categories of privacy threats in software systems and digital services.", 11);
+      yPosition += 5;
+
+      addText("The Seven LINDDUN Threat Categories:", 12, true);
+      
+      addText("L - Linkability", 11, true);
+      addText("Ability to link data or actions across different contexts to the same user.", 10);
+      addBullet("Cross-device tracking");
+      addBullet("Cookie-based profiling");
+      addBullet("Email correlation across platforms");
+      
+      addText("I - Identifiability", 11, true);
+      addText("Ability to identify individuals from supposedly anonymous data.", 10);
+      addBullet("Browser fingerprinting");
+      addBullet("IP address logging");
+      addBullet("Re-identification from datasets");
+      
+      addText("N - Non-repudiation", 11, true);
+      addText("Inability to deny having performed an action or provided data.", 10);
+      addBullet("Digital signatures on transactions");
+      addBullet("Immutable audit logs");
+      addBullet("Blockchain records");
+      
+      addText("D - Detectability", 11, true);
+      addText("Revealing the existence or presence of data items or communications.", 10);
+      addBullet("Metadata exposure");
+      addBullet("Online presence indicators");
+      addBullet("Traffic analysis");
+      
+      addText("D - Disclosure of Information", 11, true);
+      addText("Unauthorized access to or release of personal information.", 10);
+      addBullet("Data breaches");
+      addBullet("Unencrypted transmissions");
+      addBullet("Excessive API permissions");
+      
+      addText("U - Unawareness", 11, true);
+      addText("Lack of control, transparency, or awareness about data processing.", 10);
+      addBullet("Hidden tracking scripts");
+      addBullet("Unclear privacy policies");
+      addBullet("No user consent mechanisms");
+      
+      addText("N - Non-compliance", 11, true);
+      addText("Violation of privacy regulations, policies, or stated practices.", 10);
+      addBullet("GDPR violations (no legal basis)");
+      addBullet("Policy-practice mismatch");
+      addBullet("Retention period breaches");
+      yPosition += 5;
+
+      addText("Integration with Risk Scoring", 12, true);
+      addText("When LINDDUN is enabled, identified threats automatically enhance the DPIA risk score:", 11);
+      addBullet("+8 points per Critical Threat");
+      addBullet("+4 points per High Threat");
+      addBullet("+2 points per Medium Threat");
+      addBullet("+1 point per Low Threat");
+      yPosition += 5;
+
+      addText("Benefits of LINDDUN Integration", 12, true);
+      addBullet("Systematic privacy threat identification");
+      addBullet("Privacy-by-design compliance (GDPR Art. 25)");
+      addBullet("Enhanced risk assessment accuracy");
+      addBullet("Product security architecture guidance");
+      addBullet("Vendor security evaluation framework");
+      addBullet("Audit-ready threat documentation");
 
       // Section 3: AI Intelligence
       doc.addPage();
       yPosition = 20;
       addText("3. AI Intelligence Features", 18, true, [37, 99, 235]);
-      addText("Advanced AI-powered capabilities for enhanced compliance", 11, false, [100, 100, 100]);
+      addText("Leverage AI to automate risk assessment, vendor selection, and compliance monitoring", 11, false, [100, 100, 100]);
       yPosition += 5;
 
-      addText("AI Risk Scoring", 14, true);
-      addText("Machine learning models analyze processing activities, data sensitivity, and vulnerability factors to provide accurate risk predictions.", 11);
+      addText("AI-Powered Risk Scoring", 14, true);
+      addText("Automatically calculate risk scores based on context, patterns, and historical data using machine learning models.", 11);
+      yPosition += 3;
+      addText("How It Works:", 12, true);
+      addBullet("Analyzes processing activity description and data categories");
+      addBullet("Compares against 1000+ historical DPIA patterns");
+      addBullet("Identifies risk factors (special category data, cross-border transfers, etc.)");
+      addBullet("Calculates contextual risk multipliers based on industry and jurisdiction");
+      addBullet("Generates risk score with confidence level and explanation");
+      yPosition += 3;
+      addText("Example: Customer behavioral analytics for targeted advertising using cross-device tracking and location data", 10, false, [80, 80, 80]);
+      addText("AI Output: Risk Score 6.8 (High) - Cross-device linkability detected, Precise geolocation risk factor, Profiling without consent concern", 10, false, [200, 80, 0]);
       yPosition += 5;
 
-      addText("Smart Vendor Recommendations", 14, true);
-      addText("AI suggests alternative vendors based on compliance history, pricing, and security ratings.", 11);
+      addText("Intelligent Vendor Recommendations", 14, true);
+      addText("AI suggests optimal vendors for specific processing activities based on requirements, analyzing your existing vendor portfolio.", 11);
+      yPosition += 3;
+      addText("Matching Criteria:", 12, true);
+      addBullet("Certifications (ISO 27001, SOC 2, etc.)");
+      addBullet("Geographic coverage and data residency");
+      addBullet("Technical capabilities (cloud, APIs)");
+      addBullet("Security posture and compliance");
+      addBullet("Past performance and risk scores");
+      addBullet("Cost and contract terms");
       yPosition += 5;
 
       addText("Real-Time Compliance Monitoring", 14, true);
-      addText("Continuous monitoring of compliance status with automatic alerts for gaps or violations:", 11);
-      addText("• DPIA lifecycle tracking and expiration alerts", 10);
-      addText("• Vendor compliance monitoring", 10);
-      addText("• Regulatory change detection", 10);
-      addText("• Data processing violation alerts", 10);
+      addText("Continuously monitor compliance status and alert on gaps or violations as they happen.", 11);
+      yPosition += 3;
+      addText("Monitoring Scope:", 12, true);
+      addBullet("DPIA Lifecycle: Review dates, expiration warnings, status changes");
+      addBullet("Vendor Compliance: Certification renewals, SLA violations, security incidents");
+      addBullet("Regulatory Changes: GDPR updates, new privacy laws, enforcement actions");
+      addBullet("Data Processing: Unauthorized transfers, retention violations, purpose drift");
+      yPosition += 3;
+      addText("Alert Priority Levels:", 12, true);
+      addBullet("Critical: Immediate action required (vendor cert expired, data breach)");
+      addBullet("High: Address within 48 hours (DPIA expiring soon, policy violation)");
+      addBullet("Medium: Address within 1 week (upcoming renewal, minor gap)");
+      addBullet("Low: For information (best practice recommendation)");
+      yPosition += 3;
+      addText("Dashboard Visualizations:", 12, true);
+      addBullet("Compliance Health Score (0-100) with trend graph");
+      addBullet("Active Alerts Map by category and priority");
+      addBullet("Top Compliance Gaps requiring attention");
+      yPosition += 3;
+      addText("Integration Points:", 12, true);
+      addBullet("Email notifications for critical/high alerts");
+      addBullet("Slack/Teams integration for team alerts");
+      addBullet("Jira/ServiceNow ticket creation");
+      addBullet("Executive dashboard summaries");
+
+      // Section 4: Advanced Technical Features
+      doc.addPage();
+      yPosition = 20;
+      addText("4. Advanced Technical Features", 18, true, [37, 99, 235]);
+      yPosition += 5;
+
+      addText("Risk Calculator", 14, true);
+      addText("Standalone calculator for quick risk assessments with configurable weight factors.", 11);
+      yPosition += 3;
+
+      addText("AI Module", 14, true);
+      addText("Centralized AI capabilities dashboard for risk analysis and predictions.", 11);
+      yPosition += 3;
+
+      addText("Third-Party Integrations", 14, true);
+      addText("Connect with external systems via API for automated data exchange.", 11);
+      yPosition += 3;
+
+      addText("Custom Workflows", 14, true);
+      addText("Define approval chains, notification rules, and automated actions.", 11);
+      yPosition += 3;
+
+      addText("Multi-Language Support", 14, true);
+      addText("Interface and reports available in multiple languages for global teams.", 11);
+
+      // Section 5: Vendor Management
+      doc.addPage();
+      yPosition = 20;
+      addText("5. Vendor Management", 18, true, [37, 99, 235]);
+      yPosition += 5;
+
+      addText("Vendor DPIA Type", 14, true);
+      addText("Dedicated assessment flow for third-party vendors with specific data processing agreements.", 11);
+      yPosition += 3;
+
+      addText("Vendor Portfolio View", 14, true);
+      addText("Centralized dashboard of all vendors, their risk scores, certifications, and contract status.", 11);
+      yPosition += 3;
+
+      addText("Certification Tracking", 14, true);
+      addText("Monitor ISO 27001, SOC 2, GDPR certifications with automatic expiration alerts.", 11);
+      yPosition += 3;
+
+      addText("DPA Management", 14, true);
+      addText("Store and track Data Processing Agreements with version control.", 11);
+
+      // Section 6: Workflow & Automation
+      doc.addPage();
+      yPosition = 20;
+      addText("6. Workflow & Automation", 18, true, [37, 99, 235]);
+      yPosition += 5;
+
+      addText("Approval Workflows", 14, true);
+      addText("Configure multi-level approval chains for high-risk DPIAs.", 11);
+      yPosition += 3;
+
+      addText("Automated Notifications", 14, true);
+      addText("Email and in-app notifications for DPIA status changes, approvals, and deadlines.", 11);
+      yPosition += 3;
+
+      addText("Scheduled Reviews", 14, true);
+      addText("Automatic reminders for periodic DPIA reviews based on risk level.", 11);
+      yPosition += 3;
+
+      addText("Bulk Operations", 14, true);
+      addText("Mass update, export, or archive multiple DPIAs simultaneously.", 11);
+
+      // Section 7: Standards & Compliance
+      doc.addPage();
+      yPosition = 20;
+      addText("7. Standards & Compliance", 18, true, [37, 99, 235]);
+      yPosition += 5;
+
+      addText("GDPR Compliance", 14, true);
+      addBullet("Article 35 DPIA requirements");
+      addBullet("Data subject rights management");
+      addBullet("Cross-border transfer mechanisms (SCCs, BCRs)");
+      addBullet("Privacy by design and default");
+      yPosition += 3;
+
+      addText("ISO/IEC 27001", 14, true);
+      addText("Information security management framework alignment.", 11);
+      yPosition += 3;
+
+      addText("NIST Privacy Framework", 14, true);
+      addText("Risk management practices based on NIST standards.", 11);
+      yPosition += 3;
+
+      addText("Industry-Specific Regulations", 14, true);
+      addBullet("HIPAA (Healthcare)");
+      addBullet("PCI-DSS (Payment Cards)");
+      addBullet("COPPA (Children's Privacy)");
+      addBullet("CCPA/CPRA (California)");
+
+      // Section 8: API Integrations
+      doc.addPage();
+      yPosition = 20;
+      addText("8. API Integrations", 18, true, [37, 99, 235]);
+      yPosition += 5;
+
+      addText("RESTful API", 14, true);
+      addText("Full CRUD operations for DPIAs, vendors, and risk assessments.", 11);
+      yPosition += 3;
+
+      addText("Webhook Support", 14, true);
+      addText("Real-time notifications for DPIA events sent to external systems.", 11);
+      yPosition += 3;
+
+      addText("SSO Integration", 14, true);
+      addText("SAML 2.0 and OAuth 2.0 support for enterprise authentication.", 11);
+      yPosition += 3;
+
+      addText("Data Export API", 14, true);
+      addText("Automated report generation and data extraction in JSON, CSV, or PDF formats.", 11);
+
+      // Conclusion
+      doc.addPage();
+      yPosition = 20;
+      addText("Getting Started", 18, true, [37, 99, 235]);
+      yPosition += 5;
+      addText("This platform provides comprehensive DPIA management capabilities. To enable enterprise features:", 11);
+      yPosition += 3;
+      addBullet("Navigate to Settings > Enterprise Configuration");
+      addBullet("Enable LINDDUN Threat Modeling for advanced risk analysis");
+      addBullet("Activate AI Intelligence for automated scoring and monitoring");
+      addBullet("Configure custom workflows and integrations as needed");
+      yPosition += 5;
+      addText("For support and documentation, visit the platform help center or contact your administrator.", 11);
 
       // Footer
       const totalPages = doc.getNumberOfPages();
