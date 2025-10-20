@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
+import { jsPDF } from "jspdf";
 
 const FeatureGuide = () => {
   const { config } = useEnterpriseConfig();
@@ -32,10 +33,141 @@ const FeatureGuide = () => {
   };
 
   const exportToPDF = () => {
-    toast.success("Exporting Feature Guide", {
-      description: "Your PDF is being prepared for download...",
-    });
-    // In production, this would generate a real PDF
+    try {
+      const doc = new jsPDF();
+      let yPosition = 20;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const maxWidth = pageWidth - 2 * margin;
+
+      // Helper function to add text with word wrap
+      const addText = (text: string, size: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
+        doc.setFontSize(size);
+        doc.setFont("helvetica", isBold ? "bold" : "normal");
+        doc.setTextColor(...color);
+        const lines = doc.splitTextToSize(text, maxWidth);
+        
+        lines.forEach((line: string) => {
+          if (yPosition > 270) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          doc.text(line, margin, yPosition);
+          yPosition += size * 0.5;
+        });
+        yPosition += 5;
+      };
+
+      // Title
+      addText("Enterprise DPIA Platform - Feature Guide", 20, true, [37, 99, 235]);
+      addText("Comprehensive Documentation of All Platform Capabilities", 12, false, [100, 100, 100]);
+      yPosition += 10;
+
+      // Table of Contents
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+      addText("Table of Contents", 16, true);
+      addText("1. Core DPIA Features", 11);
+      addText("2. LINDDUN Privacy Threat Modeling", 11);
+      addText("3. AI Intelligence Features", 11);
+      addText("4. Advanced Technical Features", 11);
+      addText("5. Vendor Management", 11);
+      addText("6. Workflow & Automation", 11);
+      addText("7. Standards & Compliance", 11);
+      addText("8. API Integrations", 11);
+      yPosition += 10;
+
+      // Section 1: Core DPIA Features
+      doc.addPage();
+      yPosition = 20;
+      addText("1. Core DPIA Features", 18, true, [37, 99, 235]);
+      addText("Essential data protection impact assessment capabilities", 11, false, [100, 100, 100]);
+      yPosition += 5;
+
+      addText("Multi-Step DPIA Wizard", 14, true);
+      addText("Guided assessment creation through six structured steps covering processing activities, data subjects, legal basis, risk assessment, safeguards, and summary review.", 11);
+      
+      addText("• Step 1: Processing Activity - Define the processing type, scope, purpose, and data categories", 10);
+      addText("• Step 2: Data Subjects - Identify affected individuals and assess vulnerability factors", 10);
+      addText("• Step 3: Risk Assessment - Calculate risk scores with LINDDUN threat integration", 10);
+      addText("• Step 4: Legal Basis - Document lawful basis with jurisdiction-specific requirements", 10);
+      yPosition += 5;
+
+      addText("Risk Scoring System", 14, true);
+      addText("Automated risk calculation using likelihood × impact methodology:", 11);
+      addText("• Critical (≥7.5): Requires immediate action", 10);
+      addText("• High (5.0-7.4): Significant mitigation needed", 10);
+      addText("• Medium (2.5-4.9): Standard controls apply", 10);
+      addText("• Low (<2.5): Minimal risk", 10);
+      yPosition += 5;
+
+      // Section 2: LINDDUN
+      if (config.linddunEnabled) {
+        doc.addPage();
+        yPosition = 20;
+        addText("2. LINDDUN Privacy Threat Modeling", 18, true, [147, 51, 234]);
+        addText("Systematic privacy threat analysis framework for Product and Vendor DPIAs", 11, false, [100, 100, 100]);
+        yPosition += 5;
+
+        addText("The seven LINDDUN threat categories:", 12, true);
+        addText("L - Linkability: Ability to link data across different contexts", 10);
+        addText("I - Identifiability: Ability to identify individuals from anonymous data", 10);
+        addText("N - Non-repudiation: Inability to deny having performed an action", 10);
+        addText("D - Detectability: Revealing the existence of data items or communications", 10);
+        addText("D - Disclosure: Unauthorized access to personal information", 10);
+        addText("U - Unawareness: Lack of control or transparency about data processing", 10);
+        addText("N - Non-compliance: Violation of privacy policies or regulations", 10);
+      }
+
+      // Section 3: AI Intelligence
+      doc.addPage();
+      yPosition = 20;
+      addText("3. AI Intelligence Features", 18, true, [37, 99, 235]);
+      addText("Advanced AI-powered capabilities for enhanced compliance", 11, false, [100, 100, 100]);
+      yPosition += 5;
+
+      addText("AI Risk Scoring", 14, true);
+      addText("Machine learning models analyze processing activities, data sensitivity, and vulnerability factors to provide accurate risk predictions.", 11);
+      yPosition += 5;
+
+      addText("Smart Vendor Recommendations", 14, true);
+      addText("AI suggests alternative vendors based on compliance history, pricing, and security ratings.", 11);
+      yPosition += 5;
+
+      addText("Real-Time Compliance Monitoring", 14, true);
+      addText("Continuous monitoring of compliance status with automatic alerts for gaps or violations:", 11);
+      addText("• DPIA lifecycle tracking and expiration alerts", 10);
+      addText("• Vendor compliance monitoring", 10);
+      addText("• Regulatory change detection", 10);
+      addText("• Data processing violation alerts", 10);
+
+      // Footer
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Page ${i} of ${totalPages} | Enterprise DPIA Platform`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: "center" }
+        );
+      }
+
+      // Save the PDF
+      doc.save("DPIA-Platform-Feature-Guide.pdf");
+      
+      toast.success("PDF Export Complete", {
+        description: "Feature guide has been downloaded successfully",
+      });
+    } catch (error) {
+      toast.error("Export Failed", {
+        description: "There was an error generating the PDF. Please try again.",
+      });
+      console.error("PDF export error:", error);
+    }
   };
 
   return (
