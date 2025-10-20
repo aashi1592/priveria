@@ -9,6 +9,7 @@ import {
   Shield,
   Settings,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +31,7 @@ const items = [
   { title: "Third Party Risk", url: "/third-party", icon: Users },
   { title: "Risk Calculator", url: "/risk-calculator", icon: Calculator },
   { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Feature Guide", url: "/feature-guide", icon: BookOpen },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

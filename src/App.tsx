@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import RiskCalculator from "./pages/RiskCalculator";
 import DPIAWizard from "./pages/DPIAWizard";
 import Settings from "./pages/Settings";
+import FeatureGuide from "./pages/FeatureGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/risk-calculator" element={<RiskCalculator />} />
                   <Route path="/dpia-wizard" element={<DPIAWizard />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/feature-guide" element={<FeatureGuide />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
