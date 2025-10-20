@@ -7,6 +7,26 @@ interface EnterpriseConfig {
   complianceRate: number;
   organizationName: string;
   linddunEnabled: boolean;
+  // AI Intelligence Features
+  aiRiskScoringEnabled: boolean;
+  aiVendorRecommendationsEnabled: boolean;
+  aiDocumentAnalysisEnabled: boolean;
+  aiComplianceMonitoringEnabled: boolean;
+  aiNaturalLanguageQueryEnabled: boolean;
+  // Advanced Features
+  cicdPolicyEnforcementEnabled: boolean;
+  cryptographicAuditTrailEnabled: boolean;
+  multiGrcSyncEnabled: boolean;
+  governanceTelemetryEnabled: boolean;
+  w3cDpvOntologyEnabled: boolean;
+  // Vendor Management
+  dynamicVendorManagementEnabled: boolean;
+  vendorRiskHeatmapsEnabled: boolean;
+  cloudInfraTrackingEnabled: boolean;
+  // Workflow Controls
+  humanInTheLoopEnabled: boolean;
+  changeDetectionEnabled: boolean;
+  autoDataFlowDiagramsEnabled: boolean;
 }
 
 interface EnterpriseConfigContextType {
@@ -21,6 +41,26 @@ const defaultConfig: EnterpriseConfig = {
   complianceRate: 94.2,
   organizationName: "Enterprise Organization",
   linddunEnabled: false,
+  // AI Intelligence Features
+  aiRiskScoringEnabled: false,
+  aiVendorRecommendationsEnabled: false,
+  aiDocumentAnalysisEnabled: false,
+  aiComplianceMonitoringEnabled: false,
+  aiNaturalLanguageQueryEnabled: false,
+  // Advanced Features
+  cicdPolicyEnforcementEnabled: false,
+  cryptographicAuditTrailEnabled: false,
+  multiGrcSyncEnabled: false,
+  governanceTelemetryEnabled: false,
+  w3cDpvOntologyEnabled: false,
+  // Vendor Management
+  dynamicVendorManagementEnabled: false,
+  vendorRiskHeatmapsEnabled: false,
+  cloudInfraTrackingEnabled: false,
+  // Workflow Controls
+  humanInTheLoopEnabled: true,
+  changeDetectionEnabled: false,
+  autoDataFlowDiagramsEnabled: false,
 };
 
 const EnterpriseConfigContext = createContext<EnterpriseConfigContextType | undefined>(undefined);

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
-import { Save, Settings as SettingsIcon, Shield, Sparkles, Link2, ExternalLink, Workflow } from "lucide-react";
+import { Save, Settings as SettingsIcon, Shield, Sparkles, Link2, ExternalLink, Workflow, Brain, GitBranch, Users, Database, Lock, BarChart3, FileCode2, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -238,6 +238,298 @@ const Settings = () => {
                   <li>• Sub-processor relationships</li>
                 </ul>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-blue-600" />
+              AI Intelligence Features
+            </CardTitle>
+            <CardDescription>
+              Leverage AI to automate risk assessment, vendor selection, and compliance monitoring
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">AI-Powered Risk Scoring</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically calculate risk scores based on context, patterns, and historical data
+                </p>
+              </div>
+              <Switch
+                checked={formData.aiRiskScoringEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, aiRiskScoringEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Vendor Recommendations</Label>
+                <p className="text-sm text-muted-foreground">
+                  AI suggests optimal vendors for specific processing activities based on requirements
+                </p>
+              </div>
+              <Switch
+                checked={formData.aiVendorRecommendationsEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, aiVendorRecommendationsEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Document Analysis</Label>
+                <p className="text-sm text-muted-foreground">
+                  Extract structured data from contracts, DPAs, and security documentation
+                </p>
+              </div>
+              <Switch
+                checked={formData.aiDocumentAnalysisEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, aiDocumentAnalysisEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Real-Time Compliance Monitoring</Label>
+                <p className="text-sm text-muted-foreground">
+                  Continuously monitor compliance status and alert on gaps or violations
+                </p>
+              </div>
+              <Switch
+                checked={formData.aiComplianceMonitoringEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, aiComplianceMonitoringEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Natural Language Query Interface</Label>
+                <p className="text-sm text-muted-foreground">
+                  Ask questions about your privacy posture in plain English
+                </p>
+              </div>
+              <Switch
+                checked={formData.aiNaturalLanguageQueryEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, aiNaturalLanguageQueryEnabled: checked })
+                }
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-green-600" />
+              Advanced Technical Features
+            </CardTitle>
+            <CardDescription>
+              Enterprise-grade security, audit, and compliance infrastructure
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">CI/CD Policy Enforcement</Label>
+                <p className="text-sm text-muted-foreground">
+                  Block deployments that lack valid approved DPIAs ("No DPIA, No Deploy")
+                </p>
+              </div>
+              <Switch
+                checked={formData.cicdPolicyEnforcementEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, cicdPolicyEnforcementEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Cryptographic Audit Trail</Label>
+                <p className="text-sm text-muted-foreground">
+                  Hash-chain integrity using Merkle trees for tamper-proof audit logs
+                </p>
+              </div>
+              <Switch
+                checked={formData.cryptographicAuditTrailEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, cryptographicAuditTrailEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Multi-GRC Synchronization</Label>
+                <p className="text-sm text-muted-foreground">
+                  Sync with multiple GRC platforms (OneTrust, ServiceNow, Archer, etc.)
+                </p>
+              </div>
+              <Switch
+                checked={formData.multiGrcSyncEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, multiGrcSyncEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Governance Telemetry Dashboard</Label>
+                <p className="text-sm text-muted-foreground">
+                  Real-time metrics on DPIA health, velocity, and compliance posture
+                </p>
+              </div>
+              <Switch
+                checked={formData.governanceTelemetryEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, governanceTelemetryEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">W3C DPV Ontology</Label>
+                <p className="text-sm text-muted-foreground">
+                  Canonical privacy vocabulary for interoperability with external systems
+                </p>
+              </div>
+              <Switch
+                checked={formData.w3cDpvOntologyEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, w3cDpvOntologyEnabled: checked })
+                }
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-orange-600" />
+              Vendor Management
+            </CardTitle>
+            <CardDescription>
+              Advanced vendor lifecycle management and infrastructure tracking
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Dynamic Vendor Management</Label>
+                <p className="text-sm text-muted-foreground">
+                  Update, deprecate, or archive vendors with automatic change detection
+                </p>
+              </div>
+              <Switch
+                checked={formData.dynamicVendorManagementEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, dynamicVendorManagementEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Vendor Risk Heatmaps</Label>
+                <p className="text-sm text-muted-foreground">
+                  Visual risk overlays on data flow diagrams for vendor assessments
+                </p>
+              </div>
+              <Switch
+                checked={formData.vendorRiskHeatmapsEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, vendorRiskHeatmapsEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Cloud Infrastructure Tracking</Label>
+                <p className="text-sm text-muted-foreground">
+                  Track AWS, Azure, GCP assets and link to processing activities
+                </p>
+              </div>
+              <Switch
+                checked={formData.cloudInfraTrackingEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, cloudInfraTrackingEnabled: checked })
+                }
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-indigo-600" />
+              Workflow & Automation Controls
+            </CardTitle>
+            <CardDescription>
+              Human-in-the-loop controls and automated change detection
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Human-in-the-Loop Approvals</Label>
+                <p className="text-sm text-muted-foreground">
+                  Require human review and approval for all AI-generated recommendations
+                </p>
+              </div>
+              <Switch
+                checked={formData.humanInTheLoopEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, humanInTheLoopEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3 border-b">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Change Detection Automation</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically detect changes to processing activities and trigger workflows
+                </p>
+              </div>
+              <Switch
+                checked={formData.changeDetectionEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, changeDetectionEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-3">
+              <div className="space-y-1">
+                <Label className="text-base font-medium">Auto Data Flow Diagrams</Label>
+                <p className="text-sm text-muted-foreground">
+                  Generate data flow diagrams automatically from activity descriptions using AI
+                </p>
+              </div>
+              <Switch
+                checked={formData.autoDataFlowDiagramsEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, autoDataFlowDiagramsEnabled: checked })
+                }
+              />
             </div>
           </CardContent>
         </Card>
