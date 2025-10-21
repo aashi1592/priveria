@@ -37,6 +37,22 @@ const Settings = () => {
       additionalConfig: { organizationId: "", region: "us", syncInterval: "hourly" }
     },
     { 
+      name: "ServiceNow", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://instance.service-now.com",
+      description: "IT service management and GRC platform for risk and compliance workflow automation",
+      additionalConfig: { organizationId: "", region: "", syncInterval: "daily" }
+    },
+    { 
+      name: "Centraleyes", 
+      enabled: false, 
+      apiKey: "", 
+      baseUrl: "https://api.centraleyes.com",
+      description: "Cyber risk quantification and compliance management platform",
+      additionalConfig: { organizationId: "", region: "", syncInterval: "daily" }
+    },
+    { 
       name: "Jira", 
       enabled: false, 
       apiKey: "", 
