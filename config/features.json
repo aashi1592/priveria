@@ -1,0 +1,92 @@
+{
+  "version": "1.0.0",
+  "licensing": {
+    "model": "freemium",
+    "validationEndpoint": "/functions/v1/validate-license"
+  },
+  "features": {
+    "core": {
+      "dpia_creation": {
+        "tier": "free",
+        "enabled": true,
+        "description": "Create and manage Data Protection Impact Assessments"
+      },
+      "risk_assessment": {
+        "tier": "free",
+        "enabled": true,
+        "description": "Manual risk scoring and evaluation"
+      },
+      "vendor_management": {
+        "tier": "free",
+        "enabled": true,
+        "description": "Add and track third-party vendors manually"
+      },
+      "basic_reporting": {
+        "tier": "free",
+        "enabled": true,
+        "description": "Generate standard DPIA reports"
+      }
+    },
+    "enterprise": {
+      "linddun_threats": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Advanced privacy threat modeling framework"
+      },
+      "ai_risk_scoring": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Automated risk assessment using machine learning"
+      },
+      "ai_vendor_recommendations": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Intelligent vendor risk analysis"
+      },
+      "ai_document_analysis": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Automated document scanning and risk detection"
+      },
+      "ai_compliance_monitoring": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Real-time compliance status tracking"
+      },
+      "ai_natural_language": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Natural language queries for data analysis"
+      },
+      "onetrust_sync": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Bidirectional sync with OneTrust"
+      },
+      "w3c_dpv": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "W3C Data Privacy Vocabulary support"
+      },
+      "cicd_enforcement": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Automated policy checks in CI/CD pipelines"
+      },
+      "crypto_audit": {
+        "tier": "enterprise",
+        "requiresLicense": true,
+        "description": "Cryptographic audit trail"
+      }
+    }
+  },
+  "documentation": {
+    "community": "https://docs.yourcompany.com/community",
+    "enterprise": "https://docs.yourcompany.com/enterprise",
+    "api": "https://docs.yourcompany.com/api"
+  },
+  "support": {
+    "community": "https://github.com/yourorg/dpia-platform/discussions",
+    "enterprise": "mailto:enterprise@yourcompany.com"
+  }
+}
