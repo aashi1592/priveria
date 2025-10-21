@@ -83,6 +83,50 @@ const Settings = () => {
   ]);
 
   const handleSave = () => {
+    // Validate enabled API connectors
+    const enabledConnectors = apiConnectors.filter(c => c.enabled);
+    
+    if (formData.multiGrcSyncEnabled && enabledConnectors.length > 0) {
+      for (const connector of enabledConnectors) {
+        // Validate base URL
+        if (!connector.baseUrl.trim()) {
+          toast.error(`${connector.name} configuration incomplete`, {
+            description: "Base URL is required",
+          });
+          return;
+        }
+        
+        if (!connector.baseUrl.startsWith('https://')) {
+          toast.error(`${connector.name} configuration invalid`, {
+            description: "Base URL must start with https://",
+          });
+          return;
+        }
+        
+        if (connector.baseUrl.length > 500) {
+          toast.error(`${connector.name} configuration invalid`, {
+            description: "Base URL must be less than 500 characters",
+          });
+          return;
+        }
+        
+        // Validate API key
+        if (!connector.apiKey.trim()) {
+          toast.error(`${connector.name} configuration incomplete`, {
+            description: "API Key is required",
+          });
+          return;
+        }
+        
+        if (connector.apiKey.length > 1000) {
+          toast.error(`${connector.name} configuration invalid`, {
+            description: "API Key must be less than 1000 characters",
+          });
+          return;
+        }
+      }
+    }
+    
     updateConfig(formData);
     toast.success("Settings saved successfully", {
       description: "Your configuration has been updated.",
@@ -90,6 +134,12 @@ const Settings = () => {
   };
 
   const handleConnectorToggle = (index: number) => {
+    if (!formData.multiGrcSyncEnabled) {
+      toast.error("Multi-GRC Synchronization must be enabled first", {
+        description: "Enable Multi-GRC Sync in Advanced Technical Features section",
+      });
+      return;
+    }
     const updated = [...apiConnectors];
     updated[index].enabled = !updated[index].enabled;
     setApiConnectors(updated);
@@ -428,7 +478,7 @@ const Settings = () => {
               <div className="space-y-1">
                 <Label className="text-base font-medium">Multi-GRC Synchronization</Label>
                 <p className="text-sm text-muted-foreground">
-                  Sync with multiple GRC platforms (OneTrust, ServiceNow, Archer, etc.)
+                  Master switch to enable API integrations with GRC platforms
                 </p>
               </div>
               <Switch
@@ -438,6 +488,23 @@ const Settings = () => {
                 }
               />
             </div>
+
+            {formData.multiGrcSyncEnabled && (
+              <Alert className="border-blue-500/50 bg-blue-500/5">
+                <Link2 className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-900 dark:text-blue-100">
+                  <strong>Multi-GRC Sync enabled:</strong> You can now configure individual API integrations below in the "API Integrations" section.
+                  <br/><br/>
+                  <strong>How it works:</strong>
+                  <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                    <li>Enable this master switch to unlock API integration options</li>
+                    <li>Configure and enable individual platforms (ServiceNow, Centraleyes, etc.)</li>
+                    <li>Each platform syncs independently based on its sync interval</li>
+                    <li>Data flows: DPIAs, risk assessments, vendors, and compliance status</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="flex items-center justify-between py-3 border-b">
               <div className="space-y-1">
@@ -690,8 +757,16 @@ const Settings = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {!formData.multiGrcSyncEnabled && (
+              <Alert className="border-orange-500/50 bg-orange-500/5">
+                <Lock className="h-4 w-4 text-orange-600" />
+                <AlertDescription className="text-orange-900 dark:text-orange-100">
+                  <strong>API Integrations are disabled.</strong> Enable "Multi-GRC Synchronization" in the "Advanced Technical Features" section above to configure API integrations.
+                </AlertDescription>
+              </Alert>
+            )}
             {apiConnectors.map((connector, index) => (
-              <Card key={connector.name} className="border-2">
+              <Card key={connector.name} className={`border-2 ${!formData.multiGrcSyncEnabled ? 'opacity-50' : ''}`}>
                 <CardContent className="pt-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -714,22 +789,26 @@ const Settings = () => {
                       <Switch
                         checked={connector.enabled}
                         onCheckedChange={() => handleConnectorToggle(index)}
+                        disabled={!formData.multiGrcSyncEnabled}
                       />
                     </div>
 
-                    {connector.enabled && (
+                    {connector.enabled && formData.multiGrcSyncEnabled && (
                       <div className="space-y-4 pt-4 border-t">
                         <div className="space-y-2">
-                          <Label htmlFor={`${connector.name}-baseUrl`}>Base URL</Label>
+                          <Label htmlFor={`${connector.name}-baseUrl`}>Base URL *</Label>
                           <Input
                             id={`${connector.name}-baseUrl`}
                             value={connector.baseUrl}
                             onChange={(e) => handleConnectorUpdate(index, "baseUrl", e.target.value)}
                             placeholder="https://api.example.com"
+                            required
+                            maxLength={500}
                           />
+                          <p className="text-xs text-muted-foreground">Must be a valid HTTPS URL</p>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor={`${connector.name}-apiKey`}>API Key / Access Token</Label>
+                          <Label htmlFor={`${connector.name}-apiKey`}>API Key / Access Token *</Label>
                           <Textarea
                             id={`${connector.name}-apiKey`}
                             value={connector.apiKey}
@@ -737,7 +816,10 @@ const Settings = () => {
                             placeholder="Enter your API key or token"
                             className="font-mono text-sm"
                             rows={3}
+                            required
+                            maxLength={1000}
                           />
+                          <p className="text-xs text-muted-foreground">Keep this secure - never share publicly</p>
                         </div>
                         
                         {connector.name === "OneTrust" && connector.additionalConfig && (
