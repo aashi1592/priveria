@@ -62,6 +62,42 @@ export type Database = {
         }
         Relationships: []
       }
+      document_dpia_links: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          document_id: string
+          id: string
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          document_id: string
+          id?: string
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_dpia_links_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_dpia_links_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "uploaded_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enterprise_licenses: {
         Row: {
           created_at: string
@@ -98,6 +134,44 @@ export type Database = {
         }
         Relationships: []
       }
+      extracted_entities: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          document_id: string
+          entity_type: string
+          entity_value: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          document_id: string
+          entity_type: string
+          entity_value: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          document_id?: string
+          entity_type?: string
+          entity_value?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extracted_entities_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "uploaded_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -122,6 +196,45 @@ export type Database = {
           last_name?: string | null
           organization_name?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      uploaded_documents: {
+        Row: {
+          error_message: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          processed_at: string | null
+          status: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          error_message?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          error_message?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          uploaded_at?: string
+          user_id?: string
         }
         Relationships: []
       }

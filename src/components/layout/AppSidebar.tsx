@@ -10,6 +10,7 @@ import {
   Settings,
   ChevronRight,
   BookOpen,
+  ScanText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Assessments", url: "/assessments", icon: FolderKanban },
   { title: "AI Module", url: "/ai-module", icon: Brain },
+  { title: "Document Analysis", url: "/document-analysis", icon: ScanText },
   { title: "Third Party Risk", url: "/third-party", icon: Users },
   { title: "Risk Calculator", url: "/risk-calculator", icon: Calculator },
   { title: "Reports", url: "/reports", icon: FileText },

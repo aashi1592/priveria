@@ -1,1 +1,4 @@
 project_id = "jbazqemqvbmusqdqxkeu"
+
+[functions.analyze-document]
+verify_jwt = true
