@@ -31,6 +31,7 @@ export const WizardStep1 = ({ data, setData }: any) => {
               <SelectItem value="CAT-06">CAT-06: Employee Monitoring</SelectItem>
               <SelectItem value="CAT-07">CAT-07: Financial Data</SelectItem>
               <SelectItem value="CAT-08">CAT-08: Location Tracking</SelectItem>
+              <SelectItem value="CAT-09">CAT-09: Employee Data</SelectItem>
             </SelectContent>
           </Select>
         </div>

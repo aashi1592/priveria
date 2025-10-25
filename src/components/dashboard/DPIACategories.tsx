@@ -76,14 +76,23 @@ export const DPIACategories = () => {
       color: "text-accent",
       bgColor: "bg-accent/10",
     },
+    {
+      id: "CAT-09",
+      name: "Employee Data Processing",
+      icon: Users,
+      count: 14,
+      highRisk: 2,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
   ];
 
   return (
     <Card className="shadow-md">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl">DPIA Categories (8 of 18)</CardTitle>
-          <Badge variant="secondary">247 Total Assessments</Badge>
+          <CardTitle className="text-xl">DPIA Categories (9 of 18)</CardTitle>
+          <Badge variant="secondary">261 Total Assessments</Badge>
         </div>
       </CardHeader>
       <CardContent>
