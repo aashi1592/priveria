@@ -74,12 +74,13 @@ const FeatureGuide = () => {
       addText("Table of Contents", 16, true);
       addText("1. Core DPIA Features", 11);
       addText("2. LINDDUN Privacy Threat Modeling", 11);
-      addText("3. AI Intelligence Features", 11);
-      addText("4. Advanced Technical Features", 11);
-      addText("5. Vendor Management", 11);
-      addText("6. Workflow & Automation", 11);
-      addText("7. Standards & Compliance", 11);
-      addText("8. API Integrations", 11);
+      addText("3. MAESTRO Agentic AI Threat Modeling", 11);
+      addText("4. AI Intelligence Features", 11);
+      addText("5. Advanced Technical Features", 11);
+      addText("6. Vendor Management", 11);
+      addText("7. Workflow & Automation", 11);
+      addText("8. Standards & Compliance", 11);
+      addText("9. API Integrations", 11);
       yPosition += 10;
 
       // Section 1: Core DPIA Features
@@ -185,10 +186,89 @@ const FeatureGuide = () => {
       addBullet("Vendor security evaluation framework");
       addBullet("Audit-ready threat documentation");
 
-      // Section 3: AI Intelligence
+      // Section 3: MAESTRO
       doc.addPage();
       yPosition = 20;
-      addText("3. AI Intelligence Features", 18, true, [37, 99, 235]);
+      addText("3. MAESTRO Agentic AI Threat Modeling", 18, true, [59, 130, 246]);
+      addText("CSA's framework for Multi-Agent Environment, Security, Threat Risk, and Outcome analysis", 11, false, [100, 100, 100]);
+      yPosition += 5;
+
+      addText("What is MAESTRO?", 12, true);
+      addText("MAESTRO is the Cloud Security Alliance's threat modeling framework specifically designed for Agentic AI systems. It addresses unique risks in autonomous multi-agent environments where AI agents make decisions and take actions with minimal human oversight.", 11);
+      yPosition += 5;
+
+      addText("The MAESTRO Framework Components:", 12, true);
+      
+      addText("M - Multi-Agent Environment", 11, true);
+      addText("Risks arising from multiple AI agents operating autonomously and interacting.", 10);
+      addBullet("Agent coordination failures");
+      addBullet("Conflicting agent objectives");
+      addBullet("Inter-agent communication vulnerabilities");
+      addBullet("Cascading failures across agent networks");
+      
+      addText("A - Autonomy & Agency", 11, true);
+      addText("Risks from AI systems making independent decisions without human intervention.", 10);
+      addBullet("Unauthorized autonomous actions");
+      addBullet("Scope creep beyond intended authority");
+      addBullet("Decision-making without proper oversight");
+      addBullet("Lack of human-in-the-loop controls");
+      
+      addText("E - Environment Manipulation", 11, true);
+      addText("Threats related to AI agents modifying their operational environment.", 10);
+      addBullet("Data poisoning attacks");
+      addBullet("Model manipulation");
+      addBullet("Feedback loop exploitation");
+      addBullet("Training data contamination");
+      
+      addText("S - Security & Access Control", 11, true);
+      addText("Traditional security concerns amplified in agentic AI contexts.", 10);
+      addBullet("Privilege escalation by AI agents");
+      addBullet("API credential exposure");
+      addBullet("Unauthorized system access");
+      addBullet("Data exfiltration by compromised agents");
+      
+      addText("T - Transparency & Explainability", 11, true);
+      addText("Challenges in understanding and auditing AI agent behavior.", 10);
+      addBullet("Black-box decision making");
+      addBullet("Inability to explain agent actions");
+      addBullet("Lack of audit trails");
+      addBullet("Opaque reasoning processes");
+      
+      addText("R - Reliability & Safety", 11, true);
+      addText("Ensuring consistent and safe operation of autonomous systems.", 10);
+      addBullet("Unpredictable agent behavior");
+      addBullet("Goal misalignment");
+      addBullet("Safety constraint violations");
+      addBullet("System instability under edge cases");
+      
+      addText("O - Outcomes & Impact", 11, true);
+      addText("Assessment of real-world consequences from AI agent actions.", 10);
+      addBullet("Unintended harmful outcomes");
+      addBullet("Amplification of biases");
+      addBullet("Privacy violations from agent actions");
+      addBullet("Regulatory compliance failures");
+      yPosition += 5;
+
+      addText("Integration with Risk Scoring", 12, true);
+      addText("When MAESTRO is enabled for Agentic AI systems, identified threats enhance risk scores:", 11);
+      addBullet("+8 points per Critical Threat");
+      addBullet("+4 points per High Threat");
+      addBullet("+2 points per Medium Threat");
+      addBullet("+1 point per Low Threat");
+      yPosition += 5;
+
+      addText("Benefits of MAESTRO Integration", 12, true);
+      addBullet("Specialized threat modeling for autonomous AI systems");
+      addBullet("Multi-agent risk identification and mitigation");
+      addBullet("Enhanced safety controls for agentic workflows");
+      addBullet("Comprehensive security architecture for AI agents");
+      addBullet("Regulatory compliance for emerging AI regulations");
+      addBullet("Audit-ready documentation for AI governance");
+
+      // Section 4: AI Intelligence
+      doc.addPage();
+      yPosition = 20;
+      addText("4. AI Intelligence Features", 18, true, [37, 99, 235]);
       addText("Leverage AI to automate risk assessment, vendor selection, and compliance monitoring", 11, false, [100, 100, 100]);
       yPosition += 5;
 
@@ -244,10 +324,10 @@ const FeatureGuide = () => {
       addBullet("Jira/ServiceNow ticket creation");
       addBullet("Executive dashboard summaries");
 
-      // Section 4: Advanced Technical Features
+      // Section 5: Advanced Technical Features
       doc.addPage();
       yPosition = 20;
-      addText("4. Advanced Technical Features", 18, true, [37, 99, 235]);
+      addText("5. Advanced Technical Features", 18, true, [37, 99, 235]);
       yPosition += 5;
 
       addText("Risk Calculator", 14, true);
@@ -269,10 +349,10 @@ const FeatureGuide = () => {
       addText("Multi-Language Support", 14, true);
       addText("Interface and reports available in multiple languages for global teams.", 11);
 
-      // Section 5: Vendor Management
+      // Section 6: Vendor Management
       doc.addPage();
       yPosition = 20;
-      addText("5. Vendor Management", 18, true, [37, 99, 235]);
+      addText("6. Vendor Management", 18, true, [37, 99, 235]);
       yPosition += 5;
 
       addText("Vendor DPIA Type", 14, true);
@@ -290,10 +370,10 @@ const FeatureGuide = () => {
       addText("DPA Management", 14, true);
       addText("Store and track Data Processing Agreements with version control.", 11);
 
-      // Section 6: Workflow & Automation
+      // Section 7: Workflow & Automation
       doc.addPage();
       yPosition = 20;
-      addText("6. Workflow & Automation", 18, true, [37, 99, 235]);
+      addText("7. Workflow & Automation", 18, true, [37, 99, 235]);
       yPosition += 5;
 
       addText("Approval Workflows", 14, true);
@@ -311,10 +391,10 @@ const FeatureGuide = () => {
       addText("Bulk Operations", 14, true);
       addText("Mass update, export, or archive multiple DPIAs simultaneously.", 11);
 
-      // Section 7: Standards & Compliance
+      // Section 8: Standards & Compliance
       doc.addPage();
       yPosition = 20;
-      addText("7. Standards & Compliance", 18, true, [37, 99, 235]);
+      addText("8. Standards & Compliance", 18, true, [37, 99, 235]);
       yPosition += 5;
 
       addText("GDPR Compliance", 14, true);
@@ -338,10 +418,10 @@ const FeatureGuide = () => {
       addBullet("COPPA (Children's Privacy)");
       addBullet("CCPA/CPRA (California)");
 
-      // Section 8: API Integrations
+      // Section 9: API Integrations
       doc.addPage();
       yPosition = 20;
-      addText("8. API Integrations", 18, true, [37, 99, 235]);
+      addText("9. API Integrations", 18, true, [37, 99, 235]);
       yPosition += 5;
 
       addText("RESTful API", 14, true);
@@ -367,7 +447,8 @@ const FeatureGuide = () => {
       addText("This platform provides comprehensive DPIA management capabilities. To enable enterprise features:", 11);
       yPosition += 3;
       addBullet("Navigate to Settings > Enterprise Configuration");
-      addBullet("Enable LINDDUN Threat Modeling for advanced risk analysis");
+      addBullet("Enable LINDDUN Threat Modeling for privacy risk analysis");
+      addBullet("Enable MAESTRO for Agentic AI system risk analysis");
       addBullet("Activate AI Intelligence for automated scoring and monitoring");
       addBullet("Configure custom workflows and integrations as needed");
       yPosition += 5;
@@ -449,14 +530,15 @@ const FeatureGuide = () => {
               <div className="space-y-2">
                 <a href="#core-features" className="block text-sm hover:text-primary">1. Core DPIA Features</a>
                 <a href="#linddun" className="block text-sm hover:text-primary">2. LINDDUN Threat Modeling</a>
-                <a href="#ai-intelligence" className="block text-sm hover:text-primary">3. AI Intelligence Features</a>
-                <a href="#technical-features" className="block text-sm hover:text-primary">4. Advanced Technical Features</a>
+                <a href="#maestro" className="block text-sm hover:text-primary">3. MAESTRO Agentic AI Threat Modeling</a>
+                <a href="#ai-intelligence" className="block text-sm hover:text-primary">4. AI Intelligence Features</a>
+                <a href="#technical-features" className="block text-sm hover:text-primary">5. Advanced Technical Features</a>
               </div>
               <div className="space-y-2">
-                <a href="#vendor-management" className="block text-sm hover:text-primary">5. Vendor Management</a>
-                <a href="#workflow-controls" className="block text-sm hover:text-primary">6. Workflow & Automation</a>
-                <a href="#standards" className="block text-sm hover:text-primary">7. Standards & Compliance</a>
-                <a href="#integrations" className="block text-sm hover:text-primary">8. API Integrations</a>
+                <a href="#vendor-management" className="block text-sm hover:text-primary">6. Vendor Management</a>
+                <a href="#workflow-controls" className="block text-sm hover:text-primary">7. Workflow & Automation</a>
+                <a href="#standards" className="block text-sm hover:text-primary">8. Standards & Compliance</a>
+                <a href="#integrations" className="block text-sm hover:text-primary">9. API Integrations</a>
               </div>
             </div>
           </CardContent>
@@ -807,14 +889,216 @@ const FeatureGuide = () => {
           </Card>
         </div>
 
-        {/* 3. AI Intelligence Features */}
+        {/* 3. MAESTRO Agentic AI Threat Modeling */}
+        <div id="maestro">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Brain className="w-6 h-6 text-blue-600" />
+                  3. MAESTRO Agentic AI Threat Modeling
+                </CardTitle>
+                <Badge variant={config.maestroEnabled ? "default" : "outline"}>
+                  {config.maestroEnabled ? "Enabled" : "Enterprise Feature"}
+                </Badge>
+              </div>
+              <CardDescription>
+                CSA's framework for Multi-Agent Environment, Security, Threat Risk, and Outcome analysis
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">What is MAESTRO?</h3>
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  MAESTRO is the Cloud Security Alliance's threat modeling framework specifically designed for Agentic AI systems. 
+                  It addresses unique risks in autonomous multi-agent environments where AI agents make decisions and take actions 
+                  with minimal human oversight.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      M - Multi-Agent Environment
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Risks arising from multiple AI agents operating autonomously and interacting.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Agent coordination failures</div>
+                      <div>• Conflicting agent objectives</div>
+                      <div>• Inter-agent communication vulnerabilities</div>
+                      <div>• Cascading failures across agent networks</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      A - Autonomy & Agency
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Risks from AI systems making independent decisions without human intervention.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Unauthorized autonomous actions</div>
+                      <div>• Scope creep beyond intended authority</div>
+                      <div>• Decision-making without proper oversight</div>
+                      <div>• Lack of human-in-the-loop controls</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      E - Environment Manipulation
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Threats related to AI agents modifying their operational environment.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Data poisoning attacks</div>
+                      <div>• Model manipulation</div>
+                      <div>• Feedback loop exploitation</div>
+                      <div>• Training data contamination</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      S - Security & Access Control
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Traditional security concerns amplified in agentic AI contexts.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Privilege escalation by AI agents</div>
+                      <div>• API credential exposure</div>
+                      <div>• Unauthorized system access</div>
+                      <div>• Data exfiltration by compromised agents</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      T - Transparency & Explainability
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Challenges in understanding and auditing AI agent behavior.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Black-box decision making</div>
+                      <div>• Inability to explain agent actions</div>
+                      <div>• Lack of audit trails</div>
+                      <div>• Opaque reasoning processes</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      R - Reliability & Safety
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Ensuring consistent and safe operation of autonomous systems.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Unpredictable agent behavior</div>
+                      <div>• Goal misalignment</div>
+                      <div>• Safety constraint violations</div>
+                      <div>• System instability under edge cases</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-blue-200">
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
+                      O - Outcomes & Impact
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Assessment of real-world consequences from AI agent actions.
+                    </p>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div>• Unintended harmful outcomes</div>
+                      <div>• Amplification of biases</div>
+                      <div>• Privacy violations from agent actions</div>
+                      <div>• Regulatory compliance failures</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Integration with Risk Scoring</h3>
+                <p className="text-muted-foreground">
+                  When MAESTRO is enabled for Agentic AI systems, identified threats enhance risk scores:
+                </p>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <Card className="border-2">
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-xl font-bold text-red-600 mb-2">+8 points</div>
+                      <p className="text-sm font-medium mb-1">Critical Threat</p>
+                      <p className="text-xs text-muted-foreground">Per threat identified</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-2">
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-xl font-bold text-orange-600 mb-2">+4 points</div>
+                      <p className="text-sm font-medium mb-1">High Threat</p>
+                      <p className="text-xs text-muted-foreground">Per threat identified</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-2">
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-xl font-bold text-yellow-600 mb-2">+2 points</div>
+                      <p className="text-sm font-medium mb-1">Medium Threat</p>
+                      <p className="text-xs text-muted-foreground">Per threat identified</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-2">
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-xl font-bold text-green-600 mb-2">+1 point</div>
+                      <p className="text-sm font-medium mb-1">Low Threat</p>
+                      <p className="text-xs text-muted-foreground">Per threat identified</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Benefits of MAESTRO Integration</h4>
+                <div className="grid md:grid-cols-2 gap-2 text-sm text-blue-800 dark:text-blue-300">
+                  <div>✓ Specialized threat modeling for autonomous AI</div>
+                  <div>✓ Multi-agent risk identification</div>
+                  <div>✓ Enhanced safety controls for agentic workflows</div>
+                  <div>✓ Comprehensive security architecture for AI agents</div>
+                  <div>✓ Regulatory compliance for emerging AI laws</div>
+                  <div>✓ Audit-ready AI governance documentation</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 4. AI Intelligence Features */}
         <div id="ai-intelligence">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-2xl">
                   <Brain className="w-6 h-6 text-blue-600" />
-                  3. AI Intelligence Features
+                  4. AI Intelligence Features
                 </CardTitle>
                 <Badge variant={config.aiRiskScoringEnabled ? "default" : "outline"}>
                   Enterprise Feature
