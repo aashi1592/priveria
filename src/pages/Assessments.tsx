@@ -16,6 +16,7 @@ const Assessments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterRisk, setFilterRisk] = useState("all");
+  const [filterTier, setFilterTier] = useState("all");
 
   const handleDelete = (id: string, name: string) => {
     deleteAssessment(id);
@@ -30,7 +31,8 @@ const Assessments = () => {
       assessment.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === "all" || assessment.category === filterCategory;
     const matchesRisk = filterRisk === "all" || assessment.riskLevel === filterRisk;
-    return matchesSearch && matchesCategory && matchesRisk;
+    const matchesTier = filterTier === "all" || assessment.tier === filterTier;
+    return matchesSearch && matchesCategory && matchesRisk && matchesTier;
   });
 
   return (
@@ -84,6 +86,18 @@ const Assessments = () => {
                 </SelectContent>
               </Select>
 
+              <Select value={filterTier} onValueChange={setFilterTier}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Assessment Tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Tiers</SelectItem>
+                  <SelectItem value="tier-1">Tier 1 (Critical)</SelectItem>
+                  <SelectItem value="tier-2">Tier 2 (Important)</SelectItem>
+                  <SelectItem value="tier-3">Tier 3 (Standard)</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Button variant="outline" size="icon">
                 <Filter className="w-4 h-4" />
               </Button>
@@ -113,6 +127,9 @@ const Assessments = () => {
                           {assessment.id}
                         </Badge>
                         <Badge variant="outline">{assessment.category}</Badge>
+                        <Badge variant={assessment.tier === "tier-1" ? "destructive" : assessment.tier === "tier-2" ? "default" : "secondary"}>
+                          {assessment.tier.toUpperCase()}
+                        </Badge>
                         <Badge variant={assessment.riskLevel === "critical" || assessment.riskLevel === "high" ? "destructive" : "secondary"}>
                           {assessment.riskLevel}
                         </Badge>

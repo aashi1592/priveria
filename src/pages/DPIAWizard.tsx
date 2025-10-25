@@ -108,6 +108,7 @@ const DPIAWizard = () => {
       status: "in-review",
       riskLevel,
       riskScore,
+      tier: riskLevel === "critical" || riskLevel === "high" ? "tier-1" : riskLevel === "medium" ? "tier-2" : "tier-3",
       nextReview: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
     });
 

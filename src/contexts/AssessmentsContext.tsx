@@ -9,6 +9,7 @@ export interface Assessment {
   status: "completed" | "in-review" | "pending" | "draft";
   riskLevel: "critical" | "high" | "medium" | "low" | "minimal";
   riskScore: number;
+  tier: "tier-1" | "tier-2" | "tier-3";
   nextReview?: string;
 }
 
@@ -35,6 +36,7 @@ const mockAssessments: Assessment[] = [
     status: "completed",
     riskLevel: "high",
     riskScore: 78,
+    tier: "tier-1",
     nextReview: "2024-09-15",
   },
   {
@@ -46,6 +48,7 @@ const mockAssessments: Assessment[] = [
     status: "in-review",
     riskLevel: "medium",
     riskScore: 56,
+    tier: "tier-2",
     nextReview: "2024-09-10",
   },
   {
@@ -57,6 +60,7 @@ const mockAssessments: Assessment[] = [
     status: "pending",
     riskLevel: "low",
     riskScore: 34,
+    tier: "tier-3",
   },
   {
     id: "DPIA-2024-004",
@@ -67,6 +71,7 @@ const mockAssessments: Assessment[] = [
     status: "completed",
     riskLevel: "critical",
     riskScore: 89,
+    tier: "tier-1",
     nextReview: "2024-06-05",
   },
 ];
