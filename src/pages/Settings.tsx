@@ -349,6 +349,99 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="w-5 h-5 text-blue-600" />
+              Agentic AI Threat Modeling (MAESTRO)
+            </CardTitle>
+            <CardDescription>
+              Enable CSA's MAESTRO framework for systematic agentic AI threat analysis in Product DPIAs
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="maestro-toggle" className="text-base font-medium">
+                  Enable MAESTRO Threat Modeling
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  AI-assisted agentic system threat detection for multi-agent environments
+                </p>
+              </div>
+              <Switch
+                id="maestro-toggle"
+                checked={formData.maestroEnabled}
+                onCheckedChange={(checked) => 
+                  setFormData({ ...formData, maestroEnabled: checked })
+                }
+              />
+            </div>
+
+            {formData.maestroEnabled && (
+              <Alert className="border-blue-500/50 bg-blue-500/5">
+                <Sparkles className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-900 dark:text-blue-100">
+                  <strong>MAESTRO enabled:</strong> Product/Application DPIAs will include systematic 
+                  agentic AI threat analysis across 4 categories (Multi-Agent Environment, Security, 
+                  Threat Risk, and Outcome). 
+                  <br/><br/>
+                  <strong>🎯 Risk Score Integration:</strong> Identified threats automatically enhance risk scores 
+                  (Critical +8, High +4, Medium +2, Low +1 per threat) for comprehensive AI security assessment.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">✨ Enhanced DPIA Features:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✅ Multi-agent coordination analysis</li>
+                  <li>✅ AI security vulnerability detection</li>
+                  <li>✅ Autonomous decision risk assessment</li>
+                  <li>✅ Agent privilege escalation detection</li>
+                  <li>✅ Prompt injection threat analysis</li>
+                  <li>✅ Automatic risk score enrichment</li>
+                  <li>✅ Agentic system security reporting</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <h4 className="font-semibold text-sm">📊 Dashboard Enhancements:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>✅ Agentic AI threat metrics tracking</li>
+                  <li>✅ MAESTRO-specific reporting</li>
+                  <li>✅ Threat validation status monitoring</li>
+                  <li>✅ Security engineer assessment</li>
+                  <li>✅ Multi-agent risk tracking</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="p-4 border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800 rounded-lg">
+              <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-200 mb-2">
+                📋 Applicable To:
+              </h4>
+              <div className="grid md:grid-cols-2 gap-2">
+                <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                  <li><strong>Agentic AI Products:</strong></li>
+                  <li>• Multi-agent AI systems</li>
+                  <li>• Autonomous decision engines</li>
+                  <li>• AI orchestration platforms</li>
+                  <li>• Agent-based workflows</li>
+                </ul>
+                <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                  <li><strong>MAESTRO Categories:</strong></li>
+                  <li>• Multi-Agent Environment threats</li>
+                  <li>• Security vulnerabilities</li>
+                  <li>• Threat & Risk identification</li>
+                  <li>• Outcome impact analysis</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-blue-600" />
               AI Intelligence Features
             </CardTitle>
             <CardDescription>

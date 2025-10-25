@@ -7,6 +7,7 @@ interface EnterpriseConfig {
   complianceRate: number;
   organizationName: string;
   linddunEnabled: boolean;
+  maestroEnabled: boolean;
   // AI Intelligence Features
   aiRiskScoringEnabled: boolean;
   aiVendorRecommendationsEnabled: boolean;
@@ -41,6 +42,7 @@ const defaultConfig: EnterpriseConfig = {
   complianceRate: 94.2,
   organizationName: "Enterprise Organization",
   linddunEnabled: false,
+  maestroEnabled: false,
   // AI Intelligence Features
   aiRiskScoringEnabled: false,
   aiVendorRecommendationsEnabled: false,

@@ -10,6 +10,7 @@ import { WizardStep3 } from "@/components/wizard/WizardStep3";
 import { WizardStep4 } from "@/components/wizard/WizardStep4";
 import { WizardStep5 } from "@/components/wizard/WizardStep5";
 import { WizardStep6 } from "@/components/wizard/WizardStep6";
+import { WizardStep7 } from "@/components/wizard/WizardStep7";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
@@ -29,6 +30,12 @@ const linddunStep = {
   component: WizardStep6 
 };
 
+const maestroStep = {
+  id: 7,
+  title: "MAESTRO Agentic AI Threats",
+  component: WizardStep7
+};
+
 const DPIAWizard = () => {
   const navigate = useNavigate();
   const { config } = useEnterpriseConfig();
@@ -45,11 +52,26 @@ const DPIAWizard = () => {
       processingType === "Vendor"
     );
     
+    // Show MAESTRO for Product/Application when enabled (for agentic AI systems)
+    const showMaestro = config.maestroEnabled && processingType === "Product/Application";
+    
+    let dynamicSteps = [...baseSteps];
+    
     if (showLinddun) {
-      return [...baseSteps.slice(0, 5), linddunStep, baseSteps[5]];
+      dynamicSteps = [...dynamicSteps.slice(0, 5), linddunStep];
     }
-    return baseSteps;
-  }, [config.linddunEnabled, formData.processingType]);
+    
+    if (showMaestro) {
+      dynamicSteps = [...dynamicSteps.slice(0, showLinddun ? 6 : 5), maestroStep];
+    }
+    
+    // Add final step back at the end
+    if (showLinddun || showMaestro) {
+      dynamicSteps.push(baseSteps[4]);
+    }
+    
+    return dynamicSteps;
+  }, [config.linddunEnabled, config.maestroEnabled, formData.processingType]);
 
   const progress = (currentStep / steps.length) * 100;
   const CurrentStepComponent = steps[currentStep - 1].component;

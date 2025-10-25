@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
-import { Shield } from "lucide-react";
+import { Shield, Brain } from "lucide-react";
 
 export const WizardStep3 = ({ data, setData }: any) => {
   const { config } = useEnterpriseConfig();
@@ -29,8 +29,22 @@ export const WizardStep3 = ({ data, setData }: any) => {
     // Weight critical threats more heavily
     linddunAdjustment = (linddunThreats.critical * 8) + (linddunThreats.high * 4) + (linddunThreats.medium * 2) + (linddunThreats.low * 1);
   }
+
+  // MAESTRO Enhancement: Calculate agentic AI threat impact when enabled
+  let maestroAdjustment = 0;
+  let maestroThreats = { critical: 0, high: 0, medium: 0, low: 0 };
   
-  const finalScore = Math.round(baseScore + regulatoryMultiplier + linddunAdjustment);
+  if (config.maestroEnabled && data.maestroThreats) {
+    maestroThreats = data.maestroThreats.reduce((acc: any, threat: any) => {
+      acc[threat.riskLevel.toLowerCase()]++;
+      return acc;
+    }, { critical: 0, high: 0, medium: 0, low: 0 });
+    
+    // Weight critical threats more heavily for agentic AI systems
+    maestroAdjustment = (maestroThreats.critical * 8) + (maestroThreats.high * 4) + (maestroThreats.medium * 2) + (maestroThreats.low * 1);
+  }
+  
+  const finalScore = Math.round(baseScore + regulatoryMultiplier + linddunAdjustment + maestroAdjustment);
 
   const getRiskLevel = (score: number) => {
     if (score >= 36) return { level: "Critical", color: "destructive" };
@@ -55,6 +69,9 @@ export const WizardStep3 = ({ data, setData }: any) => {
               Base Score: {Math.round(baseScore)} + Regulatory: {regulatoryMultiplier}
               {config.linddunEnabled && linddunAdjustment > 0 && (
                 <> + LINDDUN Threats: {linddunAdjustment}</>
+              )}
+              {config.maestroEnabled && maestroAdjustment > 0 && (
+                <> + MAESTRO Threats: {maestroAdjustment}</>
               )}
             </p>
           </div>
@@ -96,6 +113,46 @@ export const WizardStep3 = ({ data, setData }: any) => {
             </div>
             <p className="text-xs text-muted-foreground mt-3">
               Privacy threats identified by LINDDUN analysis increase risk score to ensure comprehensive mitigation.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {config.maestroEnabled && maestroAdjustment > 0 && (
+        <Card className="border-blue-500/50 bg-blue-500/5">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-blue-600" />
+              <h4 className="font-semibold text-foreground">MAESTRO Agentic AI Threat Impact</h4>
+            </div>
+            <div className="grid grid-cols-4 gap-2 text-sm">
+              {maestroThreats.critical > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-risk-critical">{maestroThreats.critical}</p>
+                  <p className="text-xs text-muted-foreground">Critical</p>
+                </div>
+              )}
+              {maestroThreats.high > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-risk-high">{maestroThreats.high}</p>
+                  <p className="text-xs text-muted-foreground">High</p>
+                </div>
+              )}
+              {maestroThreats.medium > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-status-warning">{maestroThreats.medium}</p>
+                  <p className="text-xs text-muted-foreground">Medium</p>
+                </div>
+              )}
+              {maestroThreats.low > 0 && (
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-status-info">{maestroThreats.low}</p>
+                  <p className="text-xs text-muted-foreground">Low</p>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Agentic AI threats identified by MAESTRO framework increase risk score for multi-agent system security.
             </p>
           </CardContent>
         </Card>

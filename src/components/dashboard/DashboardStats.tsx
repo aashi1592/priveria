@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Shield } from "lucide-react";
+import { TrendingUp, AlertTriangle, CheckCircle2, Clock, Shield, Brain } from "lucide-react";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 import { useAssessments } from "@/contexts/AssessmentsContext";
 
@@ -59,10 +59,26 @@ export const DashboardStats = () => {
     },
   ] : [];
 
-  const allStats = [...baseStats, ...linddunStats];
+  // Add MAESTRO stats when enabled
+  const maestroStats = config.maestroEnabled ? [
+    {
+      label: "Agentic AI Threats",
+      value: "43",
+      change: "+12",
+      trend: "up",
+      icon: Brain,
+      color: "text-blue-600",
+      bgColor: "bg-blue-600/10",
+    },
+  ] : [];
+
+  const allStats = [...baseStats, ...linddunStats, ...maestroStats];
+
+  const gridCols = config.linddunEnabled && config.maestroEnabled ? 'lg:grid-cols-6' : 
+                  config.linddunEnabled || config.maestroEnabled ? 'lg:grid-cols-5' : 'lg:grid-cols-4';
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 ${config.linddunEnabled ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6`}>
+    <div className={`grid grid-cols-1 md:grid-cols-2 ${gridCols} gap-6`}>
       {allStats.map((stat) => {
         const Icon = stat.icon;
         return (
