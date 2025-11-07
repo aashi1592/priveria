@@ -92,17 +92,17 @@ const DPIAWizard = () => {
 
   const handleSubmit = () => {
     // Calculate risk level based on risk score
-    const riskScore = formData.riskScore || Math.floor(Math.random() * 100);
+    const riskScore = formData.calculatedRiskScore ?? formData.riskScore ?? Math.floor(Math.random() * 100);
     let riskLevel: "critical" | "high" | "medium" | "low" | "minimal";
-    if (riskScore >= 80) riskLevel = "critical";
-    else if (riskScore >= 60) riskLevel = "high";
-    else if (riskScore >= 40) riskLevel = "medium";
-    else if (riskScore >= 20) riskLevel = "low";
+    if (riskScore >= 36) riskLevel = "critical";
+    else if (riskScore >= 21) riskLevel = "high";
+    else if (riskScore >= 11) riskLevel = "medium";
+    else if (riskScore >= 6) riskLevel = "low";
     else riskLevel = "minimal";
 
     addAssessment({
       category: formData.processingType || "Product/Application",
-      name: formData.processingName || "New Assessment",
+      name: formData.activityName || "New Assessment",
       owner: formData.owner || "Current User",
       date: new Date().toISOString().split("T")[0],
       status: "in-review",
@@ -110,6 +110,7 @@ const DPIAWizard = () => {
       riskScore,
       tier: riskLevel === "critical" || riskLevel === "high" ? "tier-1" : riskLevel === "medium" ? "tier-2" : "tier-3",
       nextReview: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      details: { ...formData, submittedAt: new Date().toISOString() },
     });
 
     toast.success("DPIA Assessment Created", {

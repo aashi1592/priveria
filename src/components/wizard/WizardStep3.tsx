@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,6 +54,16 @@ export const WizardStep3 = ({ data, setData }: any) => {
   };
 
   const riskLevel = getRiskLevel(finalScore);
+
+  useEffect(() => {
+    setData((prev: any) => ({
+      ...prev,
+      likelihood,
+      impact,
+      calculatedRiskScore: finalScore,
+      calculatedRiskLevel: riskLevel.level.toLowerCase(),
+    }));
+  }, [finalScore, impact, likelihood, riskLevel.level, setData]);
 
   return (
     <div className="space-y-6">
@@ -220,7 +230,13 @@ export const WizardStep3 = ({ data, setData }: any) => {
           id="risk-justification"
           placeholder="Provide detailed justification for the likelihood and impact scores..."
           rows={4}
-          defaultValue={data.riskJustification}
+          value={data.riskJustification ?? ""}
+          onChange={(event) =>
+            setData((prev: any) => ({
+              ...prev,
+              riskJustification: event.target.value,
+            }))
+          }
         />
       </div>
 
