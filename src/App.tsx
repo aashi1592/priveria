@@ -16,6 +16,7 @@ const DPIAWizard = lazy(() => import("./pages/DPIAWizard"));
 const Settings = lazy(() => import("./pages/Settings"));
 const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const DocumentAnalysis = lazy(() => import("./pages/DocumentAnalysis"));
+const TeamCommunication = lazy(() => import("./pages/TeamCommunication"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/feature-guide" element={<FeatureGuide />} />
                   <Route path="/document-analysis" element={<DocumentAnalysis />} />
+                  <Route path="/team-communication" element={<TeamCommunication />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
