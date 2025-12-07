@@ -10,9 +10,10 @@ interface PageHeaderProps {
     onClick: () => void;
     icon?: ReactNode;
   };
+  children?: ReactNode;
 }
 
-export const PageHeader = ({ title, description, action }: PageHeaderProps) => {
+export const PageHeader = ({ title, description, action, children }: PageHeaderProps) => {
   return (
     <header className="border-b border-border bg-gradient-primary sticky top-0 z-40 shadow-lg backdrop-blur-sm">
       <div className="px-6 py-4">
@@ -26,12 +27,15 @@ export const PageHeader = ({ title, description, action }: PageHeaderProps) => {
               )}
             </div>
           </div>
-          {action && (
-            <Button onClick={action.onClick} className="gap-2 bg-white text-primary hover:bg-white/90">
-              {action.icon}
-              {action.label}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {children}
+            {action && (
+              <Button onClick={action.onClick} className="gap-2 bg-white text-primary hover:bg-white/90">
+                {action.icon}
+                {action.label}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
