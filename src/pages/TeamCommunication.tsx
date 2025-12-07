@@ -2,10 +2,10 @@ import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { 
   MessageSquare, 
   Users, 
@@ -18,9 +18,13 @@ import {
   Lightbulb,
   Target,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Download,
+  Presentation,
+  FileDown
 } from "lucide-react";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 
 type Audience = "executive" | "product" | "engineering" | "legal" | "marketing";
 type ConceptType = "dpia" | "rls" | "data-retention" | "consent" | "data-subject-rights" | "lawful-basis";
@@ -167,12 +171,190 @@ export default function TeamCommunication() {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  const exportToPDF = (exportAll: boolean = false) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let yPosition = 20;
+
+    const addText = (text: string, fontSize: number, isBold: boolean = false) => {
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", isBold ? "bold" : "normal");
+      const lines = doc.splitTextToSize(text, maxWidth);
+      
+      if (yPosition + lines.length * (fontSize * 0.5) > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.text(lines, margin, yPosition);
+      yPosition += lines.length * (fontSize * 0.5) + 5;
+    };
+
+    // Title
+    addText(currentTemplate.concept, 18, true);
+    addText("Privacy Concept Translation Guide", 12);
+    yPosition += 5;
+
+    // Technical Definition
+    addText("Technical Definition", 14, true);
+    addText(currentTemplate.technicalDescription, 10);
+    yPosition += 5;
+
+    if (exportAll) {
+      // All audiences
+      Object.entries(audienceInfo).forEach(([key, info]) => {
+        addText(`${info.label}`, 14, true);
+        addText(info.description, 10);
+        addText(currentTemplate.translations[key as Audience], 10);
+        yPosition += 3;
+      });
+    } else {
+      // Selected audience only
+      const info = audienceInfo[selectedAudience];
+      addText(`${info.label} Translation`, 14, true);
+      addText(info.description, 10);
+      addText(currentTemplate.translations[selectedAudience], 10);
+    }
+
+    yPosition += 5;
+
+    // Key Points
+    addText("Key Points", 14, true);
+    currentTemplate.keyPoints.forEach((point) => {
+      addText(`• ${point}`, 10);
+    });
+
+    yPosition += 5;
+
+    // Risk Implications
+    addText("Risk Implications", 14, true);
+    addText(currentTemplate.riskImplications, 10);
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, margin, 285);
+
+    const fileName = exportAll 
+      ? `${currentTemplate.concept.replace(/[^a-zA-Z0-9]/g, "_")}_All_Audiences.pdf`
+      : `${currentTemplate.concept.replace(/[^a-zA-Z0-9]/g, "_")}_${audienceInfo[selectedAudience].label.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
+    
+    doc.save(fileName);
+    toast.success("PDF downloaded successfully");
+  };
+
+  const exportToSlides = () => {
+    const slideContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${currentTemplate.concept} - Presentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; }
+    .slide { min-height: 100vh; padding: 60px; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+    .slide-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .slide-content { background: #16213e; }
+    .slide-audience { background: #0f3460; }
+    .slide-risk { background: #1a1a2e; border-left: 8px solid #e94560; }
+    h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+    h2 { font-size: 2.5rem; margin-bottom: 1.5rem; color: #667eea; }
+    h3 { font-size: 1.8rem; margin-bottom: 1rem; color: #94a3b8; }
+    p { font-size: 1.4rem; line-height: 1.8; max-width: 900px; }
+    ul { list-style: none; margin-top: 1rem; }
+    li { font-size: 1.3rem; padding: 0.8rem 0; padding-left: 2rem; position: relative; }
+    li::before { content: "→"; position: absolute; left: 0; color: #667eea; }
+    .badge { display: inline-block; background: #667eea; padding: 0.5rem 1rem; border-radius: 20px; font-size: 1rem; margin-bottom: 1rem; }
+    .footer { position: fixed; bottom: 20px; right: 40px; font-size: 0.9rem; color: #64748b; }
+    @media print { .slide { page-break-after: always; } .footer { display: none; } }
+  </style>
+</head>
+<body>
+  <!-- Title Slide -->
+  <div class="slide slide-title">
+    <h1>${currentTemplate.concept}</h1>
+    <p>Privacy Concept Translation Guide</p>
+  </div>
+
+  <!-- Technical Definition -->
+  <div class="slide slide-content">
+    <h2>Technical Definition</h2>
+    <p>${currentTemplate.technicalDescription}</p>
+  </div>
+
+  ${Object.entries(audienceInfo).map(([key, info]) => `
+  <!-- ${info.label} -->
+  <div class="slide slide-audience">
+    <span class="badge">${info.label}</span>
+    <h2>How to Explain It</h2>
+    <h3>${info.description}</h3>
+    <p>${currentTemplate.translations[key as Audience]}</p>
+  </div>
+  `).join("")}
+
+  <!-- Key Points -->
+  <div class="slide slide-content">
+    <h2>Key Points to Communicate</h2>
+    <ul>
+      ${currentTemplate.keyPoints.map(point => `<li>${point}</li>`).join("")}
+    </ul>
+  </div>
+
+  <!-- Risk Implications -->
+  <div class="slide slide-risk">
+    <h2>⚠️ Risk Implications</h2>
+    <p>${currentTemplate.riskImplications}</p>
+  </div>
+
+  <div class="footer">Press Ctrl+P to print as PDF slides</div>
+</body>
+</html>`;
+
+    const blob = new Blob([slideContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${currentTemplate.concept.replace(/[^a-zA-Z0-9]/g, "_")}_Slides.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Slide deck downloaded - open in browser and print to PDF for presentation");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Team Communication"
         description="Translate technical privacy concepts for different stakeholders"
-      />
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => exportToPDF(false)} className="gap-2">
+              <FileDown className="h-4 w-4" />
+              PDF (Current Audience)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportToPDF(true)} className="gap-2">
+              <FileText className="h-4 w-4" />
+              PDF (All Audiences)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={exportToSlides} className="gap-2">
+              <Presentation className="h-4 w-4" />
+              Slide Deck (HTML)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PageHeader>
 
       <div className="p-6 space-y-6">
         {/* Concept and Audience Selection */}
