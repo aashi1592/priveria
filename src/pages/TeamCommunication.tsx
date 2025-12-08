@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import jsPDF from "jspdf";
 
 type Audience = "executive" | "product" | "engineering" | "legal" | "marketing";
-type ConceptType = "dpia" | "rls" | "data-retention" | "consent" | "data-subject-rights" | "lawful-basis";
+type ConceptType = "dpia" | "rls" | "data-retention" | "consent" | "data-subject-rights" | "lawful-basis" | "cross-border-transfers" | "breach-notification" | "privacy-by-design";
 
 interface TranslationTemplate {
   concept: string;
@@ -145,6 +145,60 @@ const privacyConcepts: Record<ConceptType, TranslationTemplate> = {
       "Document rationale for legitimate interests"
     ],
     riskImplications: "Processing without valid lawful basis is unlawful processing. This is a serious violation that regulators actively investigate."
+  },
+  "cross-border-transfers": {
+    concept: "Cross-Border Data Transfers",
+    technicalDescription: "The movement of personal data from one jurisdiction to another, which under GDPR requires appropriate safeguards such as adequacy decisions, Standard Contractual Clauses (SCCs), or Binding Corporate Rules (BCRs).",
+    translations: {
+      executive: "Cross-border transfers govern how we move customer data between countries. Proper mechanisms protect us from regulatory action and maintain customer trust when using global services.",
+      product: "When selecting third-party tools or cloud providers, consider where data will be stored. Transfers outside the EU/EEA require specific legal mechanisms to be in place.",
+      engineering: "Document data flows to identify all cross-border transfers. Ensure infrastructure and vendor choices support transfer mechanisms (SCCs, adequacy). Consider data residency options.",
+      legal: "GDPR Chapter V requires transfer safeguards. Post-Schrems II, we need Transfer Impact Assessments for SCCs. Adequacy decisions simplify transfers to approved countries.",
+      marketing: "Using global marketing platforms means cross-border transfers. Ensure vendor contracts include proper transfer clauses so we can confidently communicate our data protection standards."
+    },
+    keyPoints: [
+      "Transfers outside EU/EEA require legal basis",
+      "Standard Contractual Clauses are most common mechanism",
+      "Transfer Impact Assessments may be required",
+      "Some countries have adequacy decisions (UK, Canada, Japan, etc.)"
+    ],
+    riskImplications: "Unlawful international transfers can result in enforcement action and orders to stop data flows, potentially disrupting business operations."
+  },
+  "breach-notification": {
+    concept: "Data Breach Notification",
+    technicalDescription: "The mandatory process of reporting personal data breaches to supervisory authorities within 72 hours and to affected individuals when the breach poses high risk to their rights and freedoms.",
+    translations: {
+      executive: "Breach notification is our legal obligation to report data breaches quickly. A well-prepared response plan protects reputation and demonstrates responsible data stewardship.",
+      product: "Features should include monitoring and alerting for anomalous data access. Quick detection enables faster response and reduces breach impact.",
+      engineering: "Implement logging, anomaly detection, and incident response procedures. Document data inventories so breach scope can be quickly assessed. Test response playbooks.",
+      legal: "GDPR Article 33 requires authority notification within 72 hours for breaches likely to risk rights/freedoms. Article 34 requires individual notification for high-risk breaches.",
+      marketing: "How we handle breaches affects brand trust. Transparent, timely communication following a breach can actually strengthen customer relationships."
+    },
+    keyPoints: [
+      "72-hour notification deadline to authorities",
+      "Not all breaches require notification (risk threshold)",
+      "Affected individuals notified for high-risk breaches",
+      "Documentation required even for non-notified breaches"
+    ],
+    riskImplications: "Failure to notify or late notification compounds breach penalties. Regulators view notification failures as aggravating factors in enforcement decisions."
+  },
+  "privacy-by-design": {
+    concept: "Privacy by Design",
+    technicalDescription: "An approach requiring privacy considerations to be embedded into the design and architecture of systems and business practices from the outset, rather than added as an afterthought.",
+    translations: {
+      executive: "Privacy by Design means building privacy into products from day one. It reduces costly retrofits, speeds up launches, and creates competitive advantage through customer trust.",
+      product: "Consider privacy at the requirements stage, not after development. Default settings should be privacy-protective. Minimize data collection to what's actually needed.",
+      engineering: "Implement data minimization, pseudonymization, and encryption by default. Design systems for easy consent management and data deletion. Document privacy decisions in specs.",
+      legal: "GDPR Article 25 mandates Privacy by Design and by Default. This requires technical and organizational measures appropriate to processing risks at design time.",
+      marketing: "Privacy by Design is a selling point. Customers increasingly choose products that respect their privacy—we can market our thoughtful approach to data protection."
+    },
+    keyPoints: [
+      "Privacy considered at earliest design stages",
+      "Data minimization: collect only what's needed",
+      "Privacy-protective defaults (opt-in vs opt-out)",
+      "Regular privacy reviews throughout development"
+    ],
+    riskImplications: "Retrofitting privacy is expensive and may be impossible. Products designed without privacy in mind may face market rejection or require costly redesigns."
   }
 };
 
