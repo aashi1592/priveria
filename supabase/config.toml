@@ -2,3 +2,9 @@ project_id = "jbazqemqvbmusqdqxkeu"
 
 [functions.analyze-document]
 verify_jwt = true
+
+[functions.dpia-to-policy]
+verify_jwt = false
+
+[functions.validate-license]
+verify_jwt = false

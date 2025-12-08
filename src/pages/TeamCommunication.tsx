@@ -21,10 +21,12 @@ import {
   AlertTriangle,
   Download,
   Presentation,
-  FileDown
+  FileDown,
+  FileCode
 } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import { DPIAToPolicyConverter } from "@/components/team-communication/DPIAToPolicyConverter";
 
 type Audience = "executive" | "product" | "engineering" | "legal" | "marketing";
 type ConceptType = "dpia" | "rls" | "data-retention" | "consent" | "data-subject-rights" | "lawful-basis" | "cross-border-transfers" | "breach-notification" | "privacy-by-design";
@@ -211,6 +213,7 @@ const audienceInfo: Record<Audience, { label: string; icon: typeof Users; descri
 };
 
 export default function TeamCommunication() {
+  const [activeTab, setActiveTab] = useState<"concepts" | "policy-code">("concepts");
   const [selectedConcept, setSelectedConcept] = useState<ConceptType>("dpia");
   const [selectedAudience, setSelectedAudience] = useState<Audience>("executive");
   const [customInput, setCustomInput] = useState("");
@@ -386,31 +389,47 @@ export default function TeamCommunication() {
         title="Team Communication"
         description="Translate technical privacy concepts for different stakeholders"
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => exportToPDF(false)} className="gap-2">
-              <FileDown className="h-4 w-4" />
-              PDF (Current Audience)
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => exportToPDF(true)} className="gap-2">
-              <FileText className="h-4 w-4" />
-              PDF (All Audiences)
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={exportToSlides} className="gap-2">
-              <Presentation className="h-4 w-4" />
-              Slide Deck (HTML)
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {activeTab === "concepts" && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => exportToPDF(false)} className="gap-2">
+                <FileDown className="h-4 w-4" />
+                PDF (Current Audience)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => exportToPDF(true)} className="gap-2">
+                <FileText className="h-4 w-4" />
+                PDF (All Audiences)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportToSlides} className="gap-2">
+                <Presentation className="h-4 w-4" />
+                Slide Deck (HTML)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </PageHeader>
 
       <div className="p-6 space-y-6">
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "concepts" | "policy-code")}>
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="concepts" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Privacy Concepts
+            </TabsTrigger>
+            <TabsTrigger value="policy-code" className="gap-2">
+              <FileCode className="h-4 w-4" />
+              DPIA to Policy Code
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="concepts" className="mt-6 space-y-6">
         {/* Concept and Audience Selection */}
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
@@ -602,6 +621,12 @@ export default function TeamCommunication() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="policy-code" className="mt-6">
+            <DPIAToPolicyConverter />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
