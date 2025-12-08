@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Code, FileJson, Copy, CheckCircle, Loader2, Download, AlertCircle } from "lucide-react";
+import { Code, FileJson, Copy, CheckCircle, Loader2, Download, AlertCircle, Import } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAssessments, Assessment } from "@/contexts/AssessmentsContext";
 
 type PolicyFormat = "rego" | "typescript" | "yaml" | "json";
 
@@ -33,7 +34,24 @@ const sampleDPIA = {
   ]
 };
 
+const convertAssessmentToJson = (assessment: Assessment) => {
+  return {
+    assessmentId: assessment.id,
+    assessmentName: assessment.name,
+    processingType: assessment.category,
+    riskLevel: assessment.riskLevel,
+    riskScore: assessment.riskScore,
+    status: assessment.status,
+    tier: assessment.tier,
+    owner: assessment.owner,
+    dateCreated: assessment.date,
+    nextReview: assessment.nextReview,
+    ...assessment.details,
+  };
+};
+
 export function DPIAToPolicyConverter() {
+  const { assessments } = useAssessments();
   const [dpiaInput, setDpiaInput] = useState("");
   const [outputFormat, setOutputFormat] = useState<PolicyFormat>("rego");
   const [policyCode, setPolicyCode] = useState("");
@@ -44,6 +62,15 @@ export function DPIAToPolicyConverter() {
   const loadSampleDPIA = () => {
     setDpiaInput(JSON.stringify(sampleDPIA, null, 2));
     toast.success("Sample DPIA loaded");
+  };
+
+  const importAssessment = (assessmentId: string) => {
+    const assessment = assessments.find((a) => a.id === assessmentId);
+    if (assessment) {
+      const json = convertAssessmentToJson(assessment);
+      setDpiaInput(JSON.stringify(json, null, 2));
+      toast.success(`Imported "${assessment.name}"`);
+    }
   };
 
   const convertToPolicy = async () => {
@@ -123,9 +150,9 @@ export function DPIAToPolicyConverter() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Select value={outputFormat} onValueChange={(v) => setOutputFormat(v as PolicyFormat)}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -139,6 +166,31 @@ export function DPIAToPolicyConverter() {
                   ))}
                 </SelectContent>
               </Select>
+              
+              <Select onValueChange={importAssessment}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Import Assessment" />
+                </SelectTrigger>
+                <SelectContent>
+                  {assessments.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      No assessments available
+                    </SelectItem>
+                  ) : (
+                    assessments.map((assessment) => (
+                      <SelectItem key={assessment.id} value={assessment.id}>
+                        <div className="flex flex-col">
+                          <span className="truncate max-w-[160px]">{assessment.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {assessment.id} • {assessment.riskLevel} risk
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              
               <Button variant="outline" onClick={loadSampleDPIA}>
                 Load Sample
               </Button>
