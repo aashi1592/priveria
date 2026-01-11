@@ -194,6 +194,35 @@ export function DPIAToPolicyConverter() {
               <Button variant="outline" onClick={loadSampleDPIA}>
                 Load Sample
               </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  if (!dpiaInput.trim()) {
+                    toast.error("No DPIA JSON to export");
+                    return;
+                  }
+                  try {
+                    JSON.parse(dpiaInput);
+                    const blob = new Blob([dpiaInput], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "dpia-export.json";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    toast.success("DPIA JSON exported");
+                  } catch {
+                    toast.error("Invalid JSON - please fix before exporting");
+                  }
+                }}
+                disabled={!dpiaInput.trim()}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export JSON
+              </Button>
             </div>
             
             <Textarea
