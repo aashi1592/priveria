@@ -128,7 +128,7 @@ We welcome pull requests and issue reports! Please review `CONTRIBUTING.md` for 
 
 - **Issues & Feature Requests** – Use the GitHub Issues tab to report bugs or propose enhancements.
 - **Product Questions** – Start a discussion in GitHub Discussions or reach out to the maintainers.
-- **Security Concerns** – Email security@priveria.io with details so we can investigate promptly.
+- **Security Concerns** – Email contactus@decodedbycounsel.com with details so we can investigate promptly.
 
 ---
 
