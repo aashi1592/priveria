@@ -77,11 +77,10 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
       setUploading(false);
       setAnalyzing(true);
 
-      // Trigger AI analysis
+      // Trigger AI analysis - only send documentId, file path is retrieved server-side
       const { error: analysisError } = await supabase.functions.invoke('analyze-document', {
         body: {
-          documentId: document.id,
-          fileUrl: filePath
+          documentId: document.id
         }
       });
 

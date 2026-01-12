@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// UUID validation regex
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -32,25 +35,54 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
-    const { documentId, fileUrl } = await req.json();
+    // Parse request body - only documentId is needed now
+    const { documentId } = await req.json();
 
-    if (!documentId || !fileUrl) {
-      throw new Error('Missing required parameters');
+    // Validate documentId is provided
+    if (!documentId) {
+      throw new Error('Missing required parameter: documentId');
+    }
+
+    // Validate documentId is a valid UUID format
+    if (!UUID_REGEX.test(documentId)) {
+      throw new Error('Invalid document ID format');
     }
 
     console.log(`Processing document ${documentId} for user ${user.id}`);
+
+    // CRITICAL: Verify document ownership BEFORE any processing
+    // Query the document and verify it belongs to the authenticated user
+    const { data: documentRecord, error: docError } = await supabase
+      .from('uploaded_documents')
+      .select('id, file_path, user_id, status')
+      .eq('id', documentId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (docError || !documentRecord) {
+      console.error('Document not found or access denied:', docError);
+      throw new Error('Document not found or access denied');
+    }
+
+    // Validate file_path doesn't contain path traversal attempts
+    const filePath = documentRecord.file_path;
+    if (filePath.includes('..') || filePath.startsWith('/')) {
+      console.error('Invalid file path detected:', filePath);
+      throw new Error('Invalid file path');
+    }
 
     // Update document status to processing
     await supabase
       .from('uploaded_documents')
       .update({ status: 'processing' })
-      .eq('id', documentId);
+      .eq('id', documentId)
+      .eq('user_id', user.id);
 
-    // Download the file content
+    // Download the file content using the validated file_path from database
     const { data: fileData, error: downloadError } = await supabase
       .storage
       .from('documents')
-      .download(fileUrl);
+      .download(filePath);
 
     if (downloadError || !fileData) {
       throw new Error('Failed to download file');
@@ -278,7 +310,8 @@ Return your analysis as a structured JSON object with these fields.`
         status: 'completed',
         processed_at: new Date().toISOString()
       })
-      .eq('id', documentId);
+      .eq('id', documentId)
+      .eq('user_id', user.id);
 
     return new Response(
       JSON.stringify({ 
