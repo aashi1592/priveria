@@ -1,6 +1,6 @@
 # Priveria Enterprise DPIA Framework-as-a-Service (DPIA-FaaS)
 
-> Unified workspace for Data Protection Impact Assessments, vendor governance, and privacy compliance automation.
+> Unified workflow for Data Protection Impact Assessments, vendor governance, and privacy compliance automation.
 
 Priveria helps privacy, security, and legal teams collaborate on DPIAs, monitor third-party risk, and keep policies audit-ready. The platform ships with modern UX, thoughtful defaults, and optional AI-powered workflows so teams of any size can roll out a repeatable privacy program.
 
