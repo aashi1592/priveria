@@ -1,4 +1,4 @@
-# Priveria Privacy Platform
+# Priveria Enterprise DPIA Framework-as-a-Service (DPIA-FaaS)
 
 > Unified workspace for Data Protection Impact Assessments, vendor governance, and privacy compliance automation.
 
