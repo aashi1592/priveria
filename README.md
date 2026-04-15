@@ -2,9 +2,15 @@
 
 > Unified workflow for Data Protection Impact Assessments, vendor governance, and privacy compliance automation.
 
+Priveria is an open-source privacy governance project built to make Data Protection Impact Assessments more operational, reuasable, and threat-informed for AI systems, high-risk data processing, and emerging agentic workflow. At the core, it is a practioner built workflow approach for turning DPIAs from static compliance documents into a continuous governance capability.
+
 Priveria helps privacy, security, and legal teams collaborate on DPIAs, monitor third-party risk, and keep policies audit-ready. The platform ships with modern UX, thoughtful defaults, and optional AI-powered workflows so teams of any size can roll out a repeatable privacy program.
 
----
+## Core Problem:
+Modern privacy risks does not stay still, but most DPIAs do.
+
+Traditional DPIAs are often completed as one-time legal or compliance exercises. They are documented, stored and rarely revisited in a meaningful way, even when the underlying system changes. That model is increasingly ineffective for AI systems, multi-vendor environments, and agentic workflows where data uses, model behavior, permissions, third-party tools, and risk exposure evolve continuously. Many organizations run DPIAs across a patchwork of tools such as One Trust, Archer, Service Now and spreadhseets stored on shared drives. Each system works in its lane, but none speak in a shared language. Privacy risk quantification differes; templates vary, and board level metrics lack consistency. As a result, 
+
 
 ## Key Highlights
 
