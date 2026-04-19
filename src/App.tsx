@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -21,20 +19,16 @@ const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const DocumentAnalysis = lazy(() => import("./pages/DocumentAnalysis"));
 const TeamCommunication = lazy(() => import("./pages/TeamCommunication"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Login = lazy(() => import("./pages/Login"));
-const Signup = lazy(() => import("./pages/Signup"));
 
 const queryClient = new QueryClient();
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => (
-  <ProtectedRoute>
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar />
-        <main className="flex-1">{children}</main>
-      </div>
-    </SidebarProvider>
-  </ProtectedRoute>
+const AppLayout = ({ children }: { children: React.ReactNode }) => (
+  <SidebarProvider>
+    <div className="flex min-h-screen w-full">
+      <AppSidebar />
+      <main className="flex-1">{children}</main>
+    </div>
+  </SidebarProvider>
 );
 
 const App = () => (
@@ -43,31 +37,22 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <Suspense fallback={<div className="p-6">Loading...</div>}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              
-              {/* Protected routes */}
-              <Route path="/" element={<ProtectedLayout><Index /></ProtectedLayout>} />
-              <Route path="/assessments" element={<ProtectedLayout><Assessments /></ProtectedLayout>} />
-              <Route path="/ai-module" element={<ProtectedLayout><AIModule /></ProtectedLayout>} />
-              <Route path="/third-party" element={<ProtectedLayout><ThirdParty /></ProtectedLayout>} />
-              <Route path="/reports" element={<ProtectedLayout><Reports /></ProtectedLayout>} />
-              <Route path="/risk-calculator" element={<ProtectedLayout><RiskCalculator /></ProtectedLayout>} />
-              <Route path="/dpia-wizard" element={<ProtectedLayout><DPIAWizard /></ProtectedLayout>} />
-              <Route path="/settings" element={<ProtectedLayout><Settings /></ProtectedLayout>} />
-              <Route path="/feature-guide" element={<ProtectedLayout><FeatureGuide /></ProtectedLayout>} />
-              <Route path="/document-analysis" element={<ProtectedLayout><DocumentAnalysis /></ProtectedLayout>} />
-              <Route path="/team-communication" element={<ProtectedLayout><TeamCommunication /></ProtectedLayout>} />
-              
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </AuthProvider>
+        <Suspense fallback={<div className="p-6">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<AppLayout><Index /></AppLayout>} />
+            <Route path="/assessments" element={<AppLayout><Assessments /></AppLayout>} />
+            <Route path="/ai-module" element={<AppLayout><AIModule /></AppLayout>} />
+            <Route path="/third-party" element={<AppLayout><ThirdParty /></AppLayout>} />
+            <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
+            <Route path="/risk-calculator" element={<AppLayout><RiskCalculator /></AppLayout>} />
+            <Route path="/dpia-wizard" element={<AppLayout><DPIAWizard /></AppLayout>} />
+            <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+            <Route path="/feature-guide" element={<AppLayout><FeatureGuide /></AppLayout>} />
+            <Route path="/document-analysis" element={<AppLayout><DocumentAnalysis /></AppLayout>} />
+            <Route path="/team-communication" element={<AppLayout><TeamCommunication /></AppLayout>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
