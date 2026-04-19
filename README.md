@@ -89,7 +89,7 @@ Priveria is designed to **complement, not replace**, the systems privacy and gov
 
 - **GRC platforms** (ServiceNow, Archer, OneTrust) — Priveria can feed standardized DPIA outputs and risk scores into existing GRC workflows.
 - **Vendor risk platforms** — Sync vendor inventories and risk tiers to align third-party governance with DPIA findings.
-- **AI governance frameworks** — Map assessments to **NIST AI RMF**, **ISO/IEC 42001**, and **EU AI Act** control sets.
+- **AI governance frameworks** — Map assessments to **NIST AI RMF**, **ISO/IEC 42001**, **ISO/IEC 42005**, and **EU AI Act** control sets.
 - **Threat modeling** — Reuse established lenses (**STRIDE**, **LINDDUN**, **MITRE ATLAS**) for privacy-specific threat enumeration.
 - **Engineering workflows** — Emit policy-as-code (JSON / YAML) so product teams can enforce DPIA outcomes in their own pipelines.
 
@@ -113,6 +113,7 @@ Priveria's assessment model is designed to support — and produce evidence for 
 - **EU AI Act** — Risk classification and conformity evidence for high-risk AI systems and general-purpose AI obligations.
 - **NIST AI Risk Management Framework (AI RMF)** — Mapping to Govern, Map, Measure, and Manage functions.
 - **ISO/IEC 42001** — Inputs for AI management system controls and continuous improvement loops.
+- **ISO/IEC 42005** — Direct alignment with the AI system impact assessment standard, including scope, data, and stakeholder impact analysis for AI systems throughout their lifecycle.
 - **ISO/IEC 27701** — Privacy information management alignment for organizations layering Priveria on existing ISMS programs.
 
 ---
