@@ -12,6 +12,7 @@ import {
   BookOpen,
   ScanText,
   MessageSquareText,
+  Target,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +35,7 @@ const items = [
   { title: "Team Communication", url: "/team-communication", icon: MessageSquareText },
   { title: "Third Party Risk", url: "/third-party", icon: Users },
   { title: "Risk Calculator", url: "/risk-calculator", icon: Calculator },
+  { title: "Threat Modeling", url: "/threat-modeling", icon: Target },
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Feature Guide", url: "/feature-guide", icon: BookOpen },
   { title: "Settings", url: "/settings", icon: Settings },

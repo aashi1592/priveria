@@ -18,6 +18,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const FeatureGuide = lazy(() => import("./pages/FeatureGuide"));
 const DocumentAnalysis = lazy(() => import("./pages/DocumentAnalysis"));
 const TeamCommunication = lazy(() => import("./pages/TeamCommunication"));
+const ThreatModeling = lazy(() => import("./pages/ThreatModeling"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/feature-guide" element={<AppLayout><FeatureGuide /></AppLayout>} />
             <Route path="/document-analysis" element={<AppLayout><DocumentAnalysis /></AppLayout>} />
             <Route path="/team-communication" element={<AppLayout><TeamCommunication /></AppLayout>} />
+            <Route path="/threat-modeling" element={<AppLayout><ThreatModeling /></AppLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
