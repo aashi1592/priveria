@@ -11,6 +11,7 @@ import {
   Search, Sparkles, Shield, Brain, Target, FileText, ScanText, MessageSquareText,
   Users, Calculator, LayoutDashboard, FolderKanban, Settings, Download, ArrowRight,
   CheckCircle2, Layers, Workflow, GitBranch, FileSignature, Share2, Building2,
+  Cpu, Bot, Network, Landmark, RefreshCw, Code2, Briefcase, Eye, ClipboardCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
