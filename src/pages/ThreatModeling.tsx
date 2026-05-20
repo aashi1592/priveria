@@ -201,7 +201,7 @@ const ThreatModeling = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="register" className="mt-4">
+          <TabsContent value="register" className="mt-4 space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Draft Threat Register{selectedAssessment ? ` — ${selectedAssessment}` : ""}</CardTitle>
@@ -238,6 +238,11 @@ const ThreatModeling = () => {
                 )}
               </CardContent>
             </Card>
+
+            <ShareableRegisterSection
+              assessment={assessments.find((a) => a.id === selectedAssessment)}
+              register={register}
+            />
           </TabsContent>
         </Tabs>
       </div>
