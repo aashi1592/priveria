@@ -105,6 +105,23 @@ Priveria is designed to **complement, not replace**, the systems privacy and gov
 
 ---
 
+## Use Cases
+
+Priveria is designed around the real-world scenarios privacy and governance teams face daily:
+
+| Use Case | What You Can Do | Key Features |
+|----------|----------------|-------------|
+| **AI System DPIA & EU AI Act Conformity** | Assess high-risk AI end-to-end and produce structured conformity evidence for Articles 9, 10, 13 and 53. | DPIA Wizard, Risk Calculator, Export Templates |
+| **Agentic AI Governance** | Model multi-agent workflows, tool-use boundaries, permissions, and chain-of-action risks. | MAESTRO Framework, AI Module, Wizard |
+| **Privacy Threat Modeling** | Enumerate privacy and adversarial threats across ML pipelines with STRIDE, LINDDUN, and MITRE ATLAS. | STRIDE (ML-adapted), LINDDUN, MITRE ATLAS, Threat Register |
+| **Third-Party Risk & Vendor DPIA** | Maintain a living vendor catalogue, track certifications, and run vendor-specific DPIAs. | Third-Party Risk, Assessments, DPA Lifecycle |
+| **Cross-Functional Collaboration** | Bring Privacy, Security, Engineering and Legal together with sign-offs and gated hand-offs. | Human-in-the-Loop Review, Team Communication, Policy-as-Code |
+| **Regulator-Ready Exports** | Generate EDPB-aligned regulator views, EU AI Act packs, board briefs, and internal reports. | EDPB Template, EU AI Act Conformity, Board Brief, Stakeholder Share |
+| **Continuous Privacy Governance** | Turn static DPIAs into living objects that re-evaluate when systems change. | Assessments, Version History, Settings |
+| **Policy-as-Code Generation** | Convert finalized DPIA JSON into runtime-enforceable Rego or TypeScript policies. | Policy Generator, Team Communication, Review Panel |
+
+---
+
 ## Regulatory Alignment
 
 Priveria's assessment model is designed to support — and produce evidence for — major privacy and AI governance regimes:
