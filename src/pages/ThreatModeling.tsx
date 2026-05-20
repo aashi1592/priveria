@@ -10,6 +10,7 @@ import { Target, Plus, Check } from "lucide-react";
 import { strideEntries } from "@/data/strideLenses";
 import { atlasTactics } from "@/data/mitreAtlas";
 import { useAssessments } from "@/contexts/AssessmentsContext";
+import { ShareableRegisterSection } from "@/components/threat-modeling/ShareableRegisterSection";
 import { toast } from "sonner";
 
 interface RegisterEntry {
