@@ -431,6 +431,61 @@ const FeatureGuide = () => {
           </CardContent>
         </Card>
 
+        {/* Use Cases */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <ClipboardCheck className="w-5 h-5 text-primary" />
+            <h3 className="text-xl font-semibold tracking-tight">Use Cases</h3>
+            <Badge variant="outline" className="ml-auto text-xs">
+              {useCases.length} scenarios
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {useCases.map((uc, idx) => {
+              const Icon = uc.icon;
+              return (
+                <Card
+                  key={uc.id}
+                  className="group overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all duration-300"
+                  style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/60 text-primary flex items-center justify-center transition-transform group-hover:scale-110">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <CardTitle className="text-sm leading-tight">{uc.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{uc.description}</p>
+                    <div className="space-y-1.5">
+                      {uc.outcomes.map((o) => (
+                        <div key={o} className="flex items-center gap-2 text-xs text-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          {o}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {uc.featureLinks.map((fid) => {
+                        const linked = features.find((f) => f.id === fid);
+                        if (!linked) return null;
+                        return (
+                          <Badge key={fid} variant="outline" className="text-[10px] font-normal">
+                            {linked.title}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Search + tabs */}
         <div className="flex flex-col md:flex-row gap-3 md:items-center">
           <div className="relative flex-1">
