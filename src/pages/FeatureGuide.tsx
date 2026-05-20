@@ -240,6 +240,82 @@ const features: Feature[] = [
   },
 ];
 
+interface UseCase {
+  id: string;
+  title: string;
+  icon: typeof Shield;
+  description: string;
+  outcomes: string[];
+  featureLinks: string[];
+}
+
+const useCases: UseCase[] = [
+  {
+    id: "ai-dpia",
+    title: "AI System DPIA & EU AI Act Conformity",
+    icon: Cpu,
+    description: "Assess high-risk AI systems end-to-end and produce structured conformity evidence for Articles 9, 10, 13 and 53.",
+    outcomes: ["Risk-tiered assessment", "Conformity evidence pack", "Audit-ready artifact"],
+    featureLinks: ["wizard", "risk-calculator", "exports"],
+  },
+  {
+    id: "agentic-governance",
+    title: "Agentic AI Governance",
+    icon: Bot,
+    description: "Model multi-agent workflows, tool-use boundaries, permissions, and chain-of-action risks using the MAESTRO framework.",
+    outcomes: ["Autonomy scoring", "Tool boundary mapping", "Emergent risk capture"],
+    featureLinks: ["maestro", "wizard", "ai-module"],
+  },
+  {
+    id: "privacy-threat-modeling",
+    title: "Privacy Threat Modeling",
+    icon: Network,
+    description: "Enumerate privacy and adversarial threats across ML pipelines with STRIDE (ML-adapted), LINDDUN, and MITRE ATLAS.",
+    outcomes: ["Cross-lens coverage", "Per-threat controls", "Holistic register"],
+    featureLinks: ["stride", "atlas", "linddun", "threat-register"],
+  },
+  {
+    id: "vendor-risk",
+    title: "Third-Party Risk & Vendor DPIA",
+    icon: Briefcase,
+    description: "Maintain a living vendor catalogue, track certifications, and run vendor-specific DPIAs with automated expiry alerts.",
+    outcomes: ["Vendor inventory", "Certification tracking", "DPA lifecycle"],
+    featureLinks: ["third-party", "assessments", "risk-calculator"],
+  },
+  {
+    id: "cross-functional",
+    title: "Cross-Functional Collaboration",
+    icon: Users,
+    description: "Bring Privacy, Security, Engineering and Legal together with sign-offs, inline comments, and gated hand-offs.",
+    outcomes: ["Multi-role sign-off", "Inline commentary", "Gated policy-as-code"],
+    featureLinks: ["review-panel", "team-comms", "policy"],
+  },
+  {
+    id: "regulator-exports",
+    title: "Regulator-Ready Exports",
+    icon: Landmark,
+    description: "Generate EDPB-aligned regulator views, EU AI Act conformity packs, board briefs, and internal technical reports.",
+    outcomes: ["EDPB WP248 alignment", "Board snapshot", "Stakeholder share"],
+    featureLinks: ["exports", "threat-register", "document-analysis"],
+  },
+  {
+    id: "continuous-governance",
+    title: "Continuous Privacy Governance",
+    icon: RefreshCw,
+    description: "Turn static DPIAs into living objects that re-evaluate when data flows, models, vendors, or scope change.",
+    outcomes: ["Version history", "Re-assessment triggers", "Lifecycle tracking"],
+    featureLinks: ["assessments", "settings", "dashboard"],
+  },
+  {
+    id: "policy-as-code",
+    title: "Policy-as-Code Generation",
+    icon: Code2,
+    description: "Convert finalized DPIA JSON into runtime-enforceable Rego or TypeScript policies for CI/CD pipelines.",
+    outcomes: ["Rego output", "TypeScript output", "Engineering hand-off"],
+    featureLinks: ["policy", "team-comms", "review-panel"],
+  },
+];
+
 const statusVariant: Record<Feature["status"], "default" | "secondary" | "outline"> = {
   Available: "secondary",
   New: "default",
