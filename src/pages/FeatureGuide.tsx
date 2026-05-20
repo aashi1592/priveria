@@ -11,6 +11,7 @@ import {
   Search, Sparkles, Shield, Brain, Target, FileText, ScanText, MessageSquareText,
   Users, Calculator, LayoutDashboard, FolderKanban, Settings, Download, ArrowRight,
   CheckCircle2, Layers, Workflow, GitBranch, FileSignature, Share2, Building2,
+  Cpu, Bot, Network, Landmark, RefreshCw, Code2, Briefcase, Eye, ClipboardCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
@@ -239,6 +240,82 @@ const features: Feature[] = [
   },
 ];
 
+interface UseCase {
+  id: string;
+  title: string;
+  icon: typeof Shield;
+  description: string;
+  outcomes: string[];
+  featureLinks: string[];
+}
+
+const useCases: UseCase[] = [
+  {
+    id: "ai-dpia",
+    title: "AI System DPIA & EU AI Act Conformity",
+    icon: Cpu,
+    description: "Assess high-risk AI systems end-to-end and produce structured conformity evidence for Articles 9, 10, 13 and 53.",
+    outcomes: ["Risk-tiered assessment", "Conformity evidence pack", "Audit-ready artifact"],
+    featureLinks: ["wizard", "risk-calculator", "exports"],
+  },
+  {
+    id: "agentic-governance",
+    title: "Agentic AI Governance",
+    icon: Bot,
+    description: "Model multi-agent workflows, tool-use boundaries, permissions, and chain-of-action risks using the MAESTRO framework.",
+    outcomes: ["Autonomy scoring", "Tool boundary mapping", "Emergent risk capture"],
+    featureLinks: ["maestro", "wizard", "ai-module"],
+  },
+  {
+    id: "privacy-threat-modeling",
+    title: "Privacy Threat Modeling",
+    icon: Network,
+    description: "Enumerate privacy and adversarial threats across ML pipelines with STRIDE (ML-adapted), LINDDUN, and MITRE ATLAS.",
+    outcomes: ["Cross-lens coverage", "Per-threat controls", "Holistic register"],
+    featureLinks: ["stride", "atlas", "linddun", "threat-register"],
+  },
+  {
+    id: "vendor-risk",
+    title: "Third-Party Risk & Vendor DPIA",
+    icon: Briefcase,
+    description: "Maintain a living vendor catalogue, track certifications, and run vendor-specific DPIAs with automated expiry alerts.",
+    outcomes: ["Vendor inventory", "Certification tracking", "DPA lifecycle"],
+    featureLinks: ["third-party", "assessments", "risk-calculator"],
+  },
+  {
+    id: "cross-functional",
+    title: "Cross-Functional Collaboration",
+    icon: Users,
+    description: "Bring Privacy, Security, Engineering and Legal together with sign-offs, inline comments, and gated hand-offs.",
+    outcomes: ["Multi-role sign-off", "Inline commentary", "Gated policy-as-code"],
+    featureLinks: ["review-panel", "team-comms", "policy"],
+  },
+  {
+    id: "regulator-exports",
+    title: "Regulator-Ready Exports",
+    icon: Landmark,
+    description: "Generate EDPB-aligned regulator views, EU AI Act conformity packs, board briefs, and internal technical reports.",
+    outcomes: ["EDPB WP248 alignment", "Board snapshot", "Stakeholder share"],
+    featureLinks: ["exports", "threat-register", "document-analysis"],
+  },
+  {
+    id: "continuous-governance",
+    title: "Continuous Privacy Governance",
+    icon: RefreshCw,
+    description: "Turn static DPIAs into living objects that re-evaluate when data flows, models, vendors, or scope change.",
+    outcomes: ["Version history", "Re-assessment triggers", "Lifecycle tracking"],
+    featureLinks: ["assessments", "settings", "dashboard"],
+  },
+  {
+    id: "policy-as-code",
+    title: "Policy-as-Code Generation",
+    icon: Code2,
+    description: "Convert finalized DPIA JSON into runtime-enforceable Rego or TypeScript policies for CI/CD pipelines.",
+    outcomes: ["Rego output", "TypeScript output", "Engineering hand-off"],
+    featureLinks: ["policy", "team-comms", "review-panel"],
+  },
+];
+
 const statusVariant: Record<Feature["status"], "default" | "secondary" | "outline"> = {
   Available: "secondary",
   New: "default",
@@ -353,6 +430,61 @@ const FeatureGuide = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Use Cases */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <ClipboardCheck className="w-5 h-5 text-primary" />
+            <h3 className="text-xl font-semibold tracking-tight">Use Cases</h3>
+            <Badge variant="outline" className="ml-auto text-xs">
+              {useCases.length} scenarios
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {useCases.map((uc, idx) => {
+              const Icon = uc.icon;
+              return (
+                <Card
+                  key={uc.id}
+                  className="group overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all duration-300"
+                  style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/60 text-primary flex items-center justify-center transition-transform group-hover:scale-110">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <CardTitle className="text-sm leading-tight">{uc.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{uc.description}</p>
+                    <div className="space-y-1.5">
+                      {uc.outcomes.map((o) => (
+                        <div key={o} className="flex items-center gap-2 text-xs text-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          {o}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {uc.featureLinks.map((fid) => {
+                        const linked = features.find((f) => f.id === fid);
+                        if (!linked) return null;
+                        return (
+                          <Badge key={fid} variant="outline" className="text-[10px] font-normal">
+                            {linked.title}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Search + tabs */}
         <div className="flex flex-col md:flex-row gap-3 md:items-center">
