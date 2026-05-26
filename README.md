@@ -235,6 +235,7 @@ We welcome pull requests and issue reports! Please review `CONTRIBUTING.md` for 
 
 - **Issues & Feature Requests** – Use the GitHub Issues tab to report bugs or propose enhancements.
 - **Product Questions** – Start a discussion in GitHub Discussions or reach out to the maintainers.
+- **Slack Community** – Join the conversation on [Slack](https://decodedbycounsel.slack.com/archives/C0B615QH2Q0) for real-time support and community discussion.
 - **Security Concerns** – Email contactus@decodedbycounsel.com with details so we can investigate promptly.
 
 ---
