@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, HelpCircle, Github, ExternalLink, BookOpen, Mail, Heart, Sparkles, Users, Shield } from "lucide-react";
 
-const slackInviteUrl = "https://join.slack.com/t/priveria/shared_invite/placeholder";
+const slackInviteUrl = "https://decodedbycounsel.slack.com/archives/C0B615QH2Q0";
 const githubUrl = "https://github.com/priveria/priveria";
 const docsUrl = "https://docs.priveria.dev";
 const emailSupport = "support@priveria.dev";
