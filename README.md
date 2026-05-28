@@ -152,7 +152,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Visit `http://localhost:8080` to explore the app.
+Visit `http://127.0.0.1:5173/` to explore the app.
 
 ---
 
