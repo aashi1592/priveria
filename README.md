@@ -2,14 +2,14 @@
 
 > Unified workflow for Data Protection Impact Assessments, vendor governance, and privacy compliance automation.
 
-Priveria is an open-source privacy governance project built to make Data Protection Impact Assessments more operational, reuasable, and threat-informed for AI systems, high-risk data processing, and emerging agentic workflow. At the core, it is a practioner built workflow approach for turning DPIAs from static compliance documents into a continuous governance capability.
+Priveria is an open-source privacy governance project built to make Data Protection Impact Assessments more operational, reusable, and threat-informed for AI systems, high-risk data processing, and emerging agentic workflows. At the core, it is a practitioner-built workflow for turning DPIAs from static compliance documents into a continuous governance capability.
 
 Priveria helps privacy, security, and legal teams collaborate on DPIAs, monitor third-party risk, and keep policies audit-ready. The platform ships with modern UX, thoughtful defaults, and optional AI-powered workflows so teams of any size can roll out a repeatable privacy program.
 
 ## Core Problem:
 Modern privacy risks does not stay still, but most DPIAs do.
 
-Traditional DPIAs are often completed as one-time legal or compliance exercises. They are documented, stored and rarely revisited in a meaningful way, even when the underlying system changes. That model is increasingly ineffective for AI systems, multi-vendor environments, and agentic workflows where data uses, model behavior, permissions, third-party tools, and risk exposure evolve continuously. Many organizations run DPIAs across a patchwork of tools such as One Trust, Archer, Service Now and spreadhseets stored on shared drives. Each system works in its lane, but none speak in a shared language. Privacy risk quantification differes; templates vary, and board level metrics lack consistency. As a result, it's difficult to produce a cohesive privacy risk across data flows, AI systems, business units. One team might label a risk as "high-risk", while another using a scoring model, calls the same scenario "acceptable". The enterprise ends up manageging risks in peices instead of pattern. The result is paradoxical structural gap that creates reactive privacy governace, instead of resilient one.
+Traditional DPIAs are often completed as one-time legal or compliance exercises. They are documented, stored, and rarely revisited in a meaningful way, even when the underlying system changes. That model is increasingly ineffective for AI systems, multi-vendor environments, and agentic workflows where data uses, model behavior, permissions, third-party tools, and risk exposure evolve continuously. Many organizations run DPIAs across a patchwork of tools such as OneTrust, Archer, ServiceNow, and spreadsheets on shared drives. Each system works in its lane, but none speak a shared language. Privacy risk quantification differs; templates vary, and board-level metrics lack consistency. As a result, it is difficult to produce a cohesive privacy risk view across data flows, AI systems, and business units. One team might label a risk as "high-risk" while another, using a different scoring model, calls the same scenario "acceptable". The enterprise ends up managing risks in pieces instead of patterns—a structural gap that creates reactive privacy governance instead of a resilient one.
 
 Modern AI systems are fluid. Training data changes, model behavior evolves, and dependencies shift faster than traditional compliance framework can track. A single static assessment no longer reflects reality a month later. What's missing is a unifying layer that brings coherence to all this-a way to connect assessments, standardize risk logic, and shift privacy governance from paperwork to logic.
 
@@ -43,6 +43,7 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 
 ### Data Protection Impact Assessments
 - Step-by-step assessment wizard with contextual guidance.
+- **Multi-risk register** in the wizard — add multiple distinct risks, each with its own likelihood and impact, rolled into the overall DPIA score.
 - Attach evidence, mitigation actions, and approvals to each DPIA.
 - Export professional PDF summaries for regulators or auditors.
 
@@ -58,7 +59,8 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 
 ### Reporting & Dashboards
 - Snapshot KPIs such as DPIA status, vendor health, and overall compliance.
-- Download structured reports for internal reviews or regulator submissions.
+- Five built-in export templates: EDPB regulator view, EU AI Act conformity, board brief, internal technical report, and threat-register stakeholder share.
+- Human-in-the-loop review panel with threat-register preview before export.
 - Tailorable widgets so teams can focus on what matters most.
 
 ### Privacy Threat Modeling for AI
@@ -152,7 +154,15 @@ cp .env.example .env
 npm run dev
 ```
 
-Visit `http://127.0.0.1:5173/` to explore the app.
+Visit `http://127.0.0.1:5173/` to explore the app (override host/port with `HOST` and `PORT` env vars).
+
+---
+
+## Documentation
+
+- **[Installation Guide](docs/INSTALLATION.md)** — setup, backend options, and troubleshooting
+- **[Architecture Overview](docs/ARCHITECTURE.md)** — system design and data flow
+- **[UAT DPIA Platform](UAT_DPIA_Platform.md)** — user acceptance test scenarios
 
 ---
 
@@ -165,14 +175,20 @@ Create a `.env` file (copy `.env.example`) and provide the following variables:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_public_key
 
-# Optional — unlock enterprise AI features
+# Optional — enterprise features
+VITE_ENTERPRISE_ENABLED=false
 VITE_LICENSE_KEY=your_priveria_enterprise_license
+VITE_ORGANIZATION_ID=your_organization_id
+
+# Optional — AI (enterprise)
 LOVABLE_API_KEY=your_lovable_ai_token
 
-# Optional — integrations
+# Optional — GRC integrations
 ONETRUST_API_KEY=your_onetrust_key
 ONETRUST_ORG_ID=your_onetrust_org_id
 ```
+
+See `.env.example` for the full list, including ServiceNow, Archer, and alternate AI providers.
 
 ---
 
@@ -180,16 +196,95 @@ ONETRUST_ORG_ID=your_onetrust_org_id
 
 ```text
 priveria/
-├─ src/
-│  ├─ components/        # Reusable UI and layout primitives
-│  ├─ pages/             # Feature pages (DPIA, Third-Party, Reports, etc.)
-│  ├─ hooks/             # Custom React hooks
-│  ├─ lib/               # Utilities and service helpers
-│  └─ supabase/          # Client setup and database helpers
-├─ public/               # Static assets served by Vite
-├─ config/               # App configuration and mock data
-├─ docs/                 # Extended documentation & guides
-└─ vite.config.ts        # Vite + TypeScript configuration
+├── .github/
+│   └── ISSUE_TEMPLATE/          # Bug report & feature request templates
+├── config/
+│   └── features.json            # Feature flags / module toggles
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── INSTALLATION.md
+├── public/                      # Static assets (Vite)
+│   ├── favicon.ico
+│   ├── placeholder.svg
+│   └── robots.txt
+├── src/
+│   ├── components/
+│   │   ├── dashboard/             # KPIs, risk overview, compliance widgets
+│   │   ├── document/              # Upload & analysis UI
+│   │   ├── enterprise/            # License gates & upgrade prompts
+│   │   ├── layout/                # App shell, sidebar, page headers
+│   │   ├── reports/               # Export picker & review panel
+│   │   ├── team-communication/    # DPIA-to-policy converter
+│   │   ├── threat-modeling/       # Shareable threat register
+│   │   ├── ui/                    # shadcn/ui primitives (button, dialog, …)
+│   │   └── wizard/                # DPIA wizard steps (incl. multi-risk register)
+│   ├── config/
+│   │   └── features.ts            # Typed feature config loader
+│   ├── contexts/
+│   │   ├── AssessmentsContext.tsx
+│   │   └── EnterpriseConfigContext.tsx
+│   ├── data/
+│   │   ├── mitreAtlas.ts          # MITRE ATLAS threat data
+│   │   └── strideLenses.ts        # STRIDE / privacy lens definitions
+│   ├── hooks/
+│   │   ├── use-mobile.tsx
+│   │   ├── use-toast.ts
+│   │   └── useReviewState.ts
+│   ├── integrations/
+│   │   └── supabase/
+│   │       ├── client.ts          # Supabase browser client
+│   │       └── types.ts           # Generated DB types
+│   ├── lib/
+│   │   ├── exportTemplates/
+│   │   │   ├── edpbRegulator.ts
+│   │   │   ├── euAiActConformity.ts
+│   │   │   ├── boardBrief.ts
+│   │   │   ├── internalTechnical.ts
+│   │   │   ├── threatRegisterShare.ts
+│   │   │   ├── index.ts
+│   │   │   └── types.ts
+│   │   ├── supabase.ts
+│   │   └── utils.ts
+│   ├── pages/                     # Route-level views
+│   │   ├── Index.tsx              # Dashboard home
+│   │   ├── DPIAWizard.tsx
+│   │   ├── Assessments.tsx
+│   │   ├── ThirdParty.tsx
+│   │   ├── ThreatModeling.tsx
+│   │   ├── RiskCalculator.tsx
+│   │   ├── Reports.tsx
+│   │   ├── DocumentAnalysis.tsx
+│   │   ├── TeamCommunication.tsx
+│   │   ├── AIModule.tsx
+│   │   ├── Settings.tsx
+│   │   ├── FeatureGuide.tsx
+│   │   ├── Community.tsx
+│   │   └── NotFound.tsx
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── supabase/
+│   ├── config.toml
+│   ├── functions/
+│   │   ├── analyze-document/      # Edge function: document analysis
+│   │   ├── dpia-to-policy/        # Edge function: policy-as-code export
+│   │   └── validate-license/      # Edge function: enterprise license check
+│   └── migrations/                # SQL schema migrations
+├── .env.example                   # Environment variable template
+├── components.json                # shadcn/ui configuration
+├── eslint.config.js
+├── index.html
+├── package.json
+├── postcss.config.js
+├── vite.config.ts
+├── tailwind.config.ts
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── CONTRIBUTING.md
+├── UAT_DPIA_Platform.md           # User acceptance test scenarios
+├── LICENSE
+└── README.md
 ```
 
 ---
