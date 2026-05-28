@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Code, FileJson, Copy, CheckCircle, Loader2, Download, AlertCircle, Import } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useAssessments, Assessment } from "@/contexts/AssessmentsContext";
 
 type PolicyFormat = "rego" | "typescript" | "yaml" | "json";
