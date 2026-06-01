@@ -62,8 +62,8 @@ export function AppSidebar() {
               <Shield className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">DPIA Framework</h1>
-              <p className="text-xs text-muted-foreground">Enterprise Risk</p>
+              <h1 className="text-lg font-bold text-foreground">Priveria</h1>
+              <p className="text-xs text-muted-foreground">Enterprise DPIA</p>
             </div>
           </div>
         )}

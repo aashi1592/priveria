@@ -81,12 +81,12 @@
     }
   },
   "documentation": {
-    "community": "https://docs.yourcompany.com/community",
-    "enterprise": "https://docs.yourcompany.com/enterprise",
-    "api": "https://docs.yourcompany.com/api"
+    "community": "https://github.com/aashi1592/priveria",
+    "enterprise": "https://github.com/aashi1592/priveria/blob/main/README.md",
+    "api": "https://github.com/aashi1592/priveria/blob/main/docs/ARCHITECTURE.md"
   },
   "support": {
-    "community": "https://github.com/yourorg/dpia-platform/discussions",
-    "enterprise": "mailto:enterprise@yourcompany.com"
+    "community": "https://github.com/aashi1592/priveria/discussions",
+    "enterprise": "mailto:contactus@decodedbycounsel.com"
   }
 }
