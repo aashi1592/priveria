@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Plus, Search, AlertTriangle, CheckCircle, Clock, Link as LinkIcon, Users } from "lucide-react";
+import { Plus, Search, Building2, ShieldAlert, ClipboardList, LineChart, Link as LinkIcon, Users } from "lucide-react";
 
 const ThirdParty = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,10 +67,10 @@ const ThirdParty = () => {
   ];
 
   const stats = [
-    { label: "Total Vendors", value: "124", icon: CheckCircle, color: "text-status-info" },
-    { label: "High Risk", value: "12", icon: AlertTriangle, color: "text-risk-high" },
-    { label: "Pending Review", value: "23", icon: Clock, color: "text-status-warning" },
-    { label: "Avg Compliance", value: "93%", icon: CheckCircle, color: "text-status-success" },
+    { label: "Total Vendors", value: "124", icon: Building2, color: "text-primary", background: "bg-primary/10" },
+    { label: "High Risk", value: "12", icon: ShieldAlert, color: "text-risk-high", background: "bg-risk-high/10" },
+    { label: "Pending Review", value: "23", icon: ClipboardList, color: "text-status-warning", background: "bg-status-warning/10" },
+    { label: "Avg Compliance", value: "93%", icon: LineChart, color: "text-status-success", background: "bg-status-success/10" },
   ];
 
   return (
@@ -97,7 +97,9 @@ const ThirdParty = () => {
                       <p className="text-sm text-muted-foreground">{stat.label}</p>
                       <p className="text-3xl font-bold text-foreground mt-1">{stat.value}</p>
                     </div>
-                    <Icon className={`w-8 h-8 ${stat.color}`} />
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-full ${stat.background}`}>
+                      <Icon className={`w-6 h-6 ${stat.color}`} />
+                    </div>
                   </div>
                 </CardContent>
               </Card>

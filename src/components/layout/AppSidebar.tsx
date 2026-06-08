@@ -11,6 +11,9 @@ import {
   ChevronRight,
   BookOpen,
   ScanText,
+  MessageSquareText,
+  Target,
+  MessageCircle,
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,10 +33,13 @@ const items = [
   { title: "Assessments", url: "/assessments", icon: FolderKanban },
   { title: "AI Module", url: "/ai-module", icon: Brain },
   { title: "Document Analysis", url: "/document-analysis", icon: ScanText },
+  { title: "Team Communication", url: "/team-communication", icon: MessageSquareText },
   { title: "Third Party Risk", url: "/third-party", icon: Users },
   { title: "Risk Calculator", url: "/risk-calculator", icon: Calculator },
+  { title: "Threat Modeling", url: "/threat-modeling", icon: Target },
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Feature Guide", url: "/feature-guide", icon: BookOpen },
+  { title: "Community", url: "/community", icon: MessageCircle },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

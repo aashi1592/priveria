@@ -1,1294 +1,594 @@
+import { useMemo, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Download, 
-  FileText, 
-  Shield, 
-  Brain, 
-  Users, 
-  Lock, 
-  Activity,
-  Globe,
-  BookOpen,
-  AlertCircle,
-  CheckCircle,
-  TrendingUp,
-  Zap
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Search, Sparkles, Shield, Brain, Target, FileText, ScanText, MessageSquareText,
+  Users, Calculator, LayoutDashboard, FolderKanban, Settings, Download, ArrowRight,
+  CheckCircle2, Layers, Workflow, GitBranch, FileSignature, Share2, Building2,
+  Cpu, Bot, Network, Landmark, RefreshCw, Code2, Briefcase, Eye, ClipboardCheck,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 import { jsPDF } from "jspdf";
 
+type Category = "core" | "threat" | "ai" | "collab" | "integrations";
+
+interface Feature {
+  id: string;
+  title: string;
+  category: Category;
+  status: "Available" | "New" | "Enterprise";
+  icon: typeof Shield;
+  route?: string;
+  summary: string;
+  highlights: string[];
+  details: string;
+}
+
+const categories: { id: Category | "all"; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "core", label: "Core DPIA" },
+  { id: "threat", label: "Threat Modeling" },
+  { id: "ai", label: "AI Intelligence" },
+  { id: "collab", label: "Collaboration & Reports" },
+  { id: "integrations", label: "Integrations" },
+];
+
+const features: Feature[] = [
+  {
+    id: "dashboard",
+    title: "Executive Dashboard",
+    category: "core",
+    status: "Available",
+    icon: LayoutDashboard,
+    route: "/",
+    summary: "Real-time DPIA portfolio, risk distribution and recent assessment activity.",
+    highlights: ["KPI stats", "Risk overview", "Recent activity", "Framework coverage"],
+    details: "Single-pane view of total DPIAs, high-risk count, pending reviews and trend-lines across compliance frameworks.",
+  },
+  {
+    id: "assessments",
+    title: "DPIA Assessments",
+    category: "core",
+    status: "Available",
+    icon: FolderKanban,
+    route: "/assessments",
+    summary: "Catalogue of all assessments with risk tiers, owners and multi-category selection.",
+    highlights: ["Risk tiering", "Multi-category", "Owner & status", "Search & filter"],
+    details: "Browse and manage every DPIA. Tiered risk levels (Low/Medium/High/Critical) drive downstream automation.",
+  },
+  {
+    id: "wizard",
+    title: "Multi-Step DPIA Wizard",
+    category: "core",
+    status: "Available",
+    icon: Workflow,
+    route: "/assessments",
+    summary: "Seven-step guided assessment: scope, subjects, legal basis, risk, safeguards, summary, MAESTRO.",
+    highlights: ["7 guided steps", "LINDDUN inline", "MAESTRO step", "Auto risk calc"],
+    details: "Structured authoring with jurisdiction-aware legal basis, automatic risk scoring and conditional MAESTRO step for product/application processing.",
+  },
+  {
+    id: "risk-calculator",
+    title: "Risk Calculator",
+    category: "core",
+    status: "Available",
+    icon: Calculator,
+    route: "/risk-calculator",
+    summary: "Standalone likelihood × impact calculator with configurable weights.",
+    highlights: ["Quick scoring", "Weight tuning", "Tier output"],
+    details: "Run ad-hoc risk math without opening a full DPIA — useful for triage and pre-assessment sizing.",
+  },
+  {
+    id: "linddun",
+    title: "LINDDUN Privacy Threats",
+    category: "threat",
+    status: "Available",
+    icon: Shield,
+    route: "/assessments",
+    summary: "Seven-category privacy threat lens (Linkability → Non-compliance) wired into risk scoring.",
+    highlights: ["7 categories", "Per-threat scoring", "Product & vendor DPIAs"],
+    details: "KU Leuven framework. Threats contribute +1/+2/+4/+8 to risk score for Low/Medium/High/Critical findings.",
+  },
+  {
+    id: "maestro",
+    title: "MAESTRO Agentic AI Threats",
+    category: "threat",
+    status: "Enterprise",
+    icon: Brain,
+    route: "/assessments",
+    summary: "CSA framework for multi-agent, autonomy, environment, security, transparency, reliability, outcomes.",
+    highlights: ["7 components", "Agentic-specific", "Auto step in wizard"],
+    details: "Triggered on Product/Application processing type to assess autonomous AI agent risk surface.",
+  },
+  {
+    id: "stride",
+    title: "STRIDE (ML-adapted)",
+    category: "threat",
+    status: "New",
+    icon: Target,
+    route: "/threat-modeling",
+    summary: "STRIDE re-framed for ML pipelines — spoofing, tampering, repudiation, disclosure, DoS, elevation.",
+    highlights: ["ML pipeline lens", "Per-threat controls", "Attach to register"],
+    details: "Complements LINDDUN (privacy) and MAESTRO (agentic). Select threats to build a per-assessment threat register.",
+  },
+  {
+    id: "atlas",
+    title: "MITRE ATLAS",
+    category: "threat",
+    status: "New",
+    icon: Layers,
+    route: "/threat-modeling",
+    summary: "12 adversarial ML tactics with technique tags for model threat-surface analysis.",
+    highlights: ["12 tactics", "Technique tags", "Attach to register"],
+    details: "Adversarial ML knowledge base. Pair tactics with STRIDE/LINDDUN findings for a holistic threat picture.",
+  },
+  {
+    id: "threat-register",
+    title: "Threat Register & Stakeholder Share",
+    category: "threat",
+    status: "New",
+    icon: Share2,
+    route: "/threat-modeling",
+    summary: "Per-assessment register; export to Markdown, CSV or JSON for cross-functional review.",
+    highlights: ["Copy MD", "CSV / JSON", "Stakeholder template"],
+    details: "Builds a shareable report section for Privacy, Security, Engineering and Legal ahead of sign-off.",
+  },
+  {
+    id: "document-analysis",
+    title: "Document Analysis",
+    category: "ai",
+    status: "New",
+    icon: ScanText,
+    route: "/document-analysis",
+    summary: "AI entity extraction from compliance documents (up to 10MB) using Lovable AI.",
+    highlights: ["Entity extraction", "PDF / DOCX", "10MB limit"],
+    details: "Drop a privacy policy, DPA or vendor questionnaire and surface data categories, recipients, retention and legal basis automatically.",
+  },
+  {
+    id: "ai-module",
+    title: "AI Module",
+    category: "ai",
+    status: "Available",
+    icon: Brain,
+    route: "/ai-module",
+    summary: "Centralised AI controls: risk scoring, vendor recommendations, compliance monitoring.",
+    highlights: ["AI risk scoring", "Vendor match", "Live monitoring"],
+    details: "Toggle and configure the AI features that power assessments across the platform.",
+  },
+  {
+    id: "team-comms",
+    title: "Team Communication",
+    category: "collab",
+    status: "Available",
+    icon: MessageSquareText,
+    route: "/team-communication",
+    summary: "Translate privacy concepts for engineering, legal and exec audiences with exports.",
+    highlights: ["Audience-aware", "DPIA → policy", "Exports"],
+    details: "Bridge privacy jargon and product language with audience-specific phrasing and shareable artifacts.",
+  },
+  {
+    id: "review-panel",
+    title: "Human-in-the-Loop Review",
+    category: "collab",
+    status: "New",
+    icon: FileSignature,
+    route: "/reports",
+    summary: "Collaboration checkpoint before policy-as-code: Privacy + 1 other role must sign off.",
+    highlights: ["Sign-offs", "Inline comments", "Gating logic"],
+    details: "Inserted on the Reports page to enforce a holistic review across Privacy, Security, Engineering and Legal.",
+  },
+  {
+    id: "exports",
+    title: "Export Templates",
+    category: "collab",
+    status: "New",
+    icon: FileText,
+    route: "/reports",
+    summary: "EDPB Regulator view, EU AI Act conformity, Board brief, Internal technical, Threat register share.",
+    highlights: ["EDPB WP248", "EU AI Act", "Board / Internal", "Stakeholder share"],
+    details: "Five built-in templates render Markdown straight from assessment + threat register data. Preview and download.",
+  },
+  {
+    id: "policy",
+    title: "DPIA → Policy-as-Code",
+    category: "collab",
+    status: "Available",
+    icon: GitBranch,
+    route: "/team-communication",
+    summary: "Converts DPIA JSON to Rego or TypeScript policy with assessment import.",
+    highlights: ["Rego / TS", "Import assessments", "Edge function"],
+    details: "Bridges governance and engineering by emitting runtime-enforceable policy from a finalised DPIA.",
+  },
+  {
+    id: "third-party",
+    title: "Third-Party Risk",
+    category: "integrations",
+    status: "Available",
+    icon: Users,
+    route: "/third-party",
+    summary: "Vendor portfolio, certification tracking, DPA storage and risk scoring.",
+    highlights: ["Vendor DPIA", "Cert tracking", "DPA versions"],
+    details: "Monitor ISO 27001, SOC 2 and GDPR certifications with automated expiry alerts.",
+  },
+  {
+    id: "multi-grc",
+    title: "Multi-GRC Sync",
+    category: "integrations",
+    status: "Enterprise",
+    icon: Building2,
+    route: "/settings",
+    summary: "API connectors for ServiceNow and Centraleyes with field validation.",
+    highlights: ["ServiceNow", "Centraleyes", "Field mapping"],
+    details: "Bidirectional sync of assessment metadata and risk scores into your existing GRC tooling.",
+  },
+  {
+    id: "settings",
+    title: "Enterprise Settings",
+    category: "integrations",
+    status: "Available",
+    icon: Settings,
+    route: "/settings",
+    summary: "Feature flags, framework toggles, license validation and connector config.",
+    highlights: ["Feature flags", "License", "Connectors"],
+    details: "Tune the platform to your maturity level — enable LINDDUN, MAESTRO, AI and GRC connectors independently.",
+  },
+];
+
+interface UseCase {
+  id: string;
+  title: string;
+  icon: typeof Shield;
+  description: string;
+  outcomes: string[];
+  featureLinks: string[];
+}
+
+const useCases: UseCase[] = [
+  {
+    id: "ai-dpia",
+    title: "AI System DPIA & EU AI Act Conformity",
+    icon: Cpu,
+    description: "Assess high-risk AI systems end-to-end and produce structured conformity evidence for Articles 9, 10, 13 and 53.",
+    outcomes: ["Risk-tiered assessment", "Conformity evidence pack", "Audit-ready artifact"],
+    featureLinks: ["wizard", "risk-calculator", "exports"],
+  },
+  {
+    id: "agentic-governance",
+    title: "Agentic AI Governance",
+    icon: Bot,
+    description: "Model multi-agent workflows, tool-use boundaries, permissions, and chain-of-action risks using the MAESTRO framework.",
+    outcomes: ["Autonomy scoring", "Tool boundary mapping", "Emergent risk capture"],
+    featureLinks: ["maestro", "wizard", "ai-module"],
+  },
+  {
+    id: "privacy-threat-modeling",
+    title: "Privacy Threat Modeling",
+    icon: Network,
+    description: "Enumerate privacy and adversarial threats across ML pipelines with STRIDE (ML-adapted), LINDDUN, and MITRE ATLAS.",
+    outcomes: ["Cross-lens coverage", "Per-threat controls", "Holistic register"],
+    featureLinks: ["stride", "atlas", "linddun", "threat-register"],
+  },
+  {
+    id: "vendor-risk",
+    title: "Third-Party Risk & Vendor DPIA",
+    icon: Briefcase,
+    description: "Maintain a living vendor catalogue, track certifications, and run vendor-specific DPIAs with automated expiry alerts.",
+    outcomes: ["Vendor inventory", "Certification tracking", "DPA lifecycle"],
+    featureLinks: ["third-party", "assessments", "risk-calculator"],
+  },
+  {
+    id: "cross-functional",
+    title: "Cross-Functional Collaboration",
+    icon: Users,
+    description: "Bring Privacy, Security, Engineering and Legal together with sign-offs, inline comments, and gated hand-offs.",
+    outcomes: ["Multi-role sign-off", "Inline commentary", "Gated policy-as-code"],
+    featureLinks: ["review-panel", "team-comms", "policy"],
+  },
+  {
+    id: "regulator-exports",
+    title: "Regulator-Ready Exports",
+    icon: Landmark,
+    description: "Generate EDPB-aligned regulator views, EU AI Act conformity packs, board briefs, and internal technical reports.",
+    outcomes: ["EDPB WP248 alignment", "Board snapshot", "Stakeholder share"],
+    featureLinks: ["exports", "threat-register", "document-analysis"],
+  },
+  {
+    id: "continuous-governance",
+    title: "Continuous Privacy Governance",
+    icon: RefreshCw,
+    description: "Turn static DPIAs into living objects that re-evaluate when data flows, models, vendors, or scope change.",
+    outcomes: ["Version history", "Re-assessment triggers", "Lifecycle tracking"],
+    featureLinks: ["assessments", "settings", "dashboard"],
+  },
+  {
+    id: "policy-as-code",
+    title: "Policy-as-Code Generation",
+    icon: Code2,
+    description: "Convert finalized DPIA JSON into runtime-enforceable Rego or TypeScript policies for CI/CD pipelines.",
+    outcomes: ["Rego output", "TypeScript output", "Engineering hand-off"],
+    featureLinks: ["policy", "team-comms", "review-panel"],
+  },
+];
+
+const statusVariant: Record<Feature["status"], "default" | "secondary" | "outline"> = {
+  Available: "secondary",
+  New: "default",
+  Enterprise: "outline",
+};
+
 const FeatureGuide = () => {
-  const { config } = useEnterpriseConfig();
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<Category | "all">("all");
 
-  const exportToWord = () => {
-    toast.success("Exporting Feature Guide", {
-      description: "Your document is being prepared for download...",
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    return features.filter((f) => {
+      const matchTab = tab === "all" || f.category === tab;
+      const matchQuery =
+        !q ||
+        f.title.toLowerCase().includes(q) ||
+        f.summary.toLowerCase().includes(q) ||
+        f.highlights.some((h) => h.toLowerCase().includes(q));
+      return matchTab && matchQuery;
     });
-    // In production, this would generate a real Word document
-  };
+  }, [query, tab]);
 
-  const exportToPDF = () => {
-    try {
-      const doc = new jsPDF();
-      let yPosition = 20;
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 20;
-      const maxWidth = pageWidth - 2 * margin;
+  const counts = useMemo(
+    () => ({
+      total: features.length,
+      newCount: features.filter((f) => f.status === "New").length,
+      enterprise: features.filter((f) => f.status === "Enterprise").length,
+      categories: new Set(features.map((f) => f.category)).size,
+    }),
+    []
+  );
 
-      // Helper function to add text with word wrap
-      const addText = (text: string, size: number, isBold = false, color: [number, number, number] = [0, 0, 0]) => {
-        doc.setFontSize(size);
-        doc.setFont("helvetica", isBold ? "bold" : "normal");
-        doc.setTextColor(...color);
-        const lines = doc.splitTextToSize(text, maxWidth);
-        
-        lines.forEach((line: string) => {
-          if (yPosition > 270) {
-            doc.addPage();
-            yPosition = 20;
-          }
-          doc.text(line, margin, yPosition);
-          yPosition += size * 0.5;
-        });
-        yPosition += 5;
-      };
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    let y = 20;
+    const margin = 20;
+    const w = doc.internal.pageSize.getWidth() - margin * 2;
 
-      const addBullet = (text: string) => {
-        addText(`• ${text}`, 10);
-      };
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Priveria — Feature Guide", margin, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${counts.total} features across ${counts.categories} categories`, margin, y);
+    y += 10;
 
-      // Title
-      addText("Enterprise DPIA Platform - Feature Guide", 20, true, [37, 99, 235]);
-      addText("Comprehensive Documentation of All Platform Capabilities", 12, false, [100, 100, 100]);
-      yPosition += 10;
-
-      // Table of Contents
-      doc.setDrawColor(200, 200, 200);
-      doc.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 10;
-      addText("Table of Contents", 16, true);
-      addText("1. Core DPIA Features", 11);
-      addText("2. LINDDUN Privacy Threat Modeling", 11);
-      addText("3. MAESTRO Agentic AI Threat Modeling", 11);
-      addText("4. AI Intelligence Features", 11);
-      addText("5. Advanced Technical Features", 11);
-      addText("6. Vendor Management", 11);
-      addText("7. Workflow & Automation", 11);
-      addText("8. Standards & Compliance", 11);
-      addText("9. API Integrations", 11);
-      yPosition += 10;
-
-      // Section 1: Core DPIA Features
-      doc.addPage();
-      yPosition = 20;
-      addText("1. Core DPIA Features", 18, true, [37, 99, 235]);
-      addText("Essential data protection impact assessment capabilities", 11, false, [100, 100, 100]);
-      yPosition += 5;
-
-      addText("Multi-Step DPIA Wizard", 14, true);
-      addText("Guided assessment creation through six structured steps covering processing activities, data subjects, legal basis, risk assessment, safeguards, and summary review.", 11);
-      addBullet("Step 1: Processing Activity - Define the processing type, scope, purpose, and data categories");
-      addBullet("Step 2: Data Subjects - Identify affected individuals and assess vulnerability factors");
-      addBullet("Step 3: Risk Assessment - Calculate risk scores with LINDDUN threat integration");
-      addBullet("Step 4: Legal Basis - Document lawful basis with jurisdiction-specific requirements");
-      addBullet("Step 5: Safeguards - Document technical and organizational measures");
-      addBullet("Step 6: Summary - Review and finalize assessment");
-      yPosition += 5;
-
-      addText("Risk Scoring System", 14, true);
-      addText("Automated risk calculation using likelihood × impact methodology:", 11);
-      addBullet("Critical (≥7.5): Requires immediate action");
-      addBullet("High (5.0-7.4): Significant mitigation needed");
-      addBullet("Medium (2.5-4.9): Standard controls apply");
-      addBullet("Low (<2.5): Minimal risk");
-      yPosition += 5;
-
-      addText("Dashboard & Reporting", 14, true);
-      addBullet("Real-Time Statistics: Total DPIAs, high-risk assessments, pending reviews");
-      addBullet("Risk Overview: Visual breakdown by risk level with trends");
-      addBullet("Recent Assessments: Quick access to latest DPIAs");
-      yPosition += 10;
-
-      // Section 2: LINDDUN
-      doc.addPage();
-      yPosition = 20;
-      addText("2. LINDDUN Privacy Threat Modeling", 18, true, [147, 51, 234]);
-      addText("Systematic privacy threat analysis framework for Product and Vendor DPIAs", 11, false, [100, 100, 100]);
-      yPosition += 5;
-
-      addText("What is LINDDUN?", 12, true);
-      addText("LINDDUN is a privacy threat modeling methodology developed by KU Leuven (Belgium) that identifies seven categories of privacy threats in software systems and digital services.", 11);
-      yPosition += 5;
-
-      addText("The Seven LINDDUN Threat Categories:", 12, true);
-      
-      addText("L - Linkability", 11, true);
-      addText("Ability to link data or actions across different contexts to the same user.", 10);
-      addBullet("Cross-device tracking");
-      addBullet("Cookie-based profiling");
-      addBullet("Email correlation across platforms");
-      
-      addText("I - Identifiability", 11, true);
-      addText("Ability to identify individuals from supposedly anonymous data.", 10);
-      addBullet("Browser fingerprinting");
-      addBullet("IP address logging");
-      addBullet("Re-identification from datasets");
-      
-      addText("N - Non-repudiation", 11, true);
-      addText("Inability to deny having performed an action or provided data.", 10);
-      addBullet("Digital signatures on transactions");
-      addBullet("Immutable audit logs");
-      addBullet("Blockchain records");
-      
-      addText("D - Detectability", 11, true);
-      addText("Revealing the existence or presence of data items or communications.", 10);
-      addBullet("Metadata exposure");
-      addBullet("Online presence indicators");
-      addBullet("Traffic analysis");
-      
-      addText("D - Disclosure of Information", 11, true);
-      addText("Unauthorized access to or release of personal information.", 10);
-      addBullet("Data breaches");
-      addBullet("Unencrypted transmissions");
-      addBullet("Excessive API permissions");
-      
-      addText("U - Unawareness", 11, true);
-      addText("Lack of control, transparency, or awareness about data processing.", 10);
-      addBullet("Hidden tracking scripts");
-      addBullet("Unclear privacy policies");
-      addBullet("No user consent mechanisms");
-      
-      addText("N - Non-compliance", 11, true);
-      addText("Violation of privacy regulations, policies, or stated practices.", 10);
-      addBullet("GDPR violations (no legal basis)");
-      addBullet("Policy-practice mismatch");
-      addBullet("Retention period breaches");
-      yPosition += 5;
-
-      addText("Integration with Risk Scoring", 12, true);
-      addText("When LINDDUN is enabled, identified threats automatically enhance the DPIA risk score:", 11);
-      addBullet("+8 points per Critical Threat");
-      addBullet("+4 points per High Threat");
-      addBullet("+2 points per Medium Threat");
-      addBullet("+1 point per Low Threat");
-      yPosition += 5;
-
-      addText("Benefits of LINDDUN Integration", 12, true);
-      addBullet("Systematic privacy threat identification");
-      addBullet("Privacy-by-design compliance (GDPR Art. 25)");
-      addBullet("Enhanced risk assessment accuracy");
-      addBullet("Product security architecture guidance");
-      addBullet("Vendor security evaluation framework");
-      addBullet("Audit-ready threat documentation");
-
-      // Section 3: MAESTRO
-      doc.addPage();
-      yPosition = 20;
-      addText("3. MAESTRO Agentic AI Threat Modeling", 18, true, [59, 130, 246]);
-      addText("CSA's framework for Multi-Agent Environment, Security, Threat Risk, and Outcome analysis", 11, false, [100, 100, 100]);
-      yPosition += 5;
-
-      addText("What is MAESTRO?", 12, true);
-      addText("MAESTRO is the Cloud Security Alliance's threat modeling framework specifically designed for Agentic AI systems. It addresses unique risks in autonomous multi-agent environments where AI agents make decisions and take actions with minimal human oversight.", 11);
-      yPosition += 5;
-
-      addText("The MAESTRO Framework Components:", 12, true);
-      
-      addText("M - Multi-Agent Environment", 11, true);
-      addText("Risks arising from multiple AI agents operating autonomously and interacting.", 10);
-      addBullet("Agent coordination failures");
-      addBullet("Conflicting agent objectives");
-      addBullet("Inter-agent communication vulnerabilities");
-      addBullet("Cascading failures across agent networks");
-      
-      addText("A - Autonomy & Agency", 11, true);
-      addText("Risks from AI systems making independent decisions without human intervention.", 10);
-      addBullet("Unauthorized autonomous actions");
-      addBullet("Scope creep beyond intended authority");
-      addBullet("Decision-making without proper oversight");
-      addBullet("Lack of human-in-the-loop controls");
-      
-      addText("E - Environment Manipulation", 11, true);
-      addText("Threats related to AI agents modifying their operational environment.", 10);
-      addBullet("Data poisoning attacks");
-      addBullet("Model manipulation");
-      addBullet("Feedback loop exploitation");
-      addBullet("Training data contamination");
-      
-      addText("S - Security & Access Control", 11, true);
-      addText("Traditional security concerns amplified in agentic AI contexts.", 10);
-      addBullet("Privilege escalation by AI agents");
-      addBullet("API credential exposure");
-      addBullet("Unauthorized system access");
-      addBullet("Data exfiltration by compromised agents");
-      
-      addText("T - Transparency & Explainability", 11, true);
-      addText("Challenges in understanding and auditing AI agent behavior.", 10);
-      addBullet("Black-box decision making");
-      addBullet("Inability to explain agent actions");
-      addBullet("Lack of audit trails");
-      addBullet("Opaque reasoning processes");
-      
-      addText("R - Reliability & Safety", 11, true);
-      addText("Ensuring consistent and safe operation of autonomous systems.", 10);
-      addBullet("Unpredictable agent behavior");
-      addBullet("Goal misalignment");
-      addBullet("Safety constraint violations");
-      addBullet("System instability under edge cases");
-      
-      addText("O - Outcomes & Impact", 11, true);
-      addText("Assessment of real-world consequences from AI agent actions.", 10);
-      addBullet("Unintended harmful outcomes");
-      addBullet("Amplification of biases");
-      addBullet("Privacy violations from agent actions");
-      addBullet("Regulatory compliance failures");
-      yPosition += 5;
-
-      addText("Integration with Risk Scoring", 12, true);
-      addText("When MAESTRO is enabled for Agentic AI systems, identified threats enhance risk scores:", 11);
-      addBullet("+8 points per Critical Threat");
-      addBullet("+4 points per High Threat");
-      addBullet("+2 points per Medium Threat");
-      addBullet("+1 point per Low Threat");
-      yPosition += 5;
-
-      addText("Benefits of MAESTRO Integration", 12, true);
-      addBullet("Specialized threat modeling for autonomous AI systems");
-      addBullet("Multi-agent risk identification and mitigation");
-      addBullet("Enhanced safety controls for agentic workflows");
-      addBullet("Comprehensive security architecture for AI agents");
-      addBullet("Regulatory compliance for emerging AI regulations");
-      addBullet("Audit-ready documentation for AI governance");
-
-      // Section 4: AI Intelligence
-      doc.addPage();
-      yPosition = 20;
-      addText("4. AI Intelligence Features", 18, true, [37, 99, 235]);
-      addText("Leverage AI to automate risk assessment, vendor selection, and compliance monitoring", 11, false, [100, 100, 100]);
-      yPosition += 5;
-
-      addText("AI-Powered Risk Scoring", 14, true);
-      addText("Automatically calculate risk scores based on context, patterns, and historical data using machine learning models.", 11);
-      yPosition += 3;
-      addText("How It Works:", 12, true);
-      addBullet("Analyzes processing activity description and data categories");
-      addBullet("Compares against 1000+ historical DPIA patterns");
-      addBullet("Identifies risk factors (special category data, cross-border transfers, etc.)");
-      addBullet("Calculates contextual risk multipliers based on industry and jurisdiction");
-      addBullet("Generates risk score with confidence level and explanation");
-      yPosition += 3;
-      addText("Example: Customer behavioral analytics for targeted advertising using cross-device tracking and location data", 10, false, [80, 80, 80]);
-      addText("AI Output: Risk Score 6.8 (High) - Cross-device linkability detected, Precise geolocation risk factor, Profiling without consent concern", 10, false, [200, 80, 0]);
-      yPosition += 5;
-
-      addText("Intelligent Vendor Recommendations", 14, true);
-      addText("AI suggests optimal vendors for specific processing activities based on requirements, analyzing your existing vendor portfolio.", 11);
-      yPosition += 3;
-      addText("Matching Criteria:", 12, true);
-      addBullet("Certifications (ISO 27001, SOC 2, etc.)");
-      addBullet("Geographic coverage and data residency");
-      addBullet("Technical capabilities (cloud, APIs)");
-      addBullet("Security posture and compliance");
-      addBullet("Past performance and risk scores");
-      addBullet("Cost and contract terms");
-      yPosition += 5;
-
-      addText("Real-Time Compliance Monitoring", 14, true);
-      addText("Continuously monitor compliance status and alert on gaps or violations as they happen.", 11);
-      yPosition += 3;
-      addText("Monitoring Scope:", 12, true);
-      addBullet("DPIA Lifecycle: Review dates, expiration warnings, status changes");
-      addBullet("Vendor Compliance: Certification renewals, SLA violations, security incidents");
-      addBullet("Regulatory Changes: GDPR updates, new privacy laws, enforcement actions");
-      addBullet("Data Processing: Unauthorized transfers, retention violations, purpose drift");
-      yPosition += 3;
-      addText("Alert Priority Levels:", 12, true);
-      addBullet("Critical: Immediate action required (vendor cert expired, data breach)");
-      addBullet("High: Address within 48 hours (DPIA expiring soon, policy violation)");
-      addBullet("Medium: Address within 1 week (upcoming renewal, minor gap)");
-      addBullet("Low: For information (best practice recommendation)");
-      yPosition += 3;
-      addText("Dashboard Visualizations:", 12, true);
-      addBullet("Compliance Health Score (0-100) with trend graph");
-      addBullet("Active Alerts Map by category and priority");
-      addBullet("Top Compliance Gaps requiring attention");
-      yPosition += 3;
-      addText("Integration Points:", 12, true);
-      addBullet("Email notifications for critical/high alerts");
-      addBullet("Slack/Teams integration for team alerts");
-      addBullet("Jira/ServiceNow ticket creation");
-      addBullet("Executive dashboard summaries");
-
-      // Section 5: Advanced Technical Features
-      doc.addPage();
-      yPosition = 20;
-      addText("5. Advanced Technical Features", 18, true, [37, 99, 235]);
-      yPosition += 5;
-
-      addText("Risk Calculator", 14, true);
-      addText("Standalone calculator for quick risk assessments with configurable weight factors.", 11);
-      yPosition += 3;
-
-      addText("AI Module", 14, true);
-      addText("Centralized AI capabilities dashboard for risk analysis and predictions.", 11);
-      yPosition += 3;
-
-      addText("Third-Party Integrations", 14, true);
-      addText("Connect with external systems via API for automated data exchange.", 11);
-      yPosition += 3;
-
-      addText("Custom Workflows", 14, true);
-      addText("Define approval chains, notification rules, and automated actions.", 11);
-      yPosition += 3;
-
-      addText("Multi-Language Support", 14, true);
-      addText("Interface and reports available in multiple languages for global teams.", 11);
-
-      // Section 6: Vendor Management
-      doc.addPage();
-      yPosition = 20;
-      addText("6. Vendor Management", 18, true, [37, 99, 235]);
-      yPosition += 5;
-
-      addText("Vendor DPIA Type", 14, true);
-      addText("Dedicated assessment flow for third-party vendors with specific data processing agreements.", 11);
-      yPosition += 3;
-
-      addText("Vendor Portfolio View", 14, true);
-      addText("Centralized dashboard of all vendors, their risk scores, certifications, and contract status.", 11);
-      yPosition += 3;
-
-      addText("Certification Tracking", 14, true);
-      addText("Monitor ISO 27001, SOC 2, GDPR certifications with automatic expiration alerts.", 11);
-      yPosition += 3;
-
-      addText("DPA Management", 14, true);
-      addText("Store and track Data Processing Agreements with version control.", 11);
-
-      // Section 7: Workflow & Automation
-      doc.addPage();
-      yPosition = 20;
-      addText("7. Workflow & Automation", 18, true, [37, 99, 235]);
-      yPosition += 5;
-
-      addText("Approval Workflows", 14, true);
-      addText("Configure multi-level approval chains for high-risk DPIAs.", 11);
-      yPosition += 3;
-
-      addText("Automated Notifications", 14, true);
-      addText("Email and in-app notifications for DPIA status changes, approvals, and deadlines.", 11);
-      yPosition += 3;
-
-      addText("Scheduled Reviews", 14, true);
-      addText("Automatic reminders for periodic DPIA reviews based on risk level.", 11);
-      yPosition += 3;
-
-      addText("Bulk Operations", 14, true);
-      addText("Mass update, export, or archive multiple DPIAs simultaneously.", 11);
-
-      // Section 8: Standards & Compliance
-      doc.addPage();
-      yPosition = 20;
-      addText("8. Standards & Compliance", 18, true, [37, 99, 235]);
-      yPosition += 5;
-
-      addText("GDPR Compliance", 14, true);
-      addBullet("Article 35 DPIA requirements");
-      addBullet("Data subject rights management");
-      addBullet("Cross-border transfer mechanisms (SCCs, BCRs)");
-      addBullet("Privacy by design and default");
-      yPosition += 3;
-
-      addText("ISO/IEC 27001", 14, true);
-      addText("Information security management framework alignment.", 11);
-      yPosition += 3;
-
-      addText("NIST Privacy Framework", 14, true);
-      addText("Risk management practices based on NIST standards.", 11);
-      yPosition += 3;
-
-      addText("Industry-Specific Regulations", 14, true);
-      addBullet("HIPAA (Healthcare)");
-      addBullet("PCI-DSS (Payment Cards)");
-      addBullet("COPPA (Children's Privacy)");
-      addBullet("CCPA/CPRA (California)");
-
-      // Section 9: API Integrations
-      doc.addPage();
-      yPosition = 20;
-      addText("9. API Integrations", 18, true, [37, 99, 235]);
-      yPosition += 5;
-
-      addText("RESTful API", 14, true);
-      addText("Full CRUD operations for DPIAs, vendors, and risk assessments.", 11);
-      yPosition += 3;
-
-      addText("Webhook Support", 14, true);
-      addText("Real-time notifications for DPIA events sent to external systems.", 11);
-      yPosition += 3;
-
-      addText("SSO Integration", 14, true);
-      addText("SAML 2.0 and OAuth 2.0 support for enterprise authentication.", 11);
-      yPosition += 3;
-
-      addText("Data Export API", 14, true);
-      addText("Automated report generation and data extraction in JSON, CSV, or PDF formats.", 11);
-
-      // Conclusion
-      doc.addPage();
-      yPosition = 20;
-      addText("Getting Started", 18, true, [37, 99, 235]);
-      yPosition += 5;
-      addText("This platform provides comprehensive DPIA management capabilities. To enable enterprise features:", 11);
-      yPosition += 3;
-      addBullet("Navigate to Settings > Enterprise Configuration");
-      addBullet("Enable LINDDUN Threat Modeling for privacy risk analysis");
-      addBullet("Enable MAESTRO for Agentic AI system risk analysis");
-      addBullet("Activate AI Intelligence for automated scoring and monitoring");
-      addBullet("Configure custom workflows and integrations as needed");
-      yPosition += 5;
-      addText("For support and documentation, visit the platform help center or contact your administrator.", 11);
-
-      // Footer
-      const totalPages = doc.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-        doc.setPage(i);
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.text(
-          `Page ${i} of ${totalPages} | Enterprise DPIA Platform`,
-          pageWidth / 2,
-          doc.internal.pageSize.getHeight() - 10,
-          { align: "center" }
-        );
-      }
-
-      // Save the PDF
-      doc.save("DPIA-Platform-Feature-Guide.pdf");
-      
-      toast.success("PDF Export Complete", {
-        description: "Feature guide has been downloaded successfully",
+    features.forEach((f) => {
+      if (y > 260) { doc.addPage(); y = 20; }
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${f.title}  [${f.status}]`, margin, y);
+      y += 6;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.splitTextToSize(f.summary, w).forEach((line: string) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(line, margin, y); y += 5;
       });
-    } catch (error) {
-      toast.error("Export Failed", {
-        description: "There was an error generating the PDF. Please try again.",
+      f.highlights.forEach((h) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(`  • ${h}`, margin, y); y += 5;
       });
-      console.error("PDF export error:", error);
-    }
+      y += 4;
+    });
+
+    doc.save("priveria-feature-guide.pdf");
+    toast.success("Feature guide downloaded");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="Enterprise DPIA Platform - Feature Guide"
-        description="Comprehensive documentation of all platform capabilities"
-        action={{
-          label: "Export to Word",
-          onClick: exportToWord,
-          icon: <Download className="w-4 h-4" />,
-        }}
+        title="Feature Guide"
+        description="Every capability in Priveria — interactive, searchable, always up to date"
       />
 
-      <div className="px-6 py-8 max-w-6xl mx-auto space-y-8">
-        {/* Export Options */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">Export Documentation</h3>
-                <p className="text-sm text-muted-foreground">Download this guide in your preferred format</p>
+      <div className="px-6 py-8 space-y-6">
+        {/* Hero */}
+        <Card className="overflow-hidden border-border/60 bg-gradient-to-br from-primary/10 via-background to-accent/10">
+          <CardContent className="p-8 animate-fade-in">
+            <div className="flex items-start justify-between gap-6 flex-wrap">
+              <div className="space-y-3 max-w-2xl">
+                <Badge variant="outline" className="gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Updated for the latest release
+                </Badge>
+                <h2 className="text-3xl font-bold tracking-tight">
+                  Explore Priveria end-to-end
+                </h2>
+                <p className="text-muted-foreground">
+                  From DPIA authoring to threat modeling, regulator-ready exports and human-in-the-loop sign-off — search, filter and jump straight into any feature.
+                </p>
               </div>
-              <div className="flex gap-2">
-                <Button onClick={exportToWord} variant="outline" className="gap-2">
-                  <FileText className="w-4 h-4" />
-                  Word (.docx)
-                </Button>
-                <Button onClick={exportToPDF} variant="outline" className="gap-2">
-                  <Download className="w-4 h-4" />
-                  PDF
-                </Button>
-              </div>
+              <Button onClick={exportPDF} className="gap-2 hover-scale">
+                <Download className="w-4 h-4" /> Export PDF
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+              {[
+                { label: "Total features", value: counts.total },
+                { label: "New this release", value: counts.newCount },
+                { label: "Enterprise tier", value: counts.enterprise },
+                { label: "Categories", value: counts.categories },
+              ].map((s) => (
+                <div key={s.label} className="rounded-lg border border-border bg-background/60 backdrop-blur p-4">
+                  <div className="text-2xl font-bold text-foreground">{s.value}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Table of Contents */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              Table of Contents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <a href="#core-features" className="block text-sm hover:text-primary">1. Core DPIA Features</a>
-                <a href="#linddun" className="block text-sm hover:text-primary">2. LINDDUN Threat Modeling</a>
-                <a href="#maestro" className="block text-sm hover:text-primary">3. MAESTRO Agentic AI Threat Modeling</a>
-                <a href="#ai-intelligence" className="block text-sm hover:text-primary">4. AI Intelligence Features</a>
-                <a href="#technical-features" className="block text-sm hover:text-primary">5. Advanced Technical Features</a>
-              </div>
-              <div className="space-y-2">
-                <a href="#vendor-management" className="block text-sm hover:text-primary">6. Vendor Management</a>
-                <a href="#workflow-controls" className="block text-sm hover:text-primary">7. Workflow & Automation</a>
-                <a href="#standards" className="block text-sm hover:text-primary">8. Standards & Compliance</a>
-                <a href="#integrations" className="block text-sm hover:text-primary">9. API Integrations</a>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Separator />
-
-        {/* 1. Core DPIA Features */}
-        <div id="core-features">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Shield className="w-6 h-6 text-primary" />
-                  1. Core DPIA Features
-                </CardTitle>
-                <Badge>Always Available</Badge>
-              </div>
-              <CardDescription>Essential data protection impact assessment capabilities</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Multi-Step DPIA Wizard</h3>
-                <p className="text-muted-foreground">
-                  Guided assessment creation through six structured steps covering processing activities, 
-                  data subjects, legal basis, risk assessment, safeguards, and summary review.
-                </p>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Card className="border-2">
-                    <CardContent className="pt-6 space-y-2">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        Step 1: Processing Activity
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Define the processing type (Product/Application, Vendor, Internal, Marketing, AI System), 
-                        scope, purpose, and data categories being processed.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 space-y-2">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        Step 2: Data Subjects
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Identify affected individuals (customers, employees, prospects, minors, vulnerable groups) 
-                        and assess vulnerability factors.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 space-y-2">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        Step 3: Risk Assessment
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Calculate risk scores based on likelihood and impact, with automatic LINDDUN threat 
-                        integration when enabled.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 space-y-2">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        Step 4: Legal Basis
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Document lawful basis (consent, contract, legitimate interest, legal obligation) 
-                        with jurisdiction-specific requirements.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Risk Scoring System</h3>
-                <p className="text-muted-foreground">
-                  Automated risk calculation using likelihood × impact methodology with four risk levels:
-                </p>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Card className="border-2 border-red-500/20 bg-red-500/5">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-2xl font-bold text-red-600 mb-2">Critical</div>
-                      <p className="text-sm text-muted-foreground">Score ≥ 7.5</p>
-                      <p className="text-xs mt-2">Requires immediate action</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2 border-orange-500/20 bg-orange-500/5">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-2xl font-bold text-orange-600 mb-2">High</div>
-                      <p className="text-sm text-muted-foreground">5.0 - 7.4</p>
-                      <p className="text-xs mt-2">Significant mitigation needed</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2 border-yellow-500/20 bg-yellow-500/5">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-2xl font-bold text-yellow-600 mb-2">Medium</div>
-                      <p className="text-sm text-muted-foreground">2.5 - 4.9</p>
-                      <p className="text-xs mt-2">Standard controls apply</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2 border-green-500/20 bg-green-500/5">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-2">Low</div>
-                      <p className="text-sm text-muted-foreground">{"<"} 2.5</p>
-                      <p className="text-xs mt-2">Minimal risk</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Dashboard & Reporting</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Card className="border-2">
-                    <CardContent className="pt-6">
-                      <TrendingUp className="w-8 h-8 text-primary mb-3" />
-                      <h4 className="font-semibold mb-2">Real-Time Statistics</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Total DPIAs, high-risk assessments, pending reviews, and compliance rate tracking.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6">
-                      <AlertCircle className="w-8 h-8 text-primary mb-3" />
-                      <h4 className="font-semibold mb-2">Risk Overview</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Visual breakdown of assessments by risk level with trends over time.
-                      </p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6">
-                      <FileText className="w-8 h-8 text-primary mb-3" />
-                      <h4 className="font-semibold mb-2">Recent Assessments</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Quick access to latest DPIAs with filtering by category and risk level.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 2. LINDDUN Threat Modeling */}
-        <div id="linddun">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Shield className="w-6 h-6 text-purple-600" />
-                  2. LINDDUN Privacy Threat Modeling
-                </CardTitle>
-                <Badge variant={config.linddunEnabled ? "default" : "outline"}>
-                  {config.linddunEnabled ? "Enabled" : "Enterprise Feature"}
-                </Badge>
-              </div>
-              <CardDescription>
-                Systematic privacy threat analysis framework for Product and Vendor DPIAs
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <h3 className="font-semibold text-purple-900 dark:text-purple-200 mb-2">What is LINDDUN?</h3>
-                <p className="text-sm text-purple-800 dark:text-purple-300">
-                  LINDDUN is a privacy threat modeling methodology developed by KU Leuven (Belgium) that 
-                  identifies seven categories of privacy threats in software systems and digital services.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      L - Linkability
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Ability to link data or actions across different contexts to the same user.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Cross-device tracking</div>
-                      <div>• Cookie-based profiling</div>
-                      <div>• Email correlation across platforms</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      I - Identifiability
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Ability to identify individuals from supposedly anonymous data.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Browser fingerprinting</div>
-                      <div>• IP address logging</div>
-                      <div>• Re-identification from datasets</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      N - Non-repudiation
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Inability to deny having performed an action or provided data.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Digital signatures on transactions</div>
-                      <div>• Immutable audit logs</div>
-                      <div>• Blockchain records</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      D - Detectability
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Revealing the existence or presence of data items or communications.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Metadata exposure</div>
-                      <div>• Online presence indicators</div>
-                      <div>• Traffic analysis</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      D - Disclosure of Information
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Unauthorized access to or release of personal information.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Data breaches</div>
-                      <div>• Unencrypted transmissions</div>
-                      <div>• Excessive API permissions</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      U - Unawareness
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Lack of control, transparency, or awareness about data processing.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Hidden tracking scripts</div>
-                      <div>• Unclear privacy policies</div>
-                      <div>• No user consent mechanisms</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-purple-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-purple-900 dark:text-purple-200">
-                      N - Non-compliance
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Violation of privacy regulations, policies, or stated practices.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• GDPR violations (no legal basis)</div>
-                      <div>• Policy-practice mismatch</div>
-                      <div>• Retention period breaches</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Integration with Risk Scoring</h3>
-                <p className="text-muted-foreground">
-                  When LINDDUN is enabled, identified threats automatically enhance the DPIA risk score:
-                </p>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-red-600 mb-2">+8 points</div>
-                      <p className="text-sm font-medium mb-1">Critical Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-orange-600 mb-2">+4 points</div>
-                      <p className="text-sm font-medium mb-1">High Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-yellow-600 mb-2">+2 points</div>
-                      <p className="text-sm font-medium mb-1">Medium Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-green-600 mb-2">+1 point</div>
-                      <p className="text-sm font-medium mb-1">Low Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Benefits of LINDDUN Integration</h4>
-                <div className="grid md:grid-cols-2 gap-2 text-sm text-blue-800 dark:text-blue-300">
-                  <div>✓ Systematic privacy threat identification</div>
-                  <div>✓ Privacy-by-design compliance (GDPR Art. 25)</div>
-                  <div>✓ Enhanced risk assessment accuracy</div>
-                  <div>✓ Product security architecture guidance</div>
-                  <div>✓ Vendor security evaluation framework</div>
-                  <div>✓ Audit-ready threat documentation</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 3. MAESTRO Agentic AI Threat Modeling */}
-        <div id="maestro">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Brain className="w-6 h-6 text-blue-600" />
-                  3. MAESTRO Agentic AI Threat Modeling
-                </CardTitle>
-                <Badge variant={config.maestroEnabled ? "default" : "outline"}>
-                  {config.maestroEnabled ? "Enabled" : "Enterprise Feature"}
-                </Badge>
-              </div>
-              <CardDescription>
-                CSA's framework for Multi-Agent Environment, Security, Threat Risk, and Outcome analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">What is MAESTRO?</h3>
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  MAESTRO is the Cloud Security Alliance's threat modeling framework specifically designed for Agentic AI systems. 
-                  It addresses unique risks in autonomous multi-agent environments where AI agents make decisions and take actions 
-                  with minimal human oversight.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      M - Multi-Agent Environment
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Risks arising from multiple AI agents operating autonomously and interacting.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Agent coordination failures</div>
-                      <div>• Conflicting agent objectives</div>
-                      <div>• Inter-agent communication vulnerabilities</div>
-                      <div>• Cascading failures across agent networks</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      A - Autonomy & Agency
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Risks from AI systems making independent decisions without human intervention.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Unauthorized autonomous actions</div>
-                      <div>• Scope creep beyond intended authority</div>
-                      <div>• Decision-making without proper oversight</div>
-                      <div>• Lack of human-in-the-loop controls</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      E - Environment Manipulation
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Threats related to AI agents modifying their operational environment.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Data poisoning attacks</div>
-                      <div>• Model manipulation</div>
-                      <div>• Feedback loop exploitation</div>
-                      <div>• Training data contamination</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      S - Security & Access Control
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Traditional security concerns amplified in agentic AI contexts.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Privilege escalation by AI agents</div>
-                      <div>• API credential exposure</div>
-                      <div>• Unauthorized system access</div>
-                      <div>• Data exfiltration by compromised agents</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      T - Transparency & Explainability
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Challenges in understanding and auditing AI agent behavior.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Black-box decision making</div>
-                      <div>• Inability to explain agent actions</div>
-                      <div>• Lack of audit trails</div>
-                      <div>• Opaque reasoning processes</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      R - Reliability & Safety
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Ensuring consistent and safe operation of autonomous systems.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Unpredictable agent behavior</div>
-                      <div>• Goal misalignment</div>
-                      <div>• Safety constraint violations</div>
-                      <div>• System instability under edge cases</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-blue-200">
-                  <CardContent className="pt-6">
-                    <h4 className="font-semibold mb-3 text-blue-900 dark:text-blue-200">
-                      O - Outcomes & Impact
-                    </h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Assessment of real-world consequences from AI agent actions.
-                    </p>
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div>• Unintended harmful outcomes</div>
-                      <div>• Amplification of biases</div>
-                      <div>• Privacy violations from agent actions</div>
-                      <div>• Regulatory compliance failures</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Integration with Risk Scoring</h3>
-                <p className="text-muted-foreground">
-                  When MAESTRO is enabled for Agentic AI systems, identified threats enhance risk scores:
-                </p>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-red-600 mb-2">+8 points</div>
-                      <p className="text-sm font-medium mb-1">Critical Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-orange-600 mb-2">+4 points</div>
-                      <p className="text-sm font-medium mb-1">High Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-yellow-600 mb-2">+2 points</div>
-                      <p className="text-sm font-medium mb-1">Medium Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-2">
-                    <CardContent className="pt-6 text-center">
-                      <div className="text-xl font-bold text-green-600 mb-2">+1 point</div>
-                      <p className="text-sm font-medium mb-1">Low Threat</p>
-                      <p className="text-xs text-muted-foreground">Per threat identified</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Benefits of MAESTRO Integration</h4>
-                <div className="grid md:grid-cols-2 gap-2 text-sm text-blue-800 dark:text-blue-300">
-                  <div>✓ Specialized threat modeling for autonomous AI</div>
-                  <div>✓ Multi-agent risk identification</div>
-                  <div>✓ Enhanced safety controls for agentic workflows</div>
-                  <div>✓ Comprehensive security architecture for AI agents</div>
-                  <div>✓ Regulatory compliance for emerging AI laws</div>
-                  <div>✓ Audit-ready AI governance documentation</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 4. AI Intelligence Features */}
-        <div id="ai-intelligence">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Brain className="w-6 h-6 text-blue-600" />
-                  4. AI Intelligence Features
-                </CardTitle>
-                <Badge variant={config.aiRiskScoringEnabled ? "default" : "outline"}>
-                  Enterprise Feature
-                </Badge>
-              </div>
-              <CardDescription>
-                Leverage AI to automate risk assessment, vendor selection, and compliance monitoring
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* AI-Powered Risk Scoring */}
-              <Card className="border-2">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2">AI-Powered Risk Scoring</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Automatically calculate risk scores based on context, patterns, and historical data using machine learning models.
-                      </p>
-                      
-                      <div className="space-y-3">
-                        <div className="p-3 bg-muted rounded-lg">
-                          <h4 className="font-medium text-sm mb-2">How It Works:</h4>
-                          <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                            <li>Analyzes processing activity description and data categories</li>
-                            <li>Compares against 1000+ historical DPIA patterns</li>
-                            <li>Identifies risk factors (special category data, cross-border transfers, etc.)</li>
-                            <li>Calculates contextual risk multipliers based on industry and jurisdiction</li>
-                            <li>Generates risk score with confidence level and explanation</li>
-                          </ol>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-3">
-                          <div className="p-3 border rounded-lg">
-                            <h5 className="font-medium text-sm mb-2">Example Input:</h5>
-                            <p className="text-xs text-muted-foreground italic">
-                              "Customer behavioral analytics for targeted advertising using cross-device tracking and location data"
-                            </p>
-                          </div>
-                          <div className="p-3 border rounded-lg bg-orange-50 dark:bg-orange-950/20">
-                            <h5 className="font-medium text-sm mb-2">AI Output:</h5>
-                            <div className="text-xs space-y-1">
-                              <div className="font-semibold text-orange-600">Risk Score: 6.8 (High)</div>
-                              <div className="text-muted-foreground">• Cross-device linkability detected</div>
-                              <div className="text-muted-foreground">• Precise geolocation risk factor</div>
-                              <div className="text-muted-foreground">• Profiling without consent concern</div>
-                            </div>
-                          </div>
-                        </div>
+        {/* Use Cases */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <ClipboardCheck className="w-5 h-5 text-primary" />
+            <h3 className="text-xl font-semibold tracking-tight">Use Cases</h3>
+            <Badge variant="outline" className="ml-auto text-xs">
+              {useCases.length} scenarios
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {useCases.map((uc, idx) => {
+              const Icon = uc.icon;
+              return (
+                <Card
+                  key={uc.id}
+                  className="group overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all duration-300"
+                  style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/60 text-primary flex items-center justify-center transition-transform group-hover:scale-110">
+                        <Icon className="w-5 h-5" />
                       </div>
+                      <CardTitle className="text-sm leading-tight">{uc.title}</CardTitle>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Vendor Recommendations */}
-              <Card className="border-2">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Users className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2">Intelligent Vendor Recommendations</h3>
-                      <p className="text-muted-foreground mb-4">
-                        AI suggests optimal vendors for specific processing activities based on requirements, analyzing your existing vendor portfolio.
-                      </p>
-                      
-                      <div className="space-y-3">
-                        <div className="p-3 bg-muted rounded-lg">
-                          <h4 className="font-medium text-sm mb-2">Matching Criteria:</h4>
-                          <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
-                            <div>✓ Certifications (ISO 27001, SOC 2, etc.)</div>
-                            <div>✓ Geographic coverage and data residency</div>
-                            <div>✓ Technical capabilities (cloud, APIs)</div>
-                            <div>✓ Security posture and compliance</div>
-                            <div>✓ Past performance and risk scores</div>
-                            <div>✓ Cost and contract terms</div>
-                          </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{uc.description}</p>
+                    <div className="space-y-1.5">
+                      {uc.outcomes.map((o) => (
+                        <div key={o} className="flex items-center gap-2 text-xs text-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                          {o}
                         </div>
-
-                        <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-950/20">
-                          <h5 className="font-medium text-sm mb-2">Example Recommendation:</h5>
-                          <div className="space-y-2 text-xs">
-                            <div>
-                              <span className="font-semibold">Processing Activity:</span> "EU Customer Data Analytics"
-                            </div>
-                            <div className="space-y-1 mt-2">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium">1. Vendor A</span>
-                                <Badge variant="default" className="text-xs">95% match</Badge>
-                              </div>
-                              <p className="text-muted-foreground">EU-based, GDPR certified, real-time analytics capabilities</p>
-                            </div>
-                            <div className="space-y-1">
-                              <div className="flex items-center justify-between">
-                                <span className="font-medium">2. Vendor B</span>
-                                <Badge variant="secondary" className="text-xs">82% match</Badge>
-                              </div>
-                              <p className="text-muted-foreground">Global with EU region, GDPR compliant, standard SLA</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Real-Time Compliance Monitoring */}
-              <Card className="border-2">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                      <Activity className="w-6 h-6 text-red-600" />
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {uc.featureLinks.map((fid) => {
+                        const linked = features.find((f) => f.id === fid);
+                        if (!linked) return null;
+                        return (
+                          <Badge key={fid} variant="outline" className="text-[10px] font-normal">
+                            {linked.title}
+                          </Badge>
+                        );
+                      })}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-2">Real-Time Compliance Monitoring</h3>
-                      <p className="text-muted-foreground mb-4">
-                        Continuously monitor compliance status and alert on gaps or violations as they happen.
-                      </p>
-                      
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-sm">Monitoring Scope:</h4>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <div>• DPIAs approaching expiry</div>
-                            <div>• Vendor certifications expiring</div>
-                            <div>• Missing mandatory approvals</div>
-                            <div>• Regulatory change impacts</div>
-                            <div>• Processing purpose drift</div>
-                            <div>• Data retention violations</div>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-sm">Alert Levels:</h4>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                              <span className="font-medium">Critical:</span>
-                              <span className="text-muted-foreground">Immediate action required</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                              <span className="font-medium">High:</span>
-                              <span className="text-muted-foreground">Within 24 hours</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                              <span className="font-medium">Medium:</span>
-                              <span className="text-muted-foreground">Within 7 days</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <div className="w-3 h-3 rounded-full bg-gray-400"></div>
-                              <span className="font-medium">Low:</span>
-                              <span className="text-muted-foreground">Within 30 days</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Continue with more sections... */}
-        <div className="text-center p-8 border-2 border-dashed rounded-lg">
-          <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Complete Documentation</h3>
-          <p className="text-muted-foreground mb-4">
-            This is a preview of the Feature Guide. Export to Word or PDF for the complete 50+ page documentation 
-            covering all enterprise features in detail.
-          </p>
-          <div className="flex gap-2 justify-center">
-            <Button onClick={exportToWord} className="gap-2">
-              <Download className="w-4 h-4" />
-              Download Full Guide (Word)
-            </Button>
-            <Button onClick={exportToPDF} variant="outline" className="gap-2">
-              <Download className="w-4 h-4" />
-              Download Full Guide (PDF)
-            </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
+
+        {/* Search + tabs */}
+        <div className="flex flex-col md:flex-row gap-3 md:items-center">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search features, highlights or keywords..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Tabs value={tab} onValueChange={(v) => setTab(v as Category | "all")}>
+            <TabsList className="flex-wrap h-auto">
+              {categories.map((c) => (
+                <TabsTrigger key={c.id} value={c.id} className="text-xs md:text-sm">
+                  {c.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Feature grid */}
+        {filtered.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-muted-foreground">
+              No features match "{query}".
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filtered.map((f, idx) => {
+              const Icon = f.icon;
+              return (
+                <Card
+                  key={f.id}
+                  className="group relative overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${Math.min(idx * 40, 400)}ms` }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-110">
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-base leading-tight">{f.title}</CardTitle>
+                          <CardDescription className="text-xs mt-0.5 capitalize">
+                            {categories.find((c) => c.id === f.category)?.label}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <Badge variant={statusVariant[f.status]} className="shrink-0">
+                        {f.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">{f.summary}</p>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {f.highlights.map((h) => (
+                        <Badge key={h} variant="outline" className="text-xs font-normal">
+                          {h}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="details" className="border-b-0">
+                        <AccordionTrigger className="py-2 text-sm hover:no-underline">
+                          How it works
+                        </AccordionTrigger>
+                        <AccordionContent className="text-sm text-muted-foreground space-y-2">
+                          <p>{f.details}</p>
+                          <div className="flex items-center gap-2 pt-1">
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Available in this workspace</span>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+
+                    {f.route && (
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between group/btn"
+                      >
+                        <NavLink to={f.route}>
+                          Open feature
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                        </NavLink>
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

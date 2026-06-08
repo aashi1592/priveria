@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability
+    url: mailto:security@priveria.io
+    about: Report security vulnerabilities privately via email
+  - name: Questions & Discussions
+    url: https://github.com/aashi1592/priveria/discussions
+    about: Ask questions or start a discussion
+  - name: Documentation
+    url: https://github.com/aashi1592/priveria/blob/main/README.md
+    about: Read the documentation before opening an issue

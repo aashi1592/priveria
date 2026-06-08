@@ -11,6 +11,7 @@ export interface Assessment {
   riskScore: number;
   tier: "tier-1" | "tier-2" | "tier-3";
   nextReview?: string;
+  details?: Record<string, unknown>;
 }
 
 interface AssessmentsContextType {
@@ -38,6 +39,17 @@ const mockAssessments: Assessment[] = [
     riskScore: 78,
     tier: "tier-1",
     nextReview: "2024-09-15",
+    details: {
+      processingType: "Product/Application",
+      businessJustification: "Expand customer insights to tailor marketing campaigns.",
+      legalBasis: "legitimate-interest",
+      dataCategories: [
+        "Personal Identifiers",
+        "Behavioral Data",
+      ],
+      safeguards: "Encryption at rest, quarterly access reviews, DPO oversight.",
+      oversight: "Human review on all model outputs above a set risk threshold.",
+    },
   },
   {
     id: "DPIA-2024-002",
@@ -50,6 +62,13 @@ const mockAssessments: Assessment[] = [
     riskScore: 56,
     tier: "tier-2",
     nextReview: "2024-09-10",
+    details: {
+      processingType: "Vendor",
+      vendorName: "SkyVault Storage",
+      dataRetention: "3-7years",
+      crossBorderTransfers: true,
+      mitigation: "Standard contractual clauses, encryption key escrow, quarterly audits.",
+    },
   },
   {
     id: "DPIA-2024-003",
@@ -61,6 +80,13 @@ const mockAssessments: Assessment[] = [
     riskLevel: "low",
     riskScore: 34,
     tier: "tier-3",
+    details: {
+      processingType: "Internal Process",
+      employeeScope: "Global customer support teams",
+      retention: "1-3years",
+      dataSubjects: "Employees",
+      notes: "Awaiting works council review before activation.",
+    },
   },
   {
     id: "DPIA-2024-004",
@@ -73,6 +99,14 @@ const mockAssessments: Assessment[] = [
     riskScore: 89,
     tier: "tier-1",
     nextReview: "2024-06-05",
+    details: {
+      processingType: "Product/Application",
+      aiClassification: "high-risk",
+      autonomy: "human-review",
+      explainability: "3",
+      biasAnalysis: "Monthly fairness audits across languages.",
+      humanOversight: "Escalation to live agents for unresolved queries.",
+    },
   },
 ];
 

@@ -3,7 +3,7 @@ import { Upload, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface DocumentUploadProps {
   onUploadComplete?: (documentId: string) => void;
@@ -77,11 +77,10 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
       setUploading(false);
       setAnalyzing(true);
 
-      // Trigger AI analysis
+      // Trigger AI analysis - only send documentId, file path is retrieved server-side
       const { error: analysisError } = await supabase.functions.invoke('analyze-document', {
         body: {
-          documentId: document.id,
-          fileUrl: filePath
+          documentId: document.id
         }
       });
 

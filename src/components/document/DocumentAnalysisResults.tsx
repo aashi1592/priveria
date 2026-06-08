@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { FileText, AlertTriangle, Shield, MapPin, Calendar, Scale, Award, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 

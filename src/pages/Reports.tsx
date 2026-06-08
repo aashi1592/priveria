@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Download, FileText, TrendingUp, BarChart3, Shield } from "lucide-react";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
+import { ExportTemplatePicker } from "@/components/reports/ExportTemplatePicker";
+import { ReportReviewPanel } from "@/components/reports/ReportReviewPanel";
 
 const Reports = () => {
   const { config } = useEnterpriseConfig();
@@ -172,6 +174,10 @@ const Reports = () => {
             </div>
           </CardContent>
         </Card>
+
+        <ExportTemplatePicker />
+
+        <ReportReviewPanel />
 
         <Card>
           <CardHeader>
