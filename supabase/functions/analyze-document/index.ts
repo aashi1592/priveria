@@ -323,14 +323,27 @@ Return your analysis as a structured JSON object with these fields.`
     );
 
   } catch (error) {
+    // Detailed logging server-side only
     console.error('Error in analyze-document function:', error);
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
+
+    const raw = error instanceof Error ? error.message : '';
+    let status = 500;
+    let safeMessage = 'Document processing failed';
+    if (/authorization|Unauthorized/i.test(raw)) {
+      status = 401;
+      safeMessage = 'Authentication required';
+    } else if (/Missing required|Invalid document ID|Invalid file path/i.test(raw)) {
+      status = 400;
+      safeMessage = 'Invalid request';
+    } else if (/not found|access denied/i.test(raw)) {
+      status = 404;
+      safeMessage = 'Document not found';
+    }
+
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: safeMessage }),
       {
-        status: 500,
+        status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
