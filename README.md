@@ -337,5 +337,5 @@ We welcome pull requests and issue reports! Please review `CONTRIBUTING.md` for 
 
 ## License
 
-This project is released under the MIT License. See `LICENSE` for details.
+This project is released under the Apache License 2.0. See `LICENSE` for details.
 
