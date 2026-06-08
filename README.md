@@ -154,7 +154,9 @@ cp .env.example .env
 npm run dev
 ```
 
-Visit `http://127.0.0.1:5173/` to explore the app (override host/port with `HOST` and `PORT` env vars).
+Once the dev server is running, visit `http://127.0.0.1:5173/` in your browser to explore the app.
+
+**Note:** This is a local development URL that only works on your machine. To customize the host/port, set `HOST` and `PORT` environment variables before running `npm run dev`.
 
 ---
 
