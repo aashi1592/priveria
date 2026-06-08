@@ -58,14 +58,14 @@ const DPIAWizard = () => {
     let dynamicSteps = [...baseSteps];
     
     if (showLinddun) {
-      dynamicSteps = [...dynamicSteps.slice(0, 5), linddunStep];
+      dynamicSteps = [...dynamicSteps.slice(0, 4), linddunStep];
     }
-    
+
     if (showMaestro) {
-      dynamicSteps = [...dynamicSteps.slice(0, showLinddun ? 6 : 5), maestroStep];
+      dynamicSteps = [...dynamicSteps.slice(0, showLinddun ? 5 : 4), maestroStep];
     }
-    
-    // Add final step back at the end
+
+    // Add Safeguards & Review at the end when conditional steps are present
     if (showLinddun || showMaestro) {
       dynamicSteps.push(baseSteps[4]);
     }
@@ -146,11 +146,11 @@ const DPIAWizard = () => {
               </div>
               <Progress value={progress} className="h-2" />
               <div className="flex gap-2">
-                {steps.map((step) => (
+                {steps.map((step, index) => (
                   <div
                     key={step.id}
                     className={`flex-1 h-1 rounded-full ${
-                      step.id <= currentStep ? "bg-primary" : "bg-muted"
+                      index + 1 <= currentStep ? "bg-primary" : "bg-muted"
                     }`}
                   />
                 ))}
