@@ -17,7 +17,7 @@ interface ExtractedEntity {
   entity_type: string;
   entity_value: string;
   confidence: number;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export function DocumentAnalysisResults({ documentId, onLinkToDPIA }: DocumentAnalysisResultsProps) {
@@ -26,29 +26,28 @@ export function DocumentAnalysisResults({ documentId, onLinkToDPIA }: DocumentAn
   const { toast } = useToast();
 
   useEffect(() => {
+    const loadEntities = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('extracted_entities')
+          .select('*')
+          .eq('document_id', documentId)
+          .order('entity_type', { ascending: true });
+
+        if (error) throw error;
+        setEntities((data || []) as ExtractedEntity[]);
+      } catch (error) {
+        toast({
+          title: "Failed to load results",
+          description: error instanceof Error ? error.message : "Unknown error",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     loadEntities();
-  }, [documentId]);
-
-  const loadEntities = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('extracted_entities')
-        .select('*')
-        .eq('document_id', documentId)
-        .order('entity_type', { ascending: true });
-
-      if (error) throw error;
-      setEntities(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Failed to load results",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [documentId, toast]);
 
   const groupedEntities = entities.reduce((acc, entity) => {
     if (!acc[entity.entity_type]) {
@@ -118,18 +117,18 @@ export function DocumentAnalysisResults({ documentId, onLinkToDPIA }: DocumentAn
                           <div className="mt-1">
                             {entity.metadata.description && (
                               <p className="text-xs text-muted-foreground">
-                                {entity.metadata.description}
+                                {String(entity.metadata.description)}
                               </p>
                             )}
                             {entity.metadata.severity && (
-                              <Badge 
+                              <Badge
                                 variant={
                                   entity.metadata.severity === 'high' ? 'destructive' :
                                   entity.metadata.severity === 'medium' ? 'default' : 'secondary'
                                 }
                                 className="mt-1"
                               >
-                                {entity.metadata.severity}
+                                {String(entity.metadata.severity)}
                               </Badge>
                             )}
                           </div>

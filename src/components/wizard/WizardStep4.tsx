@@ -16,7 +16,9 @@ const resetAIFields = {
   humanOversight: "",
 };
 
-export const WizardStep4 = ({ data, setData }: any) => {
+import type { WizardStepProps } from "@/types/wizard";
+
+export const WizardStep4 = ({ data, setData }: WizardStepProps) => {
   const aiInvolved = data.aiInvolved ?? false;
   const aiClassification = data.aiClassification ?? (aiInvolved ? "" : "not-applicable");
   const aiInputsDisabled = !aiInvolved || aiClassification === "not-applicable";

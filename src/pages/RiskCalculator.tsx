@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,12 +9,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calculator, Download } from "lucide-react";
+import { toast } from "sonner";
 
 const RiskCalculator = () => {
+  const navigate = useNavigate();
   const [likelihood, setLikelihood] = useState(3);
   const [impact, setImpact] = useState(3);
   const [volumeFactor, setVolumeFactor] = useState(1.2);
   const [regulatoryPoints, setRegulatoryPoints] = useState(0);
+  const [checkedTriggers, setCheckedTriggers] = useState<Set<string>>(new Set());
 
   const baseScore = likelihood * impact * volumeFactor;
   const finalScore = Math.round(baseScore + regulatoryPoints);
@@ -27,6 +31,65 @@ const RiskCalculator = () => {
   };
 
   const riskLevel = getRiskLevel(finalScore);
+
+  const exportResults = () => {
+    const likelihoodLabels = ["", "Rare", "Unlikely", "Possible", "Likely", "Almost Certain"];
+    const impactLabels = ["", "Minimal", "Low", "Medium", "High", "Critical"];
+    const activeTriggers = regulatoryTriggers.filter((t) => checkedTriggers.has(t.label));
+    const lines = [
+      `# Risk Calculator Results`,
+      ``,
+      `**Risk Score:** ${finalScore}  `,
+      `**Risk Level:** ${riskLevel.level}  `,
+      ``,
+      `## Base Risk Factors`,
+      `- Likelihood: ${likelihood} — ${likelihoodLabels[likelihood]}`,
+      `- Impact: ${impact} — ${impactLabels[impact]}`,
+      `- Volume Factor: ${volumeFactor}x`,
+      `- Base Score: ${Math.round(baseScore)}`,
+      ``,
+      `## Regulatory Add-ons`,
+      activeTriggers.length === 0
+        ? `- None selected`
+        : activeTriggers.map((t) => `- ${t.label}: +${t.points}`).join("\n"),
+      `- Total regulatory points: +${regulatoryPoints}`,
+      ``,
+      `## Risk Classification`,
+      `- Level: ${riskLevel.level}`,
+      `- Description: ${riskLevel.description}`,
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `risk-calculation-score-${finalScore}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Risk results exported");
+  };
+
+  const createDPIA = () => {
+    navigate("/dpia-wizard", {
+      state: {
+        prefill: {
+          likelihood,
+          impact,
+          volumeFactor,
+          calculatedRiskScore: finalScore,
+          calculatedRiskLevel: riskLevel.level,
+        },
+      },
+    });
+  };
+
+  const resetCalculator = () => {
+    setLikelihood(3);
+    setImpact(3);
+    setVolumeFactor(1.2);
+    setRegulatoryPoints(0);
+    setCheckedTriggers(new Set());
+    toast.success("Calculator reset");
+  };
 
   const regulatoryTriggers = [
     { label: "GDPR Art. 35(3) mandatory DPIA", points: 5 },
@@ -46,7 +109,7 @@ const RiskCalculator = () => {
         description="Multi-framework risk scoring tool"
         action={{
           label: "Export Results",
-          onClick: () => {},
+          onClick: exportResults,
           icon: <Download className="w-4 h-4" />,
         }}
       />
@@ -77,7 +140,7 @@ const RiskCalculator = () => {
                 <Calculator className="w-12 h-12 text-primary mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground mb-2">Final Risk Score</p>
                 <p className="text-6xl font-bold text-foreground">{finalScore}</p>
-                <Badge variant={riskLevel.color as any} className="text-lg px-6 py-2 mt-3">
+                <Badge variant={riskLevel.color as "destructive" | "secondary"} className="text-lg px-6 py-2 mt-3">
                   {riskLevel.level} Risk
                 </Badge>
                 <p className="text-xs text-muted-foreground mt-2">{riskLevel.description}</p>
@@ -181,12 +244,19 @@ const RiskCalculator = () => {
                     <div className="flex items-center space-x-3 flex-1">
                       <Checkbox
                         id={trigger.label}
+                        checked={checkedTriggers.has(trigger.label)}
                         onCheckedChange={(checked) => {
-                          if (checked) {
-                            setRegulatoryPoints(regulatoryPoints + trigger.points);
-                          } else {
-                            setRegulatoryPoints(regulatoryPoints - trigger.points);
-                          }
+                          setCheckedTriggers((prev) => {
+                            const next = new Set(prev);
+                            if (checked) {
+                              next.add(trigger.label);
+                              setRegulatoryPoints((p) => p + trigger.points);
+                            } else {
+                              next.delete(trigger.label);
+                              setRegulatoryPoints((p) => p - trigger.points);
+                            }
+                            return next;
+                          });
                         }}
                       />
                       <label
@@ -242,11 +312,11 @@ const RiskCalculator = () => {
         </Card>
 
         <div className="flex justify-center gap-4">
-          <Button size="lg" className="gap-2">
+          <Button size="lg" className="gap-2" onClick={createDPIA}>
             <Calculator className="w-4 h-4" />
             Create DPIA from Calculation
           </Button>
-          <Button variant="outline" size="lg" className="gap-2">
+          <Button variant="outline" size="lg" className="gap-2" onClick={resetCalculator}>
             Reset Calculator
           </Button>
         </div>

@@ -4,34 +4,96 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, AlertTriangle, CheckCircle, Activity } from "lucide-react";
+import { useAssessments } from "@/contexts/AssessmentsContext";
+
+const CLASSIFICATION_TAB: Record<string, string> = {
+  "high-risk": "high-risk",
+  "limited": "limited-risk",
+  "limited-risk": "limited-risk",
+  "minimal": "minimal-risk",
+  "minimal-risk": "minimal-risk",
+  "prohibited": "prohibited",
+};
 
 const AIModule = () => {
-  const aiSystems = [
-    {
-      name: "Resume Screening AI",
-      classification: "High-Risk",
-      compliance: 87,
-      status: "Active Monitoring",
-      biasScore: 92,
-      explainability: 78,
-    },
-    {
-      name: "Customer Service Chatbot",
-      classification: "Limited Risk",
-      compliance: 96,
-      status: "Compliant",
-      biasScore: 95,
-      explainability: 88,
-    },
-    {
-      name: "Predictive Maintenance System",
-      classification: "Minimal Risk",
-      compliance: 98,
-      status: "Compliant",
-      biasScore: 98,
-      explainability: 92,
-    },
-  ];
+  const { assessments } = useAssessments();
+
+  const aiAssessments = assessments.filter((a) => {
+    const details = a.details as Record<string, unknown> | undefined;
+    return details?.aiInvolved === true || details?.aiClassification;
+  });
+
+  const getClassification = (a: typeof assessments[number]): string => {
+    const details = a.details as Record<string, unknown> | undefined;
+    const raw = (details?.aiClassification as string | undefined) ?? "minimal";
+    return raw === "not-applicable" ? "minimal" : raw;
+  };
+
+  const getTab = (a: typeof assessments[number]): string =>
+    CLASSIFICATION_TAB[getClassification(a)] ?? "minimal-risk";
+
+  const getExplainability = (a: typeof assessments[number]): number => {
+    const details = a.details as Record<string, unknown> | undefined;
+    const val = details?.explainability;
+    if (typeof val === "number") return Math.min(100, val * 20);
+    if (typeof val === "string") return Math.min(100, parseInt(val, 10) * 20);
+    return 80;
+  };
+
+  const getBiasScore = (a: typeof assessments[number]): number => {
+    // Derive a bias score from risk level — lower risk level implies better bias controls
+    const map: Record<string, number> = { minimal: 97, low: 92, medium: 85, high: 76, critical: 65 };
+    return map[a.riskLevel] ?? 80;
+  };
+
+  const complianceFromRisk = (a: typeof assessments[number]): number => {
+    const map: Record<string, number> = { minimal: 98, low: 94, medium: 88, high: 80, critical: 70 };
+    return map[a.riskLevel] ?? 85;
+  };
+
+  const highRiskCount = aiAssessments.filter((a) => getClassification(a) === "high-risk").length;
+  const monitoringCount = aiAssessments.filter((a) => a.status === "in-review" || a.riskLevel === "high" || a.riskLevel === "critical").length;
+  const compliantCount = aiAssessments.filter((a) => a.status === "completed").length;
+
+  const aiSystemsByTab = (tab: string) =>
+    aiAssessments.filter((a) => getTab(a) === tab);
+
+  const renderSystemCard = (a: typeof assessments[number]) => (
+    <Card key={a.id} className="hover:shadow-md transition-shadow">
+      <CardContent className="pt-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">{a.name}</h3>
+            <div className="flex items-center gap-2">
+              <Badge variant="destructive">{getClassification(a)}</Badge>
+              <Badge variant="secondary">{a.status}</Badge>
+            </div>
+          </div>
+          <Badge variant="outline" className="text-2xl font-bold">
+            {complianceFromRisk(a)}%
+          </Badge>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-foreground">Bias Testing Score</span>
+              <span className="text-sm text-muted-foreground">{getBiasScore(a)}%</span>
+            </div>
+            <Progress value={getBiasScore(a)} className="h-2" />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-foreground">Explainability</span>
+              <span className="text-sm text-muted-foreground">{getExplainability(a)}%</span>
+            </div>
+            <Progress value={getExplainability(a)} className="h-2" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,10 +105,10 @@ const AIModule = () => {
       <div className="px-6 py-8 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { label: "Total AI Systems", value: "34", icon: Brain, color: "text-accent" },
-            { label: "High-Risk", value: "8", icon: AlertTriangle, color: "text-risk-high" },
-            { label: "Compliant", value: "31", icon: CheckCircle, color: "text-status-success" },
-            { label: "Active Monitoring", value: "12", icon: Activity, color: "text-status-info" },
+            { label: "Total AI Systems", value: String(aiAssessments.length), icon: Brain, color: "text-accent" },
+            { label: "High-Risk", value: String(highRiskCount), icon: AlertTriangle, color: "text-risk-high" },
+            { label: "Compliant", value: String(compliantCount), icon: CheckCircle, color: "text-status-success" },
+            { label: "Active Monitoring", value: String(monitoringCount), icon: Activity, color: "text-status-info" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
@@ -78,54 +140,20 @@ const AIModule = () => {
                 <TabsTrigger value="minimal-risk">Minimal Risk</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="high-risk" className="space-y-4 mt-6">
-                {aiSystems.map((system) => (
-                  <Card key={system.name} className="hover:shadow-md transition-shadow">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground mb-1">
-                            {system.name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="destructive">{system.classification}</Badge>
-                            <Badge variant="secondary">{system.status}</Badge>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-2xl font-bold">
-                          {system.compliance}%
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-foreground">
-                              Bias Testing Score
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {system.biasScore}%
-                            </span>
-                          </div>
-                          <Progress value={system.biasScore} className="h-2" />
-                        </div>
-
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-foreground">
-                              Explainability
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              {system.explainability}%
-                            </span>
-                          </div>
-                          <Progress value={system.explainability} className="h-2" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </TabsContent>
+              {["prohibited", "high-risk", "limited-risk", "minimal-risk"].map((tab) => {
+                const systems = aiSystemsByTab(tab);
+                return (
+                  <TabsContent key={tab} value={tab} className="space-y-4 mt-6">
+                    {systems.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No AI assessments in this category
+                      </p>
+                    ) : (
+                      systems.map(renderSystemCard)
+                    )}
+                  </TabsContent>
+                );
+              })}
             </Tabs>
           </CardContent>
         </Card>
