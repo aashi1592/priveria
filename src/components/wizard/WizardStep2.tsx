@@ -3,7 +3,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const WizardStep2 = ({ data, setData }: any) => {
+import type { WizardStepProps } from "@/types/wizard";
+
+export const WizardStep2 = ({ data, setData }: WizardStepProps) => {
   const dataCategories = [
     "Personal Identifiers (name, email, etc.)",
     "Financial Information",

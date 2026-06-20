@@ -61,109 +61,29 @@ const LINDDUN_CATEGORIES = [
   },
 ];
 
-// Mock AI-detected threats for demonstration
-const MOCK_THREATS = [
-  {
-    id: 1,
-    category: "linkability",
-    name: "Cross-Service User Tracking",
-    description: "User behavior can be linked across multiple services through persistent identifiers",
-    scenario: "Marketing analytics combines user activity from web app, mobile app, and third-party integrations using email as common identifier, creating comprehensive behavioral profiles.",
-    likelihood: "High",
-    impact: "Medium",
-    riskLevel: "High",
-    aiConfidence: 87,
-    validated: false,
-    affectedData: ["Email", "Device ID", "Session logs", "Behavioral data"],
-    mitigations: [
-      "Use service-specific pseudonymous user IDs instead of email",
-      "Implement data minimization for analytics",
-      "Add user consent for cross-service tracking",
-    ],
-  },
-  {
-    id: 2,
-    category: "identifiability",
-    name: "User Re-identification Risk",
-    description: "Anonymous usage data contains quasi-identifiers enabling re-identification",
-    scenario: "Analytics logs contain ZIP code, age, and device type. Research shows 87% of US population uniquely identifiable with these three attributes.",
-    likelihood: "Medium",
-    impact: "High",
-    riskLevel: "High",
-    aiConfidence: 92,
-    validated: false,
-    affectedData: ["Location data", "Age", "Device information"],
-    mitigations: [
-      "Generalize ZIP codes to 3-digit prefixes",
-      "Use age ranges instead of exact ages",
-      "Apply k-anonymity (k≥5) before analysis",
-      "Implement differential privacy for aggregates",
-    ],
-  },
-  {
-    id: 3,
-    category: "disclosure",
-    name: "API Data Over-exposure",
-    description: "REST API endpoints return excessive user data to clients",
-    scenario: "GET /api/users/{id} endpoint returns full user object including internal fields, role permissions, and metadata not needed by frontend, visible in browser network tab.",
-    likelihood: "High",
-    impact: "Medium",
-    riskLevel: "High",
-    aiConfidence: 95,
-    validated: false,
-    affectedData: ["User profiles", "Internal metadata", "System information"],
-    mitigations: [
-      "Implement field-level response filtering",
-      "Use GraphQL with explicit field selection",
-      "Apply principle of least privilege to API responses",
-      "Regular API security audits",
-    ],
-  },
-  {
-    id: 4,
-    category: "unawareness",
-    name: "Insufficient Privacy Notice Visibility",
-    description: "Users lack clear understanding of data collection and processing",
-    scenario: "Privacy policy is hidden in footer with legal jargon. No just-in-time notices when sensitive permissions requested. Users unknowingly consent to extensive data collection.",
-    likelihood: "High",
-    impact: "Medium",
-    riskLevel: "Medium",
-    aiConfidence: 89,
-    validated: false,
-    affectedData: ["All personal data"],
-    mitigations: [
-      "Implement just-in-time privacy notices",
-      "Add layered privacy information (short + detailed)",
-      "Privacy dashboard for user data visibility",
-      "Clear consent mechanisms with granular controls",
-    ],
-  },
-  {
-    id: 5,
-    category: "noncompliance",
-    name: "Inadequate Data Retention Controls",
-    description: "Personal data retained longer than necessary without documented justification",
-    scenario: "User activity logs, session data, and analytics retained indefinitely. No automated deletion. Violates GDPR storage limitation principle (Art. 5(1)(e)).",
-    likelihood: "High",
-    impact: "Medium",
-    riskLevel: "Medium",
-    aiConfidence: 91,
-    validated: false,
-    affectedData: ["Activity logs", "Session data", "Analytics data"],
-    mitigations: [
-      "Define retention periods per data category",
-      "Implement automated data expiration",
-      "Regular data deletion audits",
-      "Document retention justifications in ROPA",
-    ],
-  },
-];
 
-export const WizardStep6 = ({ data, setData }: any) => {
+import type { WizardStepProps, LinddunThreat } from "@/types/wizard";
+import { generateLinddunThreats } from "@/lib/linddunEngine";
+
+export const WizardStep6 = ({ data, setData }: WizardStepProps) => {
   const processingType = data.processingType || "Product/Application";
   const isVendorDPIA = processingType === "Vendor";
-  
-  const [threats, setThreats] = useState(data.linddunThreats || MOCK_THREATS);
+
+  const initialThreats = (): LinddunThreat[] => {
+    if (data.linddunThreats && data.linddunThreats.length > 0) return data.linddunThreats;
+    return generateLinddunThreats({
+      activityName: data.activityName,
+      dataCategories: data.dataCategories,
+      processingType: data.processingType,
+      legalBasis: data.legalBasis,
+      dataSubjects: data.dataSubjects,
+      aiInvolved: data.aiInvolved,
+      crossBorderTransfers: data.crossBorder,
+      thirdPartySharing: typeof data.thirdPartySharing === "boolean" ? data.thirdPartySharing : undefined,
+    });
+  };
+
+  const [threats, setThreats] = useState<LinddunThreat[]>(initialThreats);
   const [selectedThreat, setSelectedThreat] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -185,10 +105,20 @@ export const WizardStep6 = ({ data, setData }: any) => {
 
   const runAIAnalysis = () => {
     setIsAnalyzing(true);
-    // Simulate AI analysis
-    setTimeout(() => {
-      setIsAnalyzing(false);
-    }, 2000);
+    const fresh = generateLinddunThreats({
+      activityName: data.activityName,
+      dataCategories: data.dataCategories,
+      processingType: data.processingType,
+      legalBasis: data.legalBasis,
+      dataSubjects: data.dataSubjects,
+      aiInvolved: data.aiInvolved,
+      crossBorderTransfers: data.crossBorder,
+      thirdPartySharing: typeof data.thirdPartySharing === "boolean" ? data.thirdPartySharing : undefined,
+    });
+    setThreats(fresh);
+    setData({ ...data, linddunThreats: fresh });
+    setIsAnalyzing(false);
+    toast.success(`${fresh.length} threats generated from your processing activity data`);
   };
 
   const threatsByCategory = LINDDUN_CATEGORIES.map(category => ({

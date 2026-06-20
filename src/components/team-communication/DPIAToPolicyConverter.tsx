@@ -115,11 +115,15 @@ export function DPIAToPolicyConverter() {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(policyCode);
-    setCopied(true);
-    toast.success("Copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(policyCode);
+      setCopied(true);
+      toast.success("Copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy to clipboard");
+    }
   };
 
   const downloadPolicy = () => {

@@ -1,15 +1,35 @@
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, FileText, TrendingUp, BarChart3, Shield } from "lucide-react";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
+import { useAssessments } from "@/contexts/AssessmentsContext";
+import { exportTemplates } from "@/lib/exportTemplates";
 import { ExportTemplatePicker } from "@/components/reports/ExportTemplatePicker";
 import { ReportReviewPanel } from "@/components/reports/ReportReviewPanel";
+import { toast } from "sonner";
+
+// Map report names to the export template most appropriate for that audience
+const REPORT_TEMPLATE_MAP: Record<string, string> = {
+  "Executive DPIA Summary": "board-brief",
+  "Compliance Framework Report": "edpb-regulator",
+  "AI System Audit Trail": "eu-ai-act-conformity",
+  "Third-Party Risk Assessment": "internal-technical",
+  "Risk Trend Analysis": "internal-technical",
+  "DPA Consultation Readiness": "edpb-regulator",
+  "LINDDUN Privacy Threat Analysis": "threat-register-share",
+};
 
 const Reports = () => {
   const { config } = useEnterpriseConfig();
+  const { assessments } = useAssessments();
+  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState("");
   
   const baseReports = [
     {
@@ -69,6 +89,60 @@ const Reports = () => {
 
   const reports = [...baseReports, ...linddunReports];
 
+  const buildReportContent = (reportName: string): string => {
+    const templateId = REPORT_TEMPLATE_MAP[reportName] ?? "board-brief";
+    const tpl = exportTemplates.find((t) => t.id === templateId);
+    if (!tpl || assessments.length === 0) {
+      return `# ${reportName}\n\nNo assessment data available.\n`;
+    }
+    // Use the most recent (first) assessment as the representative context
+    const assessment = assessments[0];
+    try {
+      const threats = JSON.parse(localStorage.getItem(`priveria.threatRegister.${assessment.id}`) ?? "[]");
+      return tpl.render({ assessment, threats });
+    } catch {
+      return tpl.render({ assessment, threats: [] });
+    }
+  };
+
+  const handleView = (reportName: string) => {
+    setPreviewTitle(reportName);
+    setPreviewContent(buildReportContent(reportName));
+  };
+
+  const handleDownload = (reportName: string) => {
+    const content = buildReportContent(reportName);
+    const slug = reportName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const blob = new Blob([content], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${reportName}`);
+  };
+
+  const handleBulkExport = () => {
+    if (assessments.length === 0) {
+      toast.error("No assessments available to export");
+      return;
+    }
+    const lines: string[] = [];
+    reports.forEach((report) => {
+      lines.push(buildReportContent(report.name));
+      lines.push("\n\n---\n\n");
+    });
+    const blob = new Blob([lines.join("")], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "all-reports-bulk.md";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${reports.length} reports`);
+  };
+
   const baseMetrics = [
     { label: "Reports Generated", value: "247", icon: FileText },
     { label: "Avg Compliance", value: "93.2%", icon: TrendingUp },
@@ -124,7 +198,7 @@ const Reports = () => {
                     <SelectItem value="technical">Technical</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2" onClick={handleBulkExport}>
                   <Download className="w-4 h-4" />
                   Bulk Export
                 </Button>
@@ -159,10 +233,10 @@ const Reports = () => {
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleView(report.name)}>
                           View
                         </Button>
-                        <Button variant="outline" size="sm" className="gap-2">
+                        <Button variant="outline" size="sm" className="gap-2" onClick={() => handleDownload(report.name)}>
                           <Download className="w-4 h-4" />
                           Download
                         </Button>
@@ -223,6 +297,17 @@ const Reports = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={previewContent !== null} onOpenChange={(o) => !o && setPreviewContent(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{previewTitle}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[60vh] rounded-md border border-border p-4 bg-muted/30">
+            <pre className="text-xs whitespace-pre-wrap font-mono">{previewContent ?? ""}</pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

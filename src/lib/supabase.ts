@@ -1,4 +1,12 @@
-// Safe Supabase client wrapper that handles lazy initialization
+/**
+ * Lazy Supabase client.
+ * The client is created on first use so the app doesn't crash at module load
+ * when env vars are absent (e.g. in unit tests or CI builds without a .env).
+ *
+ * Usage:
+ *   import { supabase } from '@/lib/supabase';
+ *   const { data, error } = await supabase.from('table').select('*');
+ */
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 

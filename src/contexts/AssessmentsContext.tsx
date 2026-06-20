@@ -1,3 +1,9 @@
+/**
+ * AssessmentsContext — localStorage-backed store for DPIA assessments.
+ * IDs are auto-assigned as DPIA-<year>-<seq>, incrementing from the current max.
+ * Mock data is seeded only on first visit (when localStorage is empty).
+ * Replace with Supabase calls when auth/persistence is wired.
+ */
 import { createContext, useContext, useState, ReactNode } from "react";
 
 export interface Assessment {
@@ -36,7 +42,7 @@ const mockAssessments: Assessment[] = [
     date: "2024-03-15",
     status: "completed",
     riskLevel: "high",
-    riskScore: 78,
+    riskScore: 28,
     tier: "tier-1",
     nextReview: "2024-09-15",
     details: {
@@ -110,30 +116,60 @@ const mockAssessments: Assessment[] = [
   },
 ];
 
+const STORAGE_KEY = "priveria.assessments";
+
+function loadFromStorage(): Assessment[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as Assessment[];
+  } catch {
+    // corrupted data — fall back to mock seed
+  }
+  return mockAssessments;
+}
+
+function saveToStorage(assessments: Assessment[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(assessments));
+  } catch {
+    // storage quota exceeded — silently continue
+  }
+}
+
 const AssessmentsContext = createContext<AssessmentsContextType | undefined>(undefined);
 
 export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
-  const [assessments, setAssessments] = useState<Assessment[]>(mockAssessments);
+  const [assessments, setAssessments] = useState<Assessment[]>(loadFromStorage);
 
   const addAssessment = (assessment: Omit<Assessment, "id">) => {
-    const newId = `DPIA-2024-${String(assessments.length + 1).padStart(3, "0")}`;
-    const newAssessment: Assessment = {
-      ...assessment,
-      id: newId,
-    };
-    setAssessments((prev) => [newAssessment, ...prev]);
+    setAssessments((prev) => {
+      const maxNum = prev.reduce((max, a) => {
+        const match = a.id.match(/DPIA-\d{4}-(\d+)/);
+        return match ? Math.max(max, parseInt(match[1], 10)) : max;
+      }, 0);
+      const newId = `DPIA-${new Date().getFullYear()}-${String(maxNum + 1).padStart(3, "0")}`;
+      const next = [{ ...assessment, id: newId }, ...prev];
+      saveToStorage(next);
+      return next;
+    });
   };
 
   const updateAssessment = (id: string, updates: Partial<Assessment>) => {
-    setAssessments((prev) =>
-      prev.map((assessment) =>
+    setAssessments((prev) => {
+      const next = prev.map((assessment) =>
         assessment.id === id ? { ...assessment, ...updates } : assessment
-      )
-    );
+      );
+      saveToStorage(next);
+      return next;
+    });
   };
 
   const deleteAssessment = (id: string) => {
-    setAssessments((prev) => prev.filter((assessment) => assessment.id !== id));
+    setAssessments((prev) => {
+      const next = prev.filter((assessment) => assessment.id !== id);
+      saveToStorage(next);
+      return next;
+    });
   };
 
   const stats = {
@@ -158,6 +194,7 @@ export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/** Access assessment CRUD operations and computed stats. Must be used inside AssessmentsProvider. */
 export const useAssessments = () => {
   const context = useContext(AssessmentsContext);
   if (!context) {

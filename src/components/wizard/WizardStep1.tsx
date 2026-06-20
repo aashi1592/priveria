@@ -3,9 +3,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const WizardStep1 = ({ data, setData }: any) => {
+import type { WizardStepProps } from "@/types/wizard";
+
+export const WizardStep1 = ({ data, setData }: WizardStepProps) => {
   const updateField = (key: string, value: string) => {
-    setData((prev: any) => ({
+    setData((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -45,7 +47,7 @@ export const WizardStep1 = ({ data, setData }: any) => {
                 checked={data.categories?.includes(category.value) ?? false}
                 onChange={(event) => {
                   const isChecked = event.target.checked;
-                  setData((prev: any) => {
+                  setData((prev) => {
                     const existing = prev.categories || [];
                     if (isChecked) {
                       if (existing.includes(category.value)) return prev;

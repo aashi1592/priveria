@@ -60,7 +60,7 @@ const defaultConfig: EnterpriseConfig = {
   vendorRiskHeatmapsEnabled: false,
   cloudInfraTrackingEnabled: false,
   // Workflow Controls
-  humanInTheLoopEnabled: true,
+  humanInTheLoopEnabled: false,
   changeDetectionEnabled: false,
   autoDataFlowDiagramsEnabled: false,
 };

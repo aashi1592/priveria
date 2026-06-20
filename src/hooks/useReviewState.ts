@@ -24,6 +24,11 @@ export interface ReviewState {
 const empty: ReviewState = { signoffs: [], comments: [] };
 const key = (id: string) => `priveria.review.${id}`;
 
+/**
+ * Persists per-assessment review sign-offs and comments in localStorage.
+ * Sign-off logic: an assessment is "Approved" once at least one Privacy reviewer
+ * and at least one non-Privacy reviewer have both signed off.
+ */
 export function useReviewState(assessmentId: string) {
   const [state, setState] = useState<ReviewState>(empty);
 
