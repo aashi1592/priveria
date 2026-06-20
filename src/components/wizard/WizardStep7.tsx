@@ -39,116 +39,25 @@ const MAESTRO_CATEGORIES = [
   }
 ];
 
-interface MaestroThreat {
-  id: number;
-  category: string;
-  name: string;
-  description: string;
-  scenario: string;
-  likelihood: number;
-  impact: number;
-  riskLevel: string;
-  aiConfidence: number;
-  validated: boolean;
-  affectedSystems: string[];
-  mitigations: string[];
-}
 
-const MOCK_THREATS: MaestroThreat[] = [
-  {
-    id: 1,
-    category: "multi-agent",
-    name: "Agent Coordination Failure",
-    description: "Multiple AI agents may fail to coordinate properly when processing personal data",
-    scenario: "Two agents simultaneously process the same user request, leading to duplicate data processing and potential data inconsistencies",
-    likelihood: 4,
-    impact: 4,
-    riskLevel: "high",
-    aiConfidence: 0.87,
-    validated: false,
-    affectedSystems: ["Agent Orchestrator", "Data Processing Pipeline"],
-    mitigations: [
-      "Implement distributed locking mechanisms",
-      "Add agent coordination protocols",
-      "Enable transaction-level consistency checks"
-    ]
-  },
-  {
-    id: 2,
-    category: "security",
-    name: "Prompt Injection via Agent Chain",
-    description: "Malicious prompts could be injected through agent communication channels",
-    scenario: "An attacker manipulates input to one agent, which propagates malicious instructions through the agent chain, potentially exposing sensitive data",
-    likelihood: 5,
-    impact: 5,
-    riskLevel: "critical",
-    aiConfidence: 0.92,
-    validated: false,
-    affectedSystems: ["Agent Communication Layer", "Input Validation"],
-    mitigations: [
-      "Implement strict input sanitization at each agent boundary",
-      "Use agent-to-agent authentication",
-      "Deploy prompt firewall for inter-agent communications"
-    ]
-  },
-  {
-    id: 3,
-    category: "threat-risk",
-    name: "Autonomous Decision Escalation",
-    description: "AI agents making autonomous decisions about sensitive personal data without human oversight",
-    scenario: "An agent autonomously decides to share user data with third-party services based on learned patterns, bypassing consent mechanisms",
-    likelihood: 3,
-    impact: 5,
-    riskLevel: "high",
-    aiConfidence: 0.89,
-    validated: false,
-    affectedSystems: ["Decision Engine", "Data Sharing Module"],
-    mitigations: [
-      "Require human-in-the-loop for sensitive decisions",
-      "Implement decision audit trails",
-      "Set strict decision boundaries for autonomous actions"
-    ]
-  },
-  {
-    id: 4,
-    category: "outcome",
-    name: "Cascading Agent Failures",
-    description: "Failure in one agent could cascade through the system affecting data integrity",
-    scenario: "A memory leak in one agent causes it to fail, triggering failures in dependent agents and potentially corrupting user data",
-    likelihood: 3,
-    impact: 4,
-    riskLevel: "medium",
-    aiConfidence: 0.85,
-    validated: false,
-    affectedSystems: ["Agent Runtime", "Data Storage"],
-    mitigations: [
-      "Implement circuit breakers between agents",
-      "Add health monitoring and auto-recovery",
-      "Use data validation at each processing stage"
-    ]
-  },
-  {
-    id: 5,
-    category: "multi-agent",
-    name: "Agent Privilege Escalation",
-    description: "An agent gaining unauthorized access to data meant for other agents",
-    scenario: "Through learned behavior, an agent exploits communication protocols to access data beyond its designated scope",
-    likelihood: 4,
-    impact: 5,
-    riskLevel: "high",
-    aiConfidence: 0.90,
-    validated: false,
-    affectedSystems: ["Access Control", "Agent Permissions"],
-    mitigations: [
-      "Implement role-based access control for agents",
-      "Regular permission audits",
-      "Zero-trust architecture between agents"
-    ]
-  }
-];
 
-export const WizardStep7 = ({ data, setData }: any) => {
-  const [threats, setThreats] = useState<MaestroThreat[]>(data.maestroThreats || MOCK_THREATS);
+import type { WizardStepProps, MaestroThreat } from "@/types/wizard";
+import { generateMaestroThreats } from "@/lib/maestroEngine";
+
+export const WizardStep7 = ({ data, setData }: WizardStepProps) => {
+  const initialThreats = (): MaestroThreat[] => {
+    if (data.maestroThreats && data.maestroThreats.length > 0) return data.maestroThreats;
+    return generateMaestroThreats({
+      activityName: data.activityName,
+      aiClassification: data.aiClassification,
+      processingType: data.processingType,
+      autonomy: data.autonomy,
+      dataCategories: data.dataCategories,
+      thirdPartySharing: typeof data.thirdPartySharing === "boolean" ? data.thirdPartySharing : undefined,
+    });
+  };
+
+  const [threats, setThreats] = useState<MaestroThreat[]>(initialThreats);
   const [selectedThreat, setSelectedThreat] = useState<number | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -170,12 +79,19 @@ export const WizardStep7 = ({ data, setData }: any) => {
 
   const runAIAnalysis = () => {
     setIsAnalyzing(true);
-    toast.info("Running MAESTRO AI analysis...");
-    
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      toast.success("MAESTRO analysis complete! Review the identified threats below.");
-    }, 3000);
+    toast.info("Running MAESTRO analysis...");
+    const fresh = generateMaestroThreats({
+      activityName: data.activityName,
+      aiClassification: data.aiClassification,
+      processingType: data.processingType,
+      autonomy: data.autonomy,
+      dataCategories: data.dataCategories,
+      thirdPartySharing: typeof data.thirdPartySharing === "boolean" ? data.thirdPartySharing : undefined,
+    });
+    setThreats(fresh);
+    setData({ ...data, maestroThreats: fresh });
+    setIsAnalyzing(false);
+    toast.success(`MAESTRO analysis complete — ${fresh.length} threats identified`);
   };
 
   const threatsByCategory = MAESTRO_CATEGORIES.map(category => ({
@@ -315,7 +231,7 @@ export const WizardStep7 = ({ data, setData }: any) => {
                                   {threat.riskLevel}
                                 </Badge>
                                 <Badge variant="outline">
-                                  AI: {Math.round(threat.aiConfidence * 100)}%
+                                  AI: {threat.aiConfidence > 1 ? threat.aiConfidence : Math.round(threat.aiConfidence * 100)}%
                                 </Badge>
                               </div>
                             </div>

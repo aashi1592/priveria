@@ -271,7 +271,7 @@ Return your analysis as a structured JSON object with these fields.`
     }
 
     if (extractedData.risk_indicators) {
-      extractedData.risk_indicators.forEach((risk: any) => {
+      extractedData.risk_indicators.forEach((risk: { type: string; severity: string }) => {
         entitiesToInsert.push({
           document_id: documentId,
           entity_type: 'risk_indicator',

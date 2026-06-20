@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useEnterpriseConfig } from "@/contexts/EnterpriseConfigContext";
 import { useAssessments } from "@/contexts/AssessmentsContext";
+import type { WizardFormData } from "@/types/wizard";
 
 const baseSteps = [
   { id: 1, title: "Processing Overview", component: WizardStep1 },
@@ -38,10 +39,12 @@ const maestroStep = {
 
 const DPIAWizard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { config } = useEnterpriseConfig();
   const { addAssessment } = useAssessments();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<any>({});
+  const locationState = location.state as { prefill?: Partial<WizardFormData> } | null;
+  const [formData, setFormData] = useState<WizardFormData>(locationState?.prefill ?? {});
 
   // Dynamically determine steps based on configuration and processing type
   const steps = useMemo(() => {
@@ -90,9 +93,14 @@ const DPIAWizard = () => {
     }
   };
 
+  const handleSaveDraft = () => {
+    localStorage.setItem("priveria.dpiaDraft", JSON.stringify(formData));
+    toast.info("Draft saved", { description: "Your progress has been saved locally." });
+  };
+
   const handleSubmit = () => {
     // Calculate risk level based on risk score
-    const riskScore = formData.calculatedRiskScore ?? formData.riskScore ?? Math.floor(Math.random() * 100);
+    const riskScore = formData.calculatedRiskScore ?? formData.riskScore ?? 0;
     let riskLevel: "critical" | "high" | "medium" | "low" | "minimal";
     if (riskScore >= 36) riskLevel = "critical";
     else if (riskScore >= 21) riskLevel = "high";
@@ -180,7 +188,7 @@ const DPIAWizard = () => {
           </Button>
 
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={handleSaveDraft}>
               <Save className="w-4 h-4" />
               Save Draft
             </Button>

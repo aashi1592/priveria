@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Search, Filter, Download, Eye, Edit, Trash2 } from "lucide-react";
 import { Assessment, useAssessments } from "@/contexts/AssessmentsContext";
@@ -27,6 +28,10 @@ const Assessments = () => {
     toast.success("Assessment deleted", {
       description: `${name} has been removed.`,
     });
+  };
+
+  const handleEdit = (assessment: Assessment) => {
+    navigate(`/dpia-wizard?edit=${assessment.id}`);
   };
 
   const openReport = (assessment: Assessment) => {
@@ -198,11 +203,11 @@ const Assessments = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" aria-label="Filter assessments">
                 <Filter className="w-4 h-4" />
               </Button>
 
-              <Button variant="outline" size="icon" onClick={handleExportFiltered}>
+              <Button variant="outline" size="icon" onClick={handleExportFiltered} aria-label="Export filtered assessments">
                 <Download className="w-4 h-4" />
               </Button>
             </div>
@@ -266,7 +271,7 @@ const Assessments = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        title="View full report"
+                        aria-label={`View full report for ${assessment.name}`}
                         onClick={() => openReport(assessment)}
                       >
                         <Eye className="w-4 h-4" />
@@ -274,22 +279,40 @@ const Assessments = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        title="Download report"
+                        aria-label={`Download report for ${assessment.name}`}
                         onClick={() => handleDownload(assessment)}
                       >
                         <Download className="w-4 h-4" />
                       </Button>
-                      <Button variant="outline" size="icon" title="Edit">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label={`Edit ${assessment.name}`}
+                        onClick={() => handleEdit(assessment)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        title="Delete"
-                        onClick={() => handleDelete(assessment.id, assessment.name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="icon" aria-label={`Delete ${assessment.name}`}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete assessment?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently remove <strong>{assessment.name}</strong>. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(assessment.id, assessment.name)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </CardContent>

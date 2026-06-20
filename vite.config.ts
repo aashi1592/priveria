@@ -6,7 +6,6 @@ import { componentTagger } from "lovable-tagger";
 const DEFAULT_PORT = Number(process.env.PORT) || 5173;
 const DEFAULT_HOST = process.env.HOST ?? "127.0.0.1";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: DEFAULT_HOST,
@@ -17,6 +16,17 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/components/ui/**", "src/test/**", "src/vite-env.d.ts"],
     },
   },
 }));

@@ -23,4 +23,11 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    // shadcn/ui generated files and context files mix exports by design
+    files: ["src/components/ui/**", "src/components/enterprise/**", "src/contexts/**", "src/config/features.ts"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
 );
