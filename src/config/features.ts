@@ -253,16 +253,24 @@ export class FeatureManager {
 }
 
 /**
- * React Hook for accessing feature flags
- */
-export function useFeature(featureId: string): boolean {
-  const manager = FeatureManager.getInstance();
-  return manager.isFeatureEnabled(featureId);
-}
-
-/**
  * Get feature manager instance (for non-React contexts)
  */
 export function getFeatureManager(): FeatureManager {
   return FeatureManager.getInstance();
+}
+
+import { useState, useEffect } from "react";
+
+/**
+ * React Hook for accessing feature flags — reactive to setLicense() calls.
+ */
+export function useFeature(featureId: string): boolean {
+  const manager = FeatureManager.getInstance();
+  const [enabled, setEnabled] = useState(() => manager.isFeatureEnabled(featureId));
+
+  useEffect(() => {
+    setEnabled(manager.isFeatureEnabled(featureId));
+  }, [featureId, manager]);
+
+  return enabled;
 }

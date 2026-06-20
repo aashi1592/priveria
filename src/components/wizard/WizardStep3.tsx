@@ -48,14 +48,19 @@ const scoreLabel = (s: number) => {
   return { label: "Low", color: "secondary" as const };
 };
 
-export const WizardStep3 = ({ data, setData }: any) => {
+import type { WizardStepProps } from "@/types/wizard";
+
+export const WizardStep3 = ({ data, setData }: WizardStepProps) => {
   const { config } = useEnterpriseConfig();
   const [likelihood, setLikelihood] = useState(data.likelihood || 3);
   const [impact, setImpact] = useState(data.impact || 3);
   const [risks, setRisks] = useState<RiskEntry[]>(
-    Array.isArray(data.risks) && data.risks.length > 0 ? data.risks : []
+    Array.isArray(data.risks) && data.risks.length > 0 ? (data.risks as RiskEntry[]) : []
   );
 
+  // Risk formula: (likelihood × impact × volumeFactor) + regulatoryFloor
+  //   + LINDDUN adjustment (threat severity weights) + MAESTRO adjustment + register adjustment
+  // Thresholds: <11 Low · 11-20 Medium · 21-35 High · 36+ Critical
   const volumeFactor = 1.2;
   const regulatoryMultiplier = 5;
   const baseScore = likelihood * impact * volumeFactor;
@@ -79,8 +84,9 @@ export const WizardStep3 = ({ data, setData }: any) => {
   let linddunAdjustment = 0;
   let linddunThreats = { critical: 0, high: 0, medium: 0, low: 0 };
   if (config.linddunEnabled && data.linddunThreats) {
-    linddunThreats = data.linddunThreats.reduce((acc: any, threat: any) => {
-      acc[threat.riskLevel.toLowerCase()]++;
+    linddunThreats = data.linddunThreats.reduce((acc: typeof linddunThreats, threat) => {
+      const lvl = threat.riskLevel.toLowerCase() as keyof typeof linddunThreats;
+      if (lvl in acc) acc[lvl]++;
       return acc;
     }, { critical: 0, high: 0, medium: 0, low: 0 });
     linddunAdjustment = (linddunThreats.critical * 8) + (linddunThreats.high * 4) + (linddunThreats.medium * 2) + (linddunThreats.low * 1);
@@ -89,8 +95,9 @@ export const WizardStep3 = ({ data, setData }: any) => {
   let maestroAdjustment = 0;
   let maestroThreats = { critical: 0, high: 0, medium: 0, low: 0 };
   if (config.maestroEnabled && data.maestroThreats) {
-    maestroThreats = data.maestroThreats.reduce((acc: any, threat: any) => {
-      acc[threat.riskLevel.toLowerCase()]++;
+    maestroThreats = data.maestroThreats.reduce((acc: typeof maestroThreats, threat) => {
+      const lvl = threat.riskLevel.toLowerCase() as keyof typeof maestroThreats;
+      if (lvl in acc) acc[lvl]++;
       return acc;
     }, { critical: 0, high: 0, medium: 0, low: 0 });
     maestroAdjustment = (maestroThreats.critical * 8) + (maestroThreats.high * 4) + (maestroThreats.medium * 2) + (maestroThreats.low * 1);
@@ -118,7 +125,7 @@ export const WizardStep3 = ({ data, setData }: any) => {
   const riskLevel = getRiskLevel(finalScore);
 
   useEffect(() => {
-    setData((prev: any) => ({
+    setData((prev) => ({
       ...prev,
       likelihood,
       impact,
@@ -141,7 +148,7 @@ export const WizardStep3 = ({ data, setData }: any) => {
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">Calculated Risk Score</p>
             <p className="text-5xl font-bold text-foreground">{finalScore}</p>
-            <Badge variant={riskLevel.color as any} className="text-lg px-4 py-1">
+            <Badge variant={riskLevel.color as "destructive" | "secondary"} className="text-lg px-4 py-1">
               {riskLevel.level} Risk
             </Badge>
             <p className="text-xs text-muted-foreground mt-2">
@@ -247,7 +254,7 @@ export const WizardStep3 = ({ data, setData }: any) => {
                           <Badge variant="outline">#{idx + 1}</Badge>
                           <Badge variant={sl.color}>{sl.label} ({score})</Badge>
                         </div>
-                        <Button type="button" size="icon" variant="ghost" onClick={() => removeRisk(r.id)}>
+                        <Button type="button" size="icon" variant="ghost" aria-label="Remove risk" onClick={() => removeRisk(r.id)}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
@@ -338,7 +345,7 @@ export const WizardStep3 = ({ data, setData }: any) => {
           rows={4}
           value={data.riskJustification ?? ""}
           onChange={(event) =>
-            setData((prev: any) => ({ ...prev, riskJustification: event.target.value }))
+            setData((prev) => ({ ...prev, riskJustification: event.target.value }))
           }
         />
       </div>

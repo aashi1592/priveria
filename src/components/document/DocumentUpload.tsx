@@ -94,11 +94,11 @@ export function DocumentUpload({ onUploadComplete }: DocumentUploadProps) {
       setAnalyzing(false);
       onUploadComplete?.(document.id);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: error.message || "Failed to upload document",
+        description: error instanceof Error ? error.message : "Failed to upload document",
         variant: "destructive",
       });
       setUploading(false);
