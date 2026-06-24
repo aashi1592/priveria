@@ -260,6 +260,6 @@ Your Priveria project is unified, clean, documented, and ready for sustainable g
 ---
 
 Generated: June 8, 2026  
-By: Claude Code (Senior Engineer & TPM)  
+By: Priveria Engineering Team  
 For: Aashita Jain, Decoded by Counsel
 
