@@ -45,12 +45,15 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 - Step-by-step assessment wizard with contextual guidance.
 - **Multi-risk register** in the wizard — add multiple distinct risks, each with its own likelihood and impact, rolled into the overall DPIA score.
 - Attach evidence, mitigation actions, and approvals to each DPIA.
-- Export professional PDF summaries for regulators or auditors.
+- **Per-assessment DPIA report download** — each assessment card offers a one-click report in five formats targeting different audiences (board, regulator, EU AI Act auditor, internal technical, threat-register stakeholder share), downloadable as HTML, PDF, or Markdown.
+- All assessment data persists in localStorage and survives page reloads.
 
 ### Third-Party Risk Management
 - Maintain a living vendor catalogue with categories, data usage, and POC details.
+- **Add, edit, and manage vendors** via a full CRUD interface — data persists across sessions.
 - Visualize risk tiers, pending reviews, and compliance scores at a glance.
-- Link vendors to processing activities and trigger enhanced workflows for high-risk partners.
+- Link vendors directly to real processing activities and trigger enhanced workflows for high-risk partners.
+- Download a formatted vendor risk report per vendor.
 
 ### AI-assisted Compliance (Optional Module)
 - Automated risk scoring suggestions and mitigation recommendations.
@@ -60,11 +63,14 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 ### Reporting & Dashboards
 - Snapshot KPIs such as DPIA status, vendor health, and overall compliance.
 - Five built-in export templates: EDPB regulator view, EU AI Act conformity, board brief, internal technical report, and threat-register stakeholder share.
+- Each template available as **HTML** (styled, browser-ready), **PDF** (paginated), or **Markdown** (version-control friendly).
 - Human-in-the-loop review panel with threat-register preview before export.
 - Tailorable widgets so teams can focus on what matters most.
 
 ### Privacy Threat Modeling for AI
 - Catalog privacy harms across the AI lifecycle: training data, model behavior, prompts, outputs, and downstream agent actions.
+- **Contextual LINDDUN threat generation** — the wizard automatically generates threats specific to your processing activity (data categories, legal basis, cross-border transfers, third-party sharing) rather than generic placeholders.
+- **Contextual MAESTRO threat generation** — agentic AI threats scale to your AI classification and autonomy settings (prompt injection, agent coordination failure, autonomous decision-making without oversight).
 - Map threats to mitigations using familiar lenses (STRIDE, LINDDUN, MITRE ATLAS) adapted for privacy.
 - Surface high-risk patterns such as memorization, re-identification, prompt injection leading to data exfiltration, and unintended profiling.
 
@@ -77,11 +83,13 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 - Assessment patterns built for autonomous, multi-step agent workflows where data context flows across tools, memory, and external APIs.
 - Model permissions, tool-use boundaries, and delegated actions as first-class risk inputs.
 - Capture emergent risks (chained tool calls, persistent memory, cross-session data reuse) that static DPIAs typically miss.
+- **AI Module** connected to real assessments — systems are surfaced automatically from completed DPIAs where AI involvement was flagged, categorised by EU AI Act risk tier.
 
 ### Custom DPIA Calculator
 - Transparent, configurable scoring engine — every weight, threshold, and tier is inspectable and editable.
 - Standardize how risk is quantified across business units so "high risk" means the same thing everywhere.
-- Export scoring rationale alongside the DPIA for auditors and regulators.
+- **Export scoring rationale** as a formatted report, or **pre-fill a new DPIA wizard** directly from the calculator results.
+- Reset the calculator at any time to start a fresh scoring session.
 
 ---
 
@@ -245,8 +253,18 @@ priveria/
 │   │   │   ├── threatRegisterShare.ts
 │   │   │   ├── index.ts
 │   │   │   └── types.ts
+│   │   ├── linddunEngine.ts       # Contextual LINDDUN threat generation
+│   │   ├── maestroEngine.ts       # Contextual MAESTRO threat generation
+│   │   ├── reportDownload.ts      # HTML / PDF / Markdown download utilities
 │   │   ├── supabase.ts
 │   │   └── utils.ts
+│   ├── test/
+│   │   ├── assessments.test.ts
+│   │   ├── featureFlags.test.ts
+│   │   ├── riskScoring.test.ts
+│   │   └── setup.ts
+│   ├── types/
+│   │   └── wizard.ts              # WizardFormData, LinddunThreat, MaestroThreat
 │   ├── pages/                     # Route-level views
 │   │   ├── Index.tsx              # Dashboard home
 │   │   ├── DPIAWizard.tsx
@@ -298,6 +316,9 @@ priveria/
 - `npm run build:dev` – Build with development flags for profiling.
 - `npm run preview` – Preview the production bundle locally.
 - `npm run lint` – Run ESLint across the codebase.
+- `npm run typecheck` – Run TypeScript type checking without emitting files.
+- `npm run test` – Run the test suite (Vitest).
+- `npm run test:coverage` – Run tests with coverage report (output to `coverage/`).
 
 ---
 

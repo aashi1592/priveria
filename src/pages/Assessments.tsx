@@ -8,9 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, Filter, Download, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, Download, Eye, Edit, Trash2, ChevronDown } from "lucide-react";
 import { Assessment, useAssessments } from "@/contexts/AssessmentsContext";
+import { exportTemplates } from "@/lib/exportTemplates";
+import { downloadMarkdown, downloadHtml, downloadPdf } from "@/lib/reportDownload";
 import { toast } from "sonner";
 
 const Assessments = () => {
@@ -39,28 +42,22 @@ const Assessments = () => {
     setReportOpen(true);
   };
 
-  const handleDownload = (assessment: Assessment) => {
-    if (typeof window === "undefined") return;
-
-    const payload = {
-      ...assessment,
-      downloadedAt: new Date().toISOString(),
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const safeFileName = assessment.id.replace(/[^\w.-]+/g, "_") || "dpia-assessment";
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${safeFileName}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast.success("Assessment report downloaded", {
-      description: `${assessment.name} exported as JSON.`,
-    });
+  const handleDownload = async (assessment: Assessment, templateId: string, format: "md" | "html" | "pdf") => {
+    const tpl = exportTemplates.find((t) => t.id === templateId);
+    const label = tpl?.name ?? templateId;
+    try {
+      if (format === "md") {
+        downloadMarkdown(assessment, templateId);
+      } else if (format === "html") {
+        downloadHtml(assessment, templateId);
+      } else {
+        toast.info("Generating PDF…");
+        await downloadPdf(assessment, templateId);
+      }
+      toast.success(`Downloaded: ${label}`, { description: `${assessment.name} · ${format.toUpperCase()}` });
+    } catch {
+      toast.error("Download failed", { description: "Please try the HTML or Markdown format instead." });
+    }
   };
 
   const handleExportFiltered = () => {
@@ -276,14 +273,37 @@ const Assessments = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        aria-label={`Download report for ${assessment.name}`}
-                        onClick={() => handleDownload(assessment)}
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="gap-1" aria-label={`Download report for ${assessment.name}`}>
+                            <Download className="w-4 h-4" />
+                            <ChevronDown className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-72">
+                          <DropdownMenuLabel>Download DPIA Report</DropdownMenuLabel>
+                          {exportTemplates.map((tpl) => (
+                            <div key={tpl.id}>
+                              <DropdownMenuSeparator />
+                              <div className="px-2 py-1.5">
+                                <p className="text-xs font-semibold text-foreground">{tpl.name}</p>
+                                <p className="text-xs text-muted-foreground mb-1.5">{tpl.audience}</p>
+                                <div className="flex gap-1.5">
+                                  {(["html", "pdf", "md"] as const).map((fmt) => (
+                                    <button
+                                      key={fmt}
+                                      onClick={() => handleDownload(assessment, tpl.id, fmt)}
+                                      className="rounded border border-border px-2 py-0.5 text-xs font-mono hover:bg-muted transition-colors"
+                                    >
+                                      .{fmt}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <Button
                         variant="outline"
                         size="icon"
@@ -396,9 +416,38 @@ const Assessments = () => {
                 <Button variant="outline" onClick={() => setReportOpen(false)}>
                   Close
                 </Button>
-                <Button onClick={() => selectedAssessment && handleDownload(selectedAssessment)}>
-                  Download JSON
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="gap-2">
+                      <Download className="w-4 h-4" />
+                      Download Report
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-72">
+                    <DropdownMenuLabel>Choose Template & Format</DropdownMenuLabel>
+                    {exportTemplates.map((tpl) => (
+                      <div key={tpl.id}>
+                        <DropdownMenuSeparator />
+                        <div className="px-2 py-1.5">
+                          <p className="text-xs font-semibold text-foreground">{tpl.name}</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{tpl.audience}</p>
+                          <div className="flex gap-1.5">
+                            {(["html", "pdf", "md"] as const).map((fmt) => (
+                              <button
+                                key={fmt}
+                                onClick={() => selectedAssessment && handleDownload(selectedAssessment, tpl.id, fmt)}
+                                className="rounded border border-border px-2 py-0.5 text-xs font-mono hover:bg-muted transition-colors"
+                              >
+                                .{fmt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </>
           )}
