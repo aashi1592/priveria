@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.76.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -66,17 +66,38 @@ serve(async (req) => {
     }
 
     const body: LicenseValidationRequest = await req.json();
-    const { licenseKey, organizationId } = body;
+    const { licenseKey } = body;
+
+    // The license is always scoped to the authenticated user (enterprise_licenses
+    // RLS keys on auth.uid() = organization_id). A client-supplied organizationId
+    // is ignored so a caller cannot probe licenses belonging to another org.
+    const organizationId = user.id;
 
     // If no license key provided, return community tier
     if (!licenseKey) {
       return new Response(
-        JSON.stringify({ 
-          valid: true, 
-          tier: 'community', 
+        JSON.stringify({
+          valid: true,
+          tier: 'community',
           enabledFeatures: []
         }),
-        { 
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Reject malformed license keys before hitting the database.
+    if (typeof licenseKey !== 'string' || licenseKey.length > 256) {
+      return new Response(
+        JSON.stringify({
+          valid: false,
+          tier: 'community',
+          enabledFeatures: [],
+          message: 'Invalid license key format'
+        }),
+        {
+          status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
@@ -87,7 +108,7 @@ serve(async (req) => {
       .from('enterprise_licenses')
       .select('*')
       .eq('license_key', licenseKey)
-      .eq('organization_id', organizationId || user.id)
+      .eq('organization_id', organizationId)
       .eq('is_active', true)
       .maybeSingle();
 
@@ -153,13 +174,14 @@ serve(async (req) => {
     );
 
   } catch (error) {
+    // Log the detail server-side but never leak raw error text to the client.
     console.error('License validation error:', error);
     return new Response(
-      JSON.stringify({ 
-        valid: false, 
-        tier: 'community', 
+      JSON.stringify({
+        valid: false,
+        tier: 'community',
         enabledFeatures: [],
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'License validation failed'
       }),
       { 
         status: 500,

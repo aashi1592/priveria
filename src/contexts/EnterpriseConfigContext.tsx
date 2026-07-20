@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { validateLicense } from "@/lib/licenseService";
 
 interface EnterpriseConfig {
   totalDPIAs: number;
@@ -33,7 +34,36 @@ interface EnterpriseConfig {
 interface EnterpriseConfigContextType {
   config: EnterpriseConfig;
   updateConfig: (updates: Partial<EnterpriseConfig>) => void;
+  /** True only when the server validated an active enterprise license. */
+  enterpriseLicensed: boolean;
 }
+
+/**
+ * Config keys that are enterprise-gated. These may only be toggled on when the
+ * server has validated an enterprise license — otherwise they are forced off,
+ * regardless of what the client submits. Keep in sync with the enterprise-tier
+ * entries in EnterpriseConfig above.
+ */
+const ENTERPRISE_FLAG_KEYS: ReadonlyArray<keyof EnterpriseConfig> = [
+  "linddunEnabled",
+  "maestroEnabled",
+  "aiRiskScoringEnabled",
+  "aiVendorRecommendationsEnabled",
+  "aiDocumentAnalysisEnabled",
+  "aiComplianceMonitoringEnabled",
+  "aiNaturalLanguageQueryEnabled",
+  "cicdPolicyEnforcementEnabled",
+  "cryptographicAuditTrailEnabled",
+  "multiGrcSyncEnabled",
+  "governanceTelemetryEnabled",
+  "w3cDpvOntologyEnabled",
+  "dynamicVendorManagementEnabled",
+  "vendorRiskHeatmapsEnabled",
+  "cloudInfraTrackingEnabled",
+  "humanInTheLoopEnabled",
+  "changeDetectionEnabled",
+  "autoDataFlowDiagramsEnabled",
+];
 
 const defaultConfig: EnterpriseConfig = {
   totalDPIAs: 247,
@@ -69,17 +99,58 @@ const EnterpriseConfigContext = createContext<EnterpriseConfigContextType | unde
 
 export const EnterpriseConfigProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<EnterpriseConfig>(defaultConfig);
+  const [enterpriseLicensed, setEnterpriseLicensed] = useState(false);
+
+  // Ask the server whether an enterprise license is active. Until it confirms
+  // (or if it never does), enterprise features stay locked.
+  useEffect(() => {
+    let cancelled = false;
+    validateLicense().then((result) => {
+      if (cancelled) return;
+      const licensed = result.valid && result.tier === "enterprise";
+      setEnterpriseLicensed(licensed);
+      if (!licensed) {
+        // Defensively clear any enterprise flags if the license lapsed.
+        setConfig((prev) => stripEnterpriseFlags(prev));
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const updateConfig = (updates: Partial<EnterpriseConfig>) => {
-    setConfig((prev) => ({ ...prev, ...updates }));
+    // Enterprise flags can only be turned on with a validated license. Strip any
+    // enterprise-gated keys from the update when unlicensed so a Settings toggle
+    // (or forged client state) cannot unlock paid features.
+    const safeUpdates = enterpriseLicensed ? updates : dropEnterpriseFlags(updates);
+    setConfig((prev) => ({ ...prev, ...safeUpdates }));
   };
 
   return (
-    <EnterpriseConfigContext.Provider value={{ config, updateConfig }}>
+    <EnterpriseConfigContext.Provider value={{ config, updateConfig, enterpriseLicensed }}>
       {children}
     </EnterpriseConfigContext.Provider>
   );
 };
+
+/** Remove enterprise-gated keys from a partial update. */
+function dropEnterpriseFlags(updates: Partial<EnterpriseConfig>): Partial<EnterpriseConfig> {
+  const copy: Partial<EnterpriseConfig> = { ...updates };
+  for (const key of ENTERPRISE_FLAG_KEYS) {
+    delete copy[key];
+  }
+  return copy;
+}
+
+/** Force all enterprise-gated flags to false on an existing config. */
+function stripEnterpriseFlags(cfg: EnterpriseConfig): EnterpriseConfig {
+  const copy = { ...cfg };
+  for (const key of ENTERPRISE_FLAG_KEYS) {
+    (copy[key] as boolean) = false;
+  }
+  return copy;
+}
 
 export const useEnterpriseConfig = () => {
   const context = useContext(EnterpriseConfigContext);

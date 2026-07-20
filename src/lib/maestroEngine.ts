@@ -38,7 +38,7 @@ function threat(
     likelihood,
     impact,
     riskLevel,
-    aiConfidence: confidence,
+    ruleConfidence: confidence,
     validated: false,
     affectedSystems,
     mitigations,

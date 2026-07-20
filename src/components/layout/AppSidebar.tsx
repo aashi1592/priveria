@@ -14,6 +14,7 @@ import {
   MessageSquareText,
   Target,
   MessageCircle,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,6 +28,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/AuthContext";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -47,6 +49,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => {
     if (path === "/") return currentPath === "/";
@@ -110,7 +113,20 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <div className="mt-auto p-4 border-t border-border">
+      <div className="mt-auto p-4 border-t border-border space-y-3">
+        {open && user?.email && (
+          <p className="text-xs text-muted-foreground truncate" title={user.email}>
+            {user.email}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => signOut()}
+          className="flex items-center gap-3 w-full rounded-md px-2 py-2 text-sm hover:bg-muted"
+        >
+          <LogOut className="h-5 w-5" />
+          {open && <span>Sign out</span>}
+        </button>
         <SidebarTrigger className="w-full" />
       </div>
     </Sidebar>

@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
 
+const Login = lazy(() => import("./pages/Login"));
 const Index = lazy(() => import("./pages/Index"));
 const Assessments = lazy(() => import("./pages/Assessments"));
 const AIModule = lazy(() => import("./pages/AIModule"));
@@ -24,12 +26,14 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <main className="flex-1">{children}</main>
-    </div>
-  </SidebarProvider>
+  <ProtectedRoute>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1">{children}</main>
+      </div>
+    </SidebarProvider>
+  </ProtectedRoute>
 );
 
 const App = () => (
@@ -39,6 +43,7 @@ const App = () => (
       <BrowserRouter>
         <Suspense fallback={<div className="p-6">Loading...</div>}>
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={<AppLayout><Index /></AppLayout>} />
             <Route path="/assessments" element={<AppLayout><Assessments /></AppLayout>} />
             <Route path="/ai-module" element={<AppLayout><AIModule /></AppLayout>} />

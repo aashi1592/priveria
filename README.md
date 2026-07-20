@@ -45,8 +45,8 @@ The goal is to shift privacy governance from **paperwork to logic** — a progra
 - Step-by-step assessment wizard with contextual guidance.
 - **Multi-risk register** in the wizard — add multiple distinct risks, each with its own likelihood and impact, rolled into the overall DPIA score.
 - Attach evidence, mitigation actions, and approvals to each DPIA.
-- **Per-assessment DPIA report download** — each assessment card offers a one-click report in five formats targeting different audiences (board, regulator, EU AI Act auditor, internal technical, threat-register stakeholder share), downloadable as HTML, PDF, or Markdown.
-- All assessment data persists in localStorage and survives page reloads.
+- **Per-assessment DPIA report download** — each assessment card offers a one-click report in five formats targeting different audiences (board, regulator, EU AI Act auditor, internal technical, threat-register stakeholder share), downloadable as HTML, PDF, or Markdown. Report output is sanitized before rendering.
+- Assessment data persists in your Supabase project (the `assessments` table, scoped to the signed-in user via Row Level Security) and survives page reloads and devices. Requires sign-in.
 
 ### Third-Party Risk Management
 - Maintain a living vendor catalogue with categories, data usage, and POC details.
@@ -162,7 +162,17 @@ cp .env.example .env
 npm run dev
 ```
 
-Once the dev server is running, visit `http://127.0.0.1:5173/` in your browser to explore the app.
+**Apply the database migrations** to your Supabase project before first use (the app reads/writes the `assessments` table). Using the Supabase CLI:
+
+```bash
+supabase db push        # against a linked hosted project
+# or, for a full local stack that auto-applies migrations:
+supabase start
+```
+
+The migrations in `supabase/migrations/` create the schema, enable Row Level Security, and grant the table privileges the app requires.
+
+Once the dev server is running, visit `http://127.0.0.1:5173/` in your browser. **The app requires authentication** — sign up / sign in on the login screen (Supabase email + password auth). Assessments are stored per user and protected by RLS.
 
 **Note:** This is a local development URL that only works on your machine. To customize the host/port, set `HOST` and `PORT` environment variables before running `npm run dev`.
 

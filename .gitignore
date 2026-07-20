@@ -26,3 +26,7 @@ dist-ssr
 .env.*
 !.env.example
 coverage/
+
+# Supabase CLI local artifacts
+supabase/.branches
+supabase/.temp

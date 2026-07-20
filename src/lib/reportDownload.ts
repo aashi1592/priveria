@@ -4,6 +4,7 @@
  * PDF prints that HTML document via jsPDF + html2canvas.
  */
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import jsPDF from "jspdf";
 import type { Assessment } from "@/contexts/AssessmentsContext";
 import type { ThreatRegisterEntry } from "@/lib/exportTemplates";
@@ -23,14 +24,29 @@ function buildMarkdown(assessment: Assessment, templateId: string): string {
   return tpl.render({ assessment, threats: loadThreats(assessment.id) });
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function markdownToHtml(markdown: string, title: string): string {
-  const body = marked.parse(markdown) as string;
+  // Report content is built from user-controlled assessment/threat data, so the
+  // rendered markdown must be sanitized before it is injected into the HTML/PDF
+  // document (marked does not sanitize as of v4+). The title is plain-text and
+  // is HTML-escaped rather than parsed as markup.
+  const rendered = marked.parse(markdown) as string;
+  const body = DOMPurify.sanitize(rendered, { USE_PROFILES: { html: true } });
+  const safeTitle = escapeHtml(title);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${title}</title>
+  <title>${safeTitle}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body {
