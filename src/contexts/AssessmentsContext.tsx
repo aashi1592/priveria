@@ -1,10 +1,28 @@
 /**
- * AssessmentsContext — localStorage-backed store for DPIA assessments.
- * IDs are auto-assigned as DPIA-<year>-<seq>, incrementing from the current max.
- * Mock data is seeded only on first visit (when localStorage is empty).
- * Replace with Supabase calls when auth/persistence is wired.
+ * AssessmentsContext — Supabase-backed store for DPIA assessments.
+ *
+ * Records persist in the `public.assessments` table, owner-scoped by the
+ * existing Row Level Security policies (a user only ever sees/mutates their own
+ * rows). The human-readable "DPIA-<year>-<seq>" reference is kept as the row's
+ * `display_id` and surfaced as `Assessment.id`; the UUID primary key stays
+ * internal. Data is fetched when a user signs in and cleared on sign-out.
  */
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import type { Database } from "@/integrations/supabase/types";
+
+type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
+type AssessmentInsert = Database["public"]["Tables"]["assessments"]["Insert"];
+type AssessmentUpdate = Database["public"]["Tables"]["assessments"]["Update"];
 
 export interface Assessment {
   id: string;
@@ -22,9 +40,10 @@ export interface Assessment {
 
 interface AssessmentsContextType {
   assessments: Assessment[];
-  addAssessment: (assessment: Omit<Assessment, "id">) => void;
-  updateAssessment: (id: string, updates: Partial<Assessment>) => void;
-  deleteAssessment: (id: string) => void;
+  loading: boolean;
+  addAssessment: (assessment: Omit<Assessment, "id">) => Promise<void>;
+  updateAssessment: (id: string, updates: Partial<Assessment>) => Promise<void>;
+  deleteAssessment: (id: string) => Promise<void>;
   stats: {
     total: number;
     highRisk: number;
@@ -33,144 +52,143 @@ interface AssessmentsContextType {
   };
 }
 
-const mockAssessments: Assessment[] = [
-  {
-    id: "DPIA-2024-001",
-    category: "Product/Application",
-    name: "Customer Data Analytics Platform",
-    owner: "Sarah Chen",
-    date: "2024-03-15",
-    status: "completed",
-    riskLevel: "high",
-    riskScore: 28,
-    tier: "tier-1",
-    nextReview: "2024-09-15",
-    details: {
-      processingType: "Product/Application",
-      businessJustification: "Expand customer insights to tailor marketing campaigns.",
-      legalBasis: "legitimate-interest",
-      dataCategories: [
-        "Personal Identifiers",
-        "Behavioral Data",
-      ],
-      safeguards: "Encryption at rest, quarterly access reviews, DPO oversight.",
-      oversight: "Human review on all model outputs above a set risk threshold.",
-    },
-  },
-  {
-    id: "DPIA-2024-002",
-    category: "Vendor",
-    name: "Cloud Storage Provider Assessment",
-    owner: "Michael Torres",
-    date: "2024-03-10",
-    status: "in-review",
-    riskLevel: "medium",
-    riskScore: 56,
-    tier: "tier-2",
-    nextReview: "2024-09-10",
-    details: {
-      processingType: "Vendor",
-      vendorName: "SkyVault Storage",
-      dataRetention: "3-7years",
-      crossBorderTransfers: true,
-      mitigation: "Standard contractual clauses, encryption key escrow, quarterly audits.",
-    },
-  },
-  {
-    id: "DPIA-2024-003",
-    category: "Internal Process",
-    name: "Employee Performance Tracking",
-    owner: "Jennifer Liu",
-    date: "2024-03-08",
-    status: "pending",
-    riskLevel: "low",
-    riskScore: 34,
-    tier: "tier-3",
-    details: {
-      processingType: "Internal Process",
-      employeeScope: "Global customer support teams",
-      retention: "1-3years",
-      dataSubjects: "Employees",
-      notes: "Awaiting works council review before activation.",
-    },
-  },
-  {
-    id: "DPIA-2024-004",
-    category: "Product/Application",
-    name: "AI-Powered Chatbot System",
-    owner: "David Kumar",
-    date: "2024-03-05",
-    status: "completed",
-    riskLevel: "critical",
-    riskScore: 89,
-    tier: "tier-1",
-    nextReview: "2024-06-05",
-    details: {
-      processingType: "Product/Application",
-      aiClassification: "high-risk",
-      autonomy: "human-review",
-      explainability: "3",
-      biasAnalysis: "Monthly fairness audits across languages.",
-      humanOversight: "Escalation to live agents for unresolved queries.",
-    },
-  },
-];
-
-const STORAGE_KEY = "priveria.assessments";
-
-function loadFromStorage(): Assessment[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Assessment[];
-  } catch {
-    // corrupted data — fall back to mock seed
-  }
-  return mockAssessments;
-}
-
-function saveToStorage(assessments: Assessment[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(assessments));
-  } catch {
-    // storage quota exceeded — silently continue
-  }
-}
-
 const AssessmentsContext = createContext<AssessmentsContextType | undefined>(undefined);
 
+/** Map a database row to the client Assessment model. */
+function rowToAssessment(row: AssessmentRow): Assessment {
+  return {
+    id: row.display_id ?? row.id,
+    category: row.category,
+    name: row.name,
+    owner: row.owner ?? "",
+    date: (row.created_at ?? "").split("T")[0],
+    status: row.status as Assessment["status"],
+    riskLevel: row.risk_level as Assessment["riskLevel"],
+    riskScore: row.risk_score ?? 0,
+    tier: (row.tier as Assessment["tier"]) ?? "tier-3",
+    nextReview: row.next_review ?? undefined,
+    details: (row.details as Record<string, unknown>) ?? {},
+  };
+}
+
+/** Compute the next "DPIA-<year>-<seq>" reference from the existing set. */
+function nextDisplayId(existing: Assessment[]): string {
+  const maxNum = existing.reduce((max, a) => {
+    const match = a.id.match(/DPIA-\d{4}-(\d+)/);
+    return match ? Math.max(max, parseInt(match[1], 10)) : max;
+  }, 0);
+  return `DPIA-${new Date().getFullYear()}-${String(maxNum + 1).padStart(3, "0")}`;
+}
+
 export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
-  const [assessments, setAssessments] = useState<Assessment[]>(loadFromStorage);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const addAssessment = (assessment: Omit<Assessment, "id">) => {
-    setAssessments((prev) => {
-      const maxNum = prev.reduce((max, a) => {
-        const match = a.id.match(/DPIA-\d{4}-(\d+)/);
-        return match ? Math.max(max, parseInt(match[1], 10)) : max;
-      }, 0);
-      const newId = `DPIA-${new Date().getFullYear()}-${String(maxNum + 1).padStart(3, "0")}`;
-      const next = [{ ...assessment, id: newId }, ...prev];
-      saveToStorage(next);
-      return next;
-    });
-  };
+  const refresh = useCallback(async () => {
+    if (!userId) {
+      setAssessments([]);
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("assessments")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load assessments.");
+      setAssessments([]);
+    } else {
+      setAssessments((data ?? []).map(rowToAssessment));
+    }
+    setLoading(false);
+  }, [userId]);
 
-  const updateAssessment = (id: string, updates: Partial<Assessment>) => {
-    setAssessments((prev) => {
-      const next = prev.map((assessment) =>
-        assessment.id === id ? { ...assessment, ...updates } : assessment
-      );
-      saveToStorage(next);
-      return next;
-    });
-  };
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
-  const deleteAssessment = (id: string) => {
-    setAssessments((prev) => {
-      const next = prev.filter((assessment) => assessment.id !== id);
-      saveToStorage(next);
-      return next;
-    });
-  };
+  const addAssessment = useCallback(
+    async (assessment: Omit<Assessment, "id">) => {
+      if (!user) {
+        toast.error("You must be signed in to create an assessment.");
+        return;
+      }
+      const insert: AssessmentInsert = {
+        user_id: user.id,
+        display_id: nextDisplayId(assessments),
+        category: assessment.category,
+        name: assessment.name,
+        owner: assessment.owner,
+        status: assessment.status,
+        risk_level: assessment.riskLevel,
+        risk_score: assessment.riskScore,
+        tier: assessment.tier,
+        next_review: assessment.nextReview ?? null,
+        details: (assessment.details ?? {}) as AssessmentInsert["details"],
+      };
+      const { data, error } = await supabase
+        .from("assessments")
+        .insert(insert)
+        .select("*")
+        .single();
+      if (error || !data) {
+        toast.error("Failed to save assessment.");
+        return;
+      }
+      setAssessments((prev) => [rowToAssessment(data), ...prev]);
+    },
+    [user, assessments]
+  );
+
+  const updateAssessment = useCallback(
+    async (id: string, updates: Partial<Assessment>) => {
+      if (!user) return;
+      // Optimistic local update.
+      setAssessments((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)));
+
+      const patch: AssessmentUpdate = {};
+      if (updates.category !== undefined) patch.category = updates.category;
+      if (updates.name !== undefined) patch.name = updates.name;
+      if (updates.owner !== undefined) patch.owner = updates.owner;
+      if (updates.status !== undefined) patch.status = updates.status;
+      if (updates.riskLevel !== undefined) patch.risk_level = updates.riskLevel;
+      if (updates.riskScore !== undefined) patch.risk_score = updates.riskScore;
+      if (updates.tier !== undefined) patch.tier = updates.tier;
+      if (updates.nextReview !== undefined) patch.next_review = updates.nextReview ?? null;
+      if (updates.details !== undefined) patch.details = updates.details as AssessmentUpdate["details"];
+
+      const { error } = await supabase
+        .from("assessments")
+        .update(patch)
+        .eq("user_id", user.id)
+        .eq("display_id", id);
+      if (error) {
+        toast.error("Failed to update assessment.");
+        void refresh();
+      }
+    },
+    [user, refresh]
+  );
+
+  const deleteAssessment = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      const previous = assessments;
+      setAssessments((prev) => prev.filter((a) => a.id !== id));
+      const { error } = await supabase
+        .from("assessments")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("display_id", id);
+      if (error) {
+        toast.error("Failed to delete assessment.");
+        setAssessments(previous);
+      }
+    },
+    [user, assessments]
+  );
 
   const stats = {
     total: assessments.length,
@@ -187,7 +205,7 @@ export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AssessmentsContext.Provider
-      value={{ assessments, addAssessment, updateAssessment, deleteAssessment, stats }}
+      value={{ assessments, loading, addAssessment, updateAssessment, deleteAssessment, stats }}
     >
       {children}
     </AssessmentsContext.Provider>

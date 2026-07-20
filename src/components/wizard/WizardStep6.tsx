@@ -255,9 +255,8 @@ export const WizardStep6 = ({ data, setData }: WizardStepProps) => {
                             >
                               {threat.riskLevel}
                             </Badge>
-                            <Badge variant="outline" className="gap-1">
-                              <Sparkles className="w-3 h-3" />
-                              AI {threat.aiConfidence}%
+                            <Badge variant="outline" className="gap-1" title="Rule-match confidence from the deterministic threat engine (not an AI score)">
+                              Rule match {threat.ruleConfidence}%
                             </Badge>
                           </div>
                         </div>

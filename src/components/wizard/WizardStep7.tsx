@@ -230,8 +230,8 @@ export const WizardStep7 = ({ data, setData }: WizardStepProps) => {
                                 }>
                                   {threat.riskLevel}
                                 </Badge>
-                                <Badge variant="outline">
-                                  AI: {threat.aiConfidence > 1 ? threat.aiConfidence : Math.round(threat.aiConfidence * 100)}%
+                                <Badge variant="outline" title="Rule-match confidence from the deterministic threat engine (not an AI score)">
+                                  Rule match: {threat.ruleConfidence > 1 ? threat.ruleConfidence : Math.round(threat.ruleConfidence * 100)}%
                                 </Badge>
                               </div>
                             </div>

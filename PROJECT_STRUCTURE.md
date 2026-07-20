@@ -29,6 +29,7 @@ priveria/
 │   ├── App.tsx                  ← Main app entry point
 │   ├── main.tsx                 ← React initialization
 │   ├── pages/                   ← Page components (user-facing views)
+│   │   ├── Login.tsx            ← Sign in / sign up (auth gate)
 │   │   ├── Index.tsx            ← Home/Dashboard
 │   │   ├── DPIAWizard.tsx       ← Assessment creation
 │   │   ├── Assessments.tsx      ← Assessment list/history
@@ -58,7 +59,8 @@ priveria/
 │   │   └── [utilities]/         ← Other helper functions
 │   │
 │   ├── contexts/                ← Shared application state
-│   │   ├── AssessmentsContext   ← Assessment data
+│   │   ├── AuthContext          ← Supabase auth session (sign in/out)
+│   │   ├── AssessmentsContext   ← Assessment data (Supabase-backed)
 │   │   └── EnterpriseConfigContext ← Settings & config
 │   │
 │   ├── hooks/                   ← Custom React hooks

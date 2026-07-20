@@ -7,7 +7,12 @@ export interface LinddunThreat {
   likelihood: string;
   impact: string;
   riskLevel: string;
-  aiConfidence: number;
+  /**
+   * Rule-match confidence (0–100) from the deterministic LINDDUN/MAESTRO rule
+   * engine — NOT an AI/model output. Reflects how strongly the wizard inputs
+   * matched the rule that produced this threat.
+   */
+  ruleConfidence: number;
   validated: boolean;
   affectedData: string[];
   mitigations: string[];
@@ -22,7 +27,12 @@ export interface MaestroThreat {
   likelihood: number;
   impact: number;
   riskLevel: string;
-  aiConfidence: number;
+  /**
+   * Rule-match confidence (0–100) from the deterministic LINDDUN/MAESTRO rule
+   * engine — NOT an AI/model output. Reflects how strongly the wizard inputs
+   * matched the rule that produced this threat.
+   */
+  ruleConfidence: number;
   validated: boolean;
   affectedSystems: string[];
   mitigations: string[];

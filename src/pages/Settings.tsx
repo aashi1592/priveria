@@ -25,7 +25,7 @@ interface APIConnector {
 }
 
 const Settings = () => {
-  const { config, updateConfig } = useEnterpriseConfig();
+  const { config, updateConfig, enterpriseLicensed } = useEnterpriseConfig();
   const [formData, setFormData] = useState(config);
   const [apiConnectors, setApiConnectors] = useState<APIConnector[]>([
     { 
@@ -127,6 +127,27 @@ const Settings = () => {
       }
     }
     
+    // Enterprise flags require a server-validated license. If the user toggled
+    // any without one, updateConfig will drop them — tell them why rather than
+    // silently discarding the change.
+    const enterpriseKeys = [
+      "linddunEnabled", "maestroEnabled", "aiRiskScoringEnabled",
+      "aiVendorRecommendationsEnabled", "aiDocumentAnalysisEnabled",
+      "aiComplianceMonitoringEnabled", "aiNaturalLanguageQueryEnabled",
+      "cicdPolicyEnforcementEnabled", "cryptographicAuditTrailEnabled",
+      "multiGrcSyncEnabled", "governanceTelemetryEnabled", "w3cDpvOntologyEnabled",
+      "dynamicVendorManagementEnabled", "vendorRiskHeatmapsEnabled",
+      "cloudInfraTrackingEnabled", "humanInTheLoopEnabled", "changeDetectionEnabled",
+      "autoDataFlowDiagramsEnabled",
+    ] as const;
+    const attemptedEnterprise = enterpriseKeys.some((k) => formData[k]);
+
+    if (!enterpriseLicensed && attemptedEnterprise) {
+      toast.error("Enterprise features require a valid license", {
+        description: "These features stay disabled until a license is validated. Community settings were saved.",
+      });
+    }
+
     updateConfig(formData);
     toast.success("Settings saved successfully", {
       description: "Your configuration has been updated.",
@@ -170,6 +191,15 @@ const Settings = () => {
       />
 
       <div className="px-6 py-8 max-w-4xl mx-auto space-y-6">
+        {!enterpriseLicensed && (
+          <Alert className="border-amber-500/50 bg-amber-500/5">
+            <Lock className="w-4 h-4" />
+            <AlertDescription className="text-amber-900 dark:text-amber-100">
+              No active enterprise license was validated. Enterprise features below are
+              locked and cannot be enabled until a valid license is confirmed by the server.
+            </AlertDescription>
+          </Alert>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

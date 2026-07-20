@@ -2,6 +2,7 @@ import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { AuthProvider } from "./contexts/AuthContext";
 import { EnterpriseConfigProvider } from "./contexts/EnterpriseConfigContext";
 import { AssessmentsProvider } from "./contexts/AssessmentsContext";
 
@@ -30,11 +31,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <EnterpriseConfigProvider>
-        <AssessmentsProvider>
-          <App />
-        </AssessmentsProvider>
-      </EnterpriseConfigProvider>
+      <AuthProvider>
+        <EnterpriseConfigProvider>
+          <AssessmentsProvider>
+            <App />
+          </AssessmentsProvider>
+        </EnterpriseConfigProvider>
+      </AuthProvider>
     </ErrorBoundary>
   </StrictMode>
 );
