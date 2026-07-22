@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.validate-license]
 verify_jwt = false
+
+[functions.retrigger-scan]
+verify_jwt = false

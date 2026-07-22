@@ -6,6 +6,14 @@ Priveria is an open-source privacy governance project built to make Data Protect
 
 Priveria helps privacy, security, and legal teams collaborate on DPIAs, monitor third-party risk, and keep policies audit-ready. The platform ships with modern UX, thoughtful defaults, and optional AI-powered workflows so teams of any size can roll out a repeatable privacy program.
 
+## See it in action
+
+https://github.com/aashi1592/priveria/raw/main/docs/Priveria_Intro.mp4
+
+📄 [Intro deck (PDF)](docs/Priveria_Intro.pdf) · 📐 [Architecture](docs/ARCHITECTURE.md) · ⚙️ [Installation](docs/INSTALLATION.md)
+
+---
+
 ## Core Problem:
 Modern privacy risks does not stay still, but most DPIAs do.
 

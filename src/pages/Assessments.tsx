@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Search, Filter, Download, Eye, Edit, Trash2, ChevronDown } from "lucide-react";
 import { Assessment, useAssessments } from "@/contexts/AssessmentsContext";
+import { RetriggerRulesPanel } from "@/components/assessments/RetriggerRulesPanel";
 import { exportTemplates } from "@/lib/exportTemplates";
 import { downloadMarkdown, downloadHtml, downloadPdf } from "@/lib/reportDownload";
 import { toast } from "sonner";
@@ -395,7 +396,7 @@ const Assessments = () => {
                     {selectedAssessment.details && Object.keys(selectedAssessment.details).length > 0 ? (
                       <div className="space-y-3 text-sm">
                         {Object.entries(selectedAssessment.details)
-                          .filter(([, value]) => value !== undefined)
+                          .filter(([key, value]) => value !== undefined && key !== "retrigger")
                           .map(([key, value]) => (
                             <div key={key}>
                               <p className="text-muted-foreground">{formatKeyLabel(key)}</p>
@@ -408,6 +409,10 @@ const Assessments = () => {
                         This assessment does not have additional details captured yet.
                       </p>
                     )}
+                  </div>
+
+                  <div className="border-t border-border pt-4">
+                    <RetriggerRulesPanel assessment={selectedAssessment} />
                   </div>
                 </div>
               </ScrollArea>

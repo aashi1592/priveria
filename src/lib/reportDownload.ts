@@ -5,7 +5,6 @@
  */
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import jsPDF from "jspdf";
 import type { Assessment } from "@/contexts/AssessmentsContext";
 import type { ThreatRegisterEntry } from "@/lib/exportTemplates";
 import { exportTemplates } from "@/lib/exportTemplates";
@@ -169,6 +168,9 @@ export async function downloadPdf(assessment: Assessment, templateId: string) {
 
   document.body.removeChild(iframe);
 
+  // Lazy-load jsPDF so it (and html2canvas above) stay out of the main bundle;
+  // the PDF path is only reached when a user explicitly exports a PDF.
+  const { default: jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
