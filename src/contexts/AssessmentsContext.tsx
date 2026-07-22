@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { applyRetrigger } from "@/lib/retrigger";
 import type { Database } from "@/integrations/supabase/types";
 
 type AssessmentRow = Database["public"]["Tables"]["assessments"]["Row"];
@@ -143,8 +144,17 @@ export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const updateAssessment = useCallback(
-    async (id: string, updates: Partial<Assessment>) => {
+    async (id: string, incoming: Partial<Assessment>) => {
       if (!user) return;
+
+      // Re-trigger check (Level 2, change-based): if a watched attribute changed,
+      // send the DPIA back into review and record why before persisting.
+      const current = assessments.find((a) => a.id === id);
+      const { updates, fired, reason } = current
+        ? applyRetrigger(current, incoming, new Date().toISOString())
+        : { updates: incoming, fired: false, reason: "" };
+      if (fired) toast.info(reason);
+
       // Optimistic local update.
       setAssessments((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)));
 
@@ -169,7 +179,7 @@ export const AssessmentsProvider = ({ children }: { children: ReactNode }) => {
         void refresh();
       }
     },
-    [user, refresh]
+    [user, refresh, assessments]
   );
 
   const deleteAssessment = useCallback(
