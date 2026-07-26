@@ -357,7 +357,8 @@ Priveria is built in the open and grows through practitioner contributions. Ways
 - **Submit pull requests** — improvements to the wizard, calculator, integrations, or documentation are all welcome.
 - **Share threat patterns** — contribute reusable privacy threat models for AI, agentic, and high-risk processing scenarios.
 - **Pilot Priveria** — try it on an internal DPIA backlog and share lessons learned (anonymized) so the community benefits.
-- **Join the conversation** — use GitHub Discussions to debate scoring models, governance patterns, and roadmap priorities.
+- **Join the conversation** — use [GitHub Discussions](https://github.com/aashi1592/priveria/discussions) to debate scoring models, governance patterns, and roadmap priorities.
+- **Take the 2-minute survey** — tell us how you run DPIAs and what would make Priveria more useful: [share your feedback](https://form.typeform.com/to/ruKr9HdI).
 
 ---
 
@@ -370,7 +371,8 @@ We welcome pull requests and issue reports! Please review `CONTRIBUTING.md` for 
 ## Support & Community
 
 - **Issues & Feature Requests** – Use the GitHub Issues tab to report bugs or propose enhancements.
-- **Product Questions** – Start a discussion in GitHub Discussions or reach out to the maintainers.
+- **Product Questions** – Start a discussion in [GitHub Discussions](https://github.com/aashi1592/priveria/discussions) or reach out to the maintainers.
+- **Community Survey** – Help shape the roadmap by filling out our [feedback survey](https://form.typeform.com/to/ruKr9HdI).
 - **Slack Community** – Join the conversation on [Slack](https://decodedbycounsel.slack.com/archives/C0B615QH2Q0) for real-time support and community discussion.
 - **Security Concerns** – Email contactus@decodedbycounsel.com with details so we can investigate promptly.
 

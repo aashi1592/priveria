@@ -2,12 +2,13 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, HelpCircle, Github, ExternalLink, BookOpen, Mail, Heart, Sparkles, Users, Shield } from "lucide-react";
+import { MessageCircle, HelpCircle, Github, ExternalLink, BookOpen, Mail, Heart, Sparkles, Users, Shield, ClipboardList } from "lucide-react";
 
 const slackInviteUrl = "https://decodedbycounsel.slack.com/archives/C0B615QH2Q0";
 const githubUrl = "https://github.com/priveria/priveria";
 const docsUrl = "https://docs.priveria.dev";
 const emailSupport = "support@priveria.dev";
+const surveyUrl = "https://form.typeform.com/to/ruKr9HdI";
 
 const supportChannels = [
   {
@@ -34,6 +35,19 @@ const supportChannels = [
       variant: "outline" as const,
     },
     details: ["Issue tracking & bug reports", "Feature requests & RFCs", "Release notes & changelogs"],
+  },
+  {
+    title: "Community Survey",
+    description:
+      "Share how your team runs DPIAs and what would make Priveria more useful. Your input shapes the roadmap.",
+    icon: ClipboardList,
+    action: {
+      label: "Take the Survey",
+      href: surveyUrl,
+      variant: "default" as const,
+    },
+    badge: "New",
+    details: ["Takes ~2 minutes", "Anonymous & optional", "Directly informs the roadmap"],
   },
   {
     title: "Documentation",
@@ -131,6 +145,10 @@ const Community = () => {
                     <Github className="w-4 h-4" />
                     Star on GitHub
                   </Button>
+                  <Button variant="outline" onClick={() => window.open(surveyUrl, "_blank")} className="gap-2">
+                    <ClipboardList className="w-4 h-4" />
+                    Take the 2-min survey
+                  </Button>
                 </div>
               </div>
               <div className="hidden lg:flex flex-col items-end gap-3 text-sm text-muted-foreground">
@@ -147,6 +165,29 @@ const Community = () => {
                   <span>Open-source & free forever</span>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Feedback survey banner */}
+        <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardContent className="py-6 px-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <ClipboardList className="w-6 h-6" />
+              </div>
+              <div className="flex-1 text-center md:text-left space-y-1">
+                <h3 className="text-lg font-semibold">Help shape Priveria's roadmap</h3>
+                <p className="text-sm text-muted-foreground max-w-2xl">
+                  Tell us how you run DPIAs today and what would make Priveria more useful. It takes
+                  about two minutes and directly influences what we build next.
+                </p>
+              </div>
+              <Button onClick={() => window.open(surveyUrl, "_blank")} className="gap-2 shrink-0">
+                <ClipboardList className="w-4 h-4" />
+                Take the survey
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Button>
             </div>
           </CardContent>
         </Card>
