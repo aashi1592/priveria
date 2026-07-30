@@ -4,6 +4,7 @@ import getAssessmentTool from "./tools/get-assessment";
 import createAssessmentTool from "./tools/create-assessment";
 import listVendorsTool from "./tools/list-vendors";
 import summarizeRiskPostureTool from "./tools/summarize-risk-posture";
+import syncAssessmentToOneTrustTool from "./tools/sync-assessment-to-onetrust";
 
 // Issuer must be the direct Supabase host, built from the project ref literal.
 const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
