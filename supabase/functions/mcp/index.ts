@@ -425,13 +425,209 @@ var sync_assessment_to_onetrust_default = defineTool6({
   }
 });
 
+// src/lib/mcp/tools/list-policy-mappings.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.25.1";
+import { z as z6 } from "npm:zod@^3.25.76";
+var asArray = (v) => Array.isArray(v) ? v : [];
+var asString = (v) => typeof v === "string" ? v : "";
+var asStrings = (v) => Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim().length > 0) : [];
+function mappingStatus(safeguards) {
+  return safeguards.length === 0 ? "unmitigated" : "planned";
+}
+function buildMappings(details) {
+  const mappings = [];
+  asArray(details.risks).forEach((risk, i) => {
+    const safeguards = asStrings(risk.mitigations).concat(
+      asString(risk.mitigation) ? [asString(risk.mitigation)] : []
+    );
+    mappings.push({
+      source: "risk_register",
+      sourceId: asString(risk.id) || `RISK-${i + 1}`,
+      title: asString(risk.title) || asString(risk.name) || `Risk ${i + 1}`,
+      policyArea: asString(risk.category) || "General processing risk",
+      safeguards,
+      controlRationale: asString(risk.description) || "Mitigates a risk recorded in the DPIA risk register; controls must reduce residual risk to an acceptable tier.",
+      regulatoryReferences: ["GDPR Art. 35(7)(d)", "GDPR Art. 32"],
+      riskLevel: asString(risk.riskLevel) || asString(risk.level) || void 0,
+      status: mappingStatus(safeguards)
+    });
+  });
+  asArray(details.linddunThreats).forEach((threat, i) => {
+    const safeguards = asStrings(threat.mitigations);
+    mappings.push({
+      source: "linddun",
+      sourceId: `LINDDUN-${asString(threat.category) || i + 1}`,
+      title: asString(threat.name) || `LINDDUN threat ${i + 1}`,
+      policyArea: asString(threat.category) || "Privacy threat",
+      safeguards,
+      controlRationale: asString(threat.scenario) || asString(threat.description) || "LINDDUN-derived privacy threat requiring a technical or organisational safeguard.",
+      regulatoryReferences: ["GDPR Art. 25", "GDPR Art. 32", "ISO/IEC 27701"],
+      riskLevel: asString(threat.riskLevel) || void 0,
+      status: mappingStatus(safeguards)
+    });
+  });
+  asArray(details.maestroThreats).forEach((threat, i) => {
+    const safeguards = asStrings(threat.mitigations);
+    mappings.push({
+      source: "maestro",
+      sourceId: `MAESTRO-${asString(threat.category) || i + 1}`,
+      title: asString(threat.name) || `MAESTRO threat ${i + 1}`,
+      policyArea: asString(threat.category) || "Agentic AI layer",
+      safeguards,
+      controlRationale: asString(threat.scenario) || asString(threat.description) || "Agentic AI layer threat identified by the MAESTRO assessment; requires guardrails on autonomy, tool access, or memory.",
+      regulatoryReferences: ["EU AI Act Art. 9", "EU AI Act Art. 15", "ISO/IEC 42005"],
+      riskLevel: asString(threat.riskLevel) || void 0,
+      status: mappingStatus(safeguards)
+    });
+  });
+  const retention = asString(details.retention);
+  if (retention) {
+    mappings.push({
+      source: "processing_controls",
+      sourceId: "CTRL-RETENTION",
+      title: "Retention and deletion",
+      policyArea: "Storage limitation",
+      safeguards: [`Retain for ${retention}, then delete or anonymise`],
+      controlRationale: "Retention limits enforce storage limitation and support erasure requests; encode as an automated expiry rule in policy-as-code.",
+      regulatoryReferences: ["GDPR Art. 5(1)(e)", "GDPR Art. 17"],
+      status: "planned"
+    });
+  }
+  const legalBasis = asString(details.legalBasis);
+  if (legalBasis) {
+    mappings.push({
+      source: "processing_controls",
+      sourceId: "CTRL-LEGAL-BASIS",
+      title: `Legal basis: ${legalBasis}`,
+      policyArea: "Lawfulness of processing",
+      safeguards: [`Validate ${legalBasis} before processing; block on missing or withdrawn basis`],
+      controlRationale: "Every processing path must assert the recorded legal basis at runtime, including consent withdrawal handling.",
+      regulatoryReferences: ["GDPR Art. 6", "GDPR Art. 7"],
+      status: "planned"
+    });
+  }
+  if (details.crossBorder === true) {
+    mappings.push({
+      source: "processing_controls",
+      sourceId: "CTRL-TRANSFER",
+      title: "Cross-border transfer safeguards",
+      policyArea: "International transfers",
+      safeguards: ["Transfer mechanism (SCCs/adequacy) verified", "Transfer impact assessment on file"],
+      controlRationale: "Cross-border flows require a lawful transfer mechanism and supplementary measures before data leaves the EEA.",
+      regulatoryReferences: ["GDPR Ch. V", "GDPR Art. 46"],
+      status: "planned"
+    });
+  }
+  const additional = asString(details.additionalSafeguards);
+  if (additional) {
+    mappings.push({
+      source: "safeguards_step",
+      sourceId: "CTRL-ADDITIONAL",
+      title: "Additional safeguards",
+      policyArea: "Residual risk treatment",
+      safeguards: additional.split(/\n|;/).map((s) => s.trim()).filter(Boolean),
+      controlRationale: asString(details.residualRisk) || "Supplementary safeguards recorded by the assessor to bring residual risk within tolerance.",
+      regulatoryReferences: ["GDPR Art. 35(7)(d)"],
+      status: "implemented"
+    });
+  }
+  const monitoring = asString(details.monitoringPlan);
+  if (monitoring) {
+    mappings.push({
+      source: "safeguards_step",
+      sourceId: "CTRL-MONITORING",
+      title: "Ongoing monitoring plan",
+      policyArea: "Continuous governance",
+      safeguards: [monitoring],
+      controlRationale: "Continuous monitoring keeps the DPIA live as the system, model, or vendor set changes.",
+      regulatoryReferences: ["GDPR Art. 35(11)", "ISO/IEC 42005"],
+      status: "implemented"
+    });
+  }
+  return mappings;
+}
+var list_policy_mappings_default = defineTool7({
+  name: "list_policy_mappings",
+  title: "List policy mappings and safeguards",
+  description: "List the policy mappings, safeguards, and control rationales derived for a DPIA assessment \u2014 from the risk register, LINDDUN and MAESTRO threats, and the processing/safeguard controls \u2014 with regulatory references and coverage gaps.",
+  inputSchema: {
+    id: z6.string().describe("Assessment UUID or display id (e.g. DPIA-001)."),
+    source: z6.enum(["all", "risk_register", "linddun", "maestro", "processing_controls", "safeguards_step"]).optional().describe("Filter mappings by origin. Defaults to all."),
+    unmitigated_only: z6.boolean().optional().describe("Return only mappings that currently have no safeguard recorded.")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ id, source, unmitigated_only }, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
+    }
+    const supabase = supabaseForUser(ctx);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    const { data, error } = await supabase.from("assessments").select("id, display_id, name, status, risk_level, risk_score, legal_basis, retention_period, details").eq(isUuid ? "id" : "display_id", id).maybeSingle();
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (!data) {
+      return { content: [{ type: "text", text: `No assessment found for "${id}".` }], isError: true };
+    }
+    const details = data.details ?? {};
+    let mappings = buildMappings({
+      legalBasis: data.legal_basis ?? void 0,
+      retention: data.retention_period ?? void 0,
+      ...details
+    });
+    if (source && source !== "all") mappings = mappings.filter((m) => m.source === source);
+    if (unmitigated_only) mappings = mappings.filter((m) => m.status === "unmitigated");
+    const summary = {
+      assessmentId: data.id,
+      displayId: data.display_id,
+      name: data.name,
+      status: data.status,
+      riskLevel: data.risk_level,
+      riskScore: data.risk_score,
+      totalMappings: mappings.length,
+      unmitigated: mappings.filter((m) => m.status === "unmitigated").length,
+      safeguardCount: mappings.reduce((n, m) => n + m.safeguards.length, 0),
+      bySource: mappings.reduce((acc, m) => {
+        acc[m.source] = (acc[m.source] ?? 0) + 1;
+        return acc;
+      }, {})
+    };
+    if (mappings.length === 0) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `No policy mappings recorded for ${data.display_id ?? data.id}. Complete the risk register, threat modelling, or safeguards steps first.`
+          }
+        ],
+        structuredContent: { summary, mappings: [] }
+      };
+    }
+    const text = [
+      `Policy mappings for ${data.display_id ?? data.id} \u2014 ${data.name}`,
+      `${summary.totalMappings} mappings, ${summary.safeguardCount} safeguards, ${summary.unmitigated} unmitigated.`,
+      "",
+      ...mappings.map(
+        (m) => [
+          `- [${m.source}] ${m.sourceId}: ${m.title} (${m.policyArea}${m.riskLevel ? `, ${m.riskLevel} risk` : ""}) \u2014 ${m.status}`,
+          `  Rationale: ${m.controlRationale}`,
+          `  Safeguards: ${m.safeguards.length ? m.safeguards.join("; ") : "none recorded"}`,
+          `  References: ${m.regulatoryReferences.join(", ")}`
+        ].join("\n")
+      )
+    ].join("\n");
+    return {
+      content: [{ type: "text", text }],
+      structuredContent: { summary, mappings }
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "jbazqemqvbmusqdqxkeu";
 var mcp_default = defineMcp({
   name: "priveria",
   title: "priveria",
   version: "0.1.0",
-  instructions: "Privacy governance tools for Priveria. Use `list_assessments` and `get_assessment` to read DPIA / AI risk assessments, `create_assessment` to start a new intake, `list_vendors` for third-party risk, `summarize_risk_posture` for a portfolio-level privacy risk snapshot, and `sync_assessment_to_onetrust` to push an assessment to OneTrust and get sync status plus field mapping results. All tools act as the signed-in Priveria user.",
+  instructions: "Privacy governance tools for Priveria. Use `list_assessments` and `get_assessment` to read DPIA / AI risk assessments, `create_assessment` to start a new intake, `list_vendors` for third-party risk, `summarize_risk_posture` for a portfolio-level privacy risk snapshot, `list_policy_mappings` for the policy mappings, safeguards and control rationales of one assessment, and `sync_assessment_to_onetrust` to push an assessment to OneTrust and get sync status plus field mapping results. All tools act as the signed-in Priveria user.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
@@ -442,6 +638,7 @@ var mcp_default = defineMcp({
     create_assessment_default,
     list_vendors_default,
     summarize_risk_posture_default,
+    list_policy_mappings_default,
     sync_assessment_to_onetrust_default
   ]
 });
