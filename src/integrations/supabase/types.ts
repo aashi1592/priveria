@@ -19,20 +19,14 @@ export type Database = {
           category: string
           created_at: string
           data_categories: string[] | null
-          details: Json
-          display_id: string | null
           id: string
           legal_basis: string | null
           name: string
-          next_review: string | null
-          owner: string | null
           processing_purpose: string | null
           processing_type: string | null
           retention_period: string | null
           risk_level: string
-          risk_score: number
           status: string
-          tier: string | null
           updated_at: string
           user_id: string
         }
@@ -40,20 +34,14 @@ export type Database = {
           category: string
           created_at?: string
           data_categories?: string[] | null
-          details?: Json
-          display_id?: string | null
           id?: string
           legal_basis?: string | null
           name: string
-          next_review?: string | null
-          owner?: string | null
           processing_purpose?: string | null
           processing_type?: string | null
           retention_period?: string | null
           risk_level?: string
-          risk_score?: number
           status?: string
-          tier?: string | null
           updated_at?: string
           user_id: string
         }
@@ -61,20 +49,14 @@ export type Database = {
           category?: string
           created_at?: string
           data_categories?: string[] | null
-          details?: Json
-          display_id?: string | null
           id?: string
           legal_basis?: string | null
           name?: string
-          next_review?: string | null
-          owner?: string | null
           processing_purpose?: string | null
           processing_type?: string | null
           retention_period?: string | null
           risk_level?: string
-          risk_score?: number
           status?: string
-          tier?: string | null
           updated_at?: string
           user_id?: string
         }
