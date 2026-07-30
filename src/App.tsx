@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { lazy, Suspense } from "react";
 
 const Login = lazy(() => import("./pages/Login"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const Index = lazy(() => import("./pages/Index"));
 const Assessments = lazy(() => import("./pages/Assessments"));
 const AIModule = lazy(() => import("./pages/AIModule"));
@@ -44,6 +45,7 @@ const App = () => (
         <Suspense fallback={<div className="p-6">Loading...</div>}>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="/" element={<AppLayout><Index /></AppLayout>} />
             <Route path="/assessments" element={<AppLayout><Assessments /></AppLayout>} />
             <Route path="/ai-module" element={<AppLayout><AIModule /></AppLayout>} />

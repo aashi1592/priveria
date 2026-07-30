@@ -25,7 +25,12 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const redirectTo = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/";
+  // A `next` query param (used by the OAuth consent flow) takes priority over
+  // router state, but must be a same-origin relative path.
+  const rawNext = new URLSearchParams(location.search).get("next");
+  const safeNext = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+  const redirectTo =
+    safeNext ?? (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/";
 
   if (!loading && session) {
     return <Navigate to={redirectTo} replace />;
