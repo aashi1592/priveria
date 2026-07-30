@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "sdk_version": "0.25.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://jbazqemqvbmusqdqxkeu.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "priveria",
+      "version": "0.1.0",
+      "title": "priveria"
+    },
+    "tools": [
+      {
+        "name": "list_assessments",
+        "title": "List DPIA assessments",
+        "description": "List the signed-in user's DPIA / AI risk assessments with status, risk score, and risk level.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Optional status filter, e.g. draft, in_review, completed."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of assessments to return (default 25)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_assessment",
+        "title": "Get DPIA assessment",
+        "description": "Fetch one DPIA assessment in full, including processing details, data categories, legal basis, and the stored risk/threat details payload.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Assessment UUID, or the human-readable display id (e.g. DPIA-001)."
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_assessment",
+        "title": "Create DPIA assessment",
+        "description": "Create a new DPIA / AI risk assessment for the signed-in user. Use for intake; refine details later in the Priveria wizard.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Name of the system or processing activity."
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Assessment category, e.g. AI System, Vendor, Product."
+            },
+            "processing_purpose": {
+              "type": "string",
+              "description": "Why the personal data is processed."
+            },
+            "processing_type": {
+              "type": "string",
+              "description": "Processing type, e.g. Product/Application."
+            },
+            "legal_basis": {
+              "type": "string",
+              "description": "GDPR legal basis, e.g. Consent, Legitimate Interests."
+            },
+            "data_categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Categories of personal data processed."
+            },
+            "retention_period": {
+              "type": "string",
+              "description": "Retention period for the data."
+            },
+            "owner": {
+              "type": "string",
+              "description": "Accountable owner for this assessment."
+            },
+            "risk_score": {
+              "type": "number",
+              "description": "Initial risk score 0-100."
+            },
+            "risk_level": {
+              "type": "string",
+              "description": "Initial risk level: low, medium, high, or critical."
+            },
+            "status": {
+              "type": "string",
+              "description": "Initial status, defaults to draft."
+            }
+          },
+          "required": [
+            "name",
+            "category"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_vendors",
+        "title": "List third-party vendors",
+        "description": "List the signed-in user's third-party vendors with risk level, compliance status, jurisdiction, and certifications.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "risk_level": {
+              "type": "string",
+              "description": "Optional risk level filter: low, medium, high, critical."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of vendors to return (default 25)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "summarize_risk_posture",
+        "title": "Summarize privacy risk posture",
+        "description": "Aggregate the signed-in user's assessments and vendors into a portfolio risk snapshot: counts by status, risk level, average risk score, and high-risk items needing attention.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
