@@ -179,6 +179,35 @@
           "properties": {}
         },
         "outputSchema": null
+      },
+      {
+        "name": "sync_assessment_to_onetrust",
+        "title": "Sync assessment to OneTrust",
+        "description": "Trigger the OneTrust GRC integration for one DPIA assessment. Maps the Priveria assessment onto the OneTrust DPIA/processing-activity schema, pushes it when OneTrust credentials are configured, and returns sync status plus the field mapping results. Use dry_run to preview the mapping without calling OneTrust.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "assessment_id": {
+              "type": "string",
+              "description": "Assessment UUID or human-readable display id (e.g. DPIA-001) to sync."
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "When true, only compute and return the mapping without pushing to OneTrust."
+            }
+          },
+          "required": [
+            "assessment_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
