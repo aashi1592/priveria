@@ -181,6 +181,47 @@
         "outputSchema": null
       },
       {
+        "name": "list_policy_mappings",
+        "title": "List policy mappings and safeguards",
+        "description": "List the policy mappings, safeguards, and control rationales derived for a DPIA assessment — from the risk register, LINDDUN and MAESTRO threats, and the processing/safeguard controls — with regulatory references and coverage gaps.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Assessment UUID or display id (e.g. DPIA-001)."
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "all",
+                "risk_register",
+                "linddun",
+                "maestro",
+                "processing_controls",
+                "safeguards_step"
+              ],
+              "description": "Filter mappings by origin. Defaults to all."
+            },
+            "unmitigated_only": {
+              "type": "boolean",
+              "description": "Return only mappings that currently have no safeguard recorded."
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
         "name": "sync_assessment_to_onetrust",
         "title": "Sync assessment to OneTrust",
         "description": "Trigger the OneTrust GRC integration for one DPIA assessment. Maps the Priveria assessment onto the OneTrust DPIA/processing-activity schema, pushes it when OneTrust credentials are configured, and returns sync status plus the field mapping results. Use dry_run to preview the mapping without calling OneTrust.",
