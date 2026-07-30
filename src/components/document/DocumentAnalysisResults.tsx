@@ -115,12 +115,12 @@ export function DocumentAnalysisResults({ documentId, onLinkToDPIA }: DocumentAn
                         </p>
                         {entity.metadata && (
                           <div className="mt-1">
-                            {entity.metadata.description && (
+                            {Boolean(entity.metadata.description) && (
                               <p className="text-xs text-muted-foreground">
                                 {String(entity.metadata.description)}
                               </p>
                             )}
-                            {entity.metadata.severity && (
+                            {Boolean(entity.metadata.severity) && (
                               <Badge
                                 variant={
                                   entity.metadata.severity === 'high' ? 'destructive' :

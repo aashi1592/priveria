@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
 
 const DEFAULT_PORT = Number(process.env.PORT) || 5173;
 const DEFAULT_HOST = process.env.HOST ?? "127.0.0.1";
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     port: DEFAULT_PORT,
     strictPort: Boolean(process.env.PORT),
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), mcpPlugin(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
