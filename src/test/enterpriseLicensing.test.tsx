@@ -3,7 +3,7 @@ import { render, screen, waitFor, act } from "@testing-library/react";
 import type { LicenseValidationResult } from "@/lib/licenseService";
 
 // Mock the license service so tests control what the "server" authorizes.
-const validateLicenseMock = vi.fn<[], Promise<LicenseValidationResult>>();
+const validateLicenseMock = vi.fn<() => Promise<LicenseValidationResult>>();
 vi.mock("@/lib/licenseService", () => ({
   validateLicense: () => validateLicenseMock(),
 }));
