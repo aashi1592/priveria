@@ -10,10 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, AlertTriangle } from "lucide-react";
 
+type AuthorizationDetails = {
+  redirect_url?: string;
+  redirect_to?: string;
+  client?: { name?: string };
+} | null;
+
+type OAuthError = { message: string } | null;
+
+type OAuthResult = { data: AuthorizationDetails; error: OAuthError };
+
 type OAuthNamespace = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: any; error: any }>;
-  approveAuthorization: (id: string) => Promise<{ data: any; error: any }>;
-  denyAuthorization: (id: string) => Promise<{ data: any; error: any }>;
+  getAuthorizationDetails: (id: string) => Promise<OAuthResult>;
+  approveAuthorization: (id: string) => Promise<OAuthResult>;
+  denyAuthorization: (id: string) => Promise<OAuthResult>;
 };
 
 const oauth = () => (supabase.auth as unknown as { oauth: OAuthNamespace }).oauth;
@@ -21,7 +31,7 @@ const oauth = () => (supabase.auth as unknown as { oauth: OAuthNamespace }).oaut
 const OAuthConsent = () => {
   const [params] = useSearchParams();
   const authorizationId = params.get("authorization_id") ?? "";
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<AuthorizationDetails>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

@@ -30,9 +30,9 @@ const STATUS_MAP: Record<string, string> = {
 };
 
 /** Map a Priveria assessment row onto the OneTrust assessment/inventory shape. */
-function mapToOneTrust(assessment: Record<string, any>) {
-  const details = (assessment.details ?? {}) as Record<string, any>;
-  const risks: any[] = Array.isArray(details.risks) ? details.risks : [];
+function mapToOneTrust(assessment: Record<string, unknown>) {
+  const details = (assessment.details ?? {}) as Record<string, unknown>;
+  const risks: Array<Record<string, unknown>> = Array.isArray(details.risks) ? details.risks : [];
 
   return {
     assessment: {
@@ -53,7 +53,7 @@ function mapToOneTrust(assessment: Record<string, any>) {
       personalDataCategories: assessment.data_categories ?? [],
     },
     risks: risks.map((risk, index) => ({
-      externalId: risk.id ?? `${assessment.display_id ?? assessment.id}-R${index + 1}`,
+      externalId: risk.id ?? `${String(assessment.display_id ?? assessment.id)}-R${index + 1}`,
       name: risk.title ?? risk.name ?? `Risk ${index + 1}`,
       description: risk.description ?? null,
       likelihood: risk.likelihood ?? null,
@@ -114,7 +114,7 @@ export default defineTool({
       };
     }
 
-    const mapping = mapToOneTrust(assessment as Record<string, any>);
+    const mapping = mapToOneTrust(assessment as Record<string, unknown>);
     const syncedAt = new Date().toISOString();
 
     const apiKey = env("ONETRUST_API_KEY");
@@ -179,11 +179,11 @@ export default defineTool({
     }
 
     // Persist the sync outcome on the assessment so the app UI reflects it.
-    const details = (assessment.details ?? {}) as Record<string, any>;
+    const details = (assessment.details ?? {}) as Record<string, unknown>;
     const nextDetails = {
       ...details,
       integrations: {
-        ...(details.integrations ?? {}),
+        ...((details.integrations as Record<string, unknown>) ?? {}),
         onetrust: {
           syncStatus,
           syncedAt,
