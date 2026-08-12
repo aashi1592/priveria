@@ -14,6 +14,10 @@ https://github.com/aashi1592/priveria/raw/main/docs/Priveria_Intro.mp4
 
 ---
 
+> 📋 **Recognition:** Priveria is contributed to the **[NIST Privacy Engineering Collaboration Space](https://github.com/usnistgov/PrivacyEngCollabSpace/pull/63)** as a Privacy Risk Assessment tool.
+
+---
+
 ## Core Problem:
 Modern privacy risks does not stay still, but most DPIAs do.
 
