@@ -16,6 +16,8 @@ https://github.com/aashi1592/priveria/raw/main/docs/Priveria_Intro.mp4
 
 > 📋 **Recognition:** Priveria is contributed to the **[NIST Privacy Engineering Collaboration Space](https://github.com/usnistgov/PrivacyEngCollabSpace/pull/63)** as a Privacy Risk Assessment tool.
 
+> 📄 **Research:** Priveria is the reference implementation for the SSRN preprint **[From Static DPIAs to Living Privacy Threat Registers for AI Governance](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7399619)** (Kompella & Jain, 2026). See [How to cite this work](#how-to-cite-this-work).
+
 ---
 
 ## Core Problem:
@@ -379,6 +381,37 @@ We welcome pull requests and issue reports! Please review `CONTRIBUTING.md` for 
 - **Community Survey** – Help shape the roadmap by filling out our [feedback survey](https://form.typeform.com/to/ruKr9HdI).
 - **Slack Community** – Join the conversation on [Slack](https://decodedbycounsel.slack.com/archives/C0B615QH2Q0) for real-time support and community discussion.
 - **Security Concerns** – Email contactus@decodedbycounsel.com with details so we can investigate promptly.
+
+---
+
+## How to cite this work
+
+If you use Priveria in your research, tooling, or governance program, please cite the accompanying paper.
+
+**Paper:** From Static DPIAs to Living Privacy Threat Registers for AI Governance
+**Authors:** Vivek Kompella and Aashita Jain
+**Venue:** SSRN preprint (2026)
+**Link:** https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7399619
+
+A machine-readable [`CITATION.cff`](CITATION.cff) is included in this repository — GitHub renders a **"Cite this repository"** button from it, and tools like Zotero and `cffconvert` can import it directly.
+
+**Plain text**
+
+> Kompella, V., & Jain, A. (2026). *From Static DPIAs to Living Privacy Threat Registers for AI Governance* (SSRN preprint No. 7399619). https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7399619
+
+**BibTeX**
+
+```bibtex
+@misc{kompella2026priveria,
+  title        = {From Static DPIAs to Living Privacy Threat Registers for AI Governance},
+  author       = {Kompella, Vivek and Jain, Aashita},
+  year         = {2026},
+  month        = sep,
+  howpublished = {SSRN preprint},
+  note         = {Abstract ID 7399619},
+  url          = {https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7399619}
+}
+```
 
 ---
 

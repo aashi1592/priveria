@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use Priveria or build on this work, please cite the paper below."
+title: "From Static DPIAs to Living Privacy Threat Registers for AI Governance"
+authors:
+  - family-names: Kompella
+    given-names: Vivek
+    affiliation: "Independent Researcher"
+  - family-names: Jain
+    given-names: Aashita
+    affiliation: "Independent Researcher"
+abstract: >-
+  Data Protection Impact Assessments (DPIAs) are supposed to help organizations
+  reason about high-risk processing before harm occurs, but in practice they
+  often become one-time approval documents that no longer describe AI systems as
+  data sources, model versions, vendors, prompts, tools, retention behavior, and
+  autonomy levels change after release. This preprint develops the idea of a
+  living DPIA: a structured privacy threat register that links processing
+  context, legal reasoning, AI risk signals, mitigation ownership, and reusable
+  evidence, using Priveria — an open-source prototype built by the authors — as a
+  reference implementation.
+keywords:
+  - Data Protection Impact Assessment
+  - DPIA
+  - privacy engineering
+  - AI governance
+  - privacy threat modeling
+  - LINDDUN
+  - EU AI Act
+  - NIST AI RMF
+  - policy-as-code
+  - agentic AI
+license: Apache-2.0
+repository-code: "https://github.com/aashi1592/priveria"
+type: software
+preferred-citation:
+  type: article
+  title: "From Static DPIAs to Living Privacy Threat Registers for AI Governance"
+  authors:
+    - family-names: Kompella
+      given-names: Vivek
+    - family-names: Jain
+      given-names: Aashita
+  year: 2026
+  month: 9
+  notes: "SSRN preprint, abstract ID 7399619"
+  url: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7399619"
